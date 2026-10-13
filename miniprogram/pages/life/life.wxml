@@ -18,7 +18,7 @@
             <text class="w-range">{{weather.temp_min}}° ~ {{weather.temp_max}}° · 降水{{weather.rain_prob}}%</text>
           </view>
         </view>
-        <view class="advice">🤖 {{advice}}</view>
+        <view class="advice">{{advice}}</view>
       </block>
       <view wx:else class="muted">{{advice}}</view>
     </view>
