@@ -71,8 +71,10 @@ Page({
           const srcs = (d.sources || []).map(s => s.source);
           // 若本轮调用了 gen_document，则附带一份可编辑、可导出的材料
           const call = (d.tool_calls || []).find(t => t.name === 'gen_document' && t.result && t.result.ok);
+          const todoCall = (d.tool_calls || []).find(t => t.name === 'gen_todos' && t.result && t.result.ok);
           this.appendAssistant(d.reply || '（没有返回内容）', [...new Set(srcs)],
-            call ? call.result : null, d.agent || '', d.agent_name || '');
+            call ? call.result : null, d.agent || '', d.agent_name || '',
+            todoCall ? todoCall.result.todos : null);
         } else {
           this.appendAssistant('出错了：' + (d.error || '未知错误'));
         }
@@ -82,10 +84,11 @@ Page({
     });
   },
 
-  appendAssistant(content, sources, doc, agent, agentName) {
+  appendAssistant(content, sources, doc, agent, agentName, todos) {
     const messages = this.data.messages.concat([{
       role: 'assistant', content, sources, doc: doc || null,
-      agent: agent || '', agentName: agentName || ''
+      agent: agent || '', agentName: agentName || '',
+      todos: todos || null
     }]);
     this.setData({ messages }, this.scrollToBottom);
   },

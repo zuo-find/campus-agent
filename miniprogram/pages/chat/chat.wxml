@@ -18,6 +18,22 @@
         </view>
       </view>
 
+      <!-- 待办清单卡片 -->
+      <view wx:if="{{item.todos}}" class="todo-card">
+        <view class="tc-head"><view class="tc-badge">待办</view><text class="tc-title">关键时间点</text></view>
+        <view class="tc-item" wx:for="{{item.todos}}" wx:for-item="t" wx:key="title">
+          <view class="tc-dot {{t.urgent ? 'urgent' : ''}}"></view>
+          <view class="tc-main">
+            <text class="tc-t">{{t.title}}</text>
+            <text class="tc-note" wx:if="{{t.note}}">{{t.note}}</text>
+          </view>
+          <view class="tc-right">
+            <text class="tc-due">{{t.due_text}}</text>
+            <text class="tc-days {{t.urgent ? 'urgent' : ''}}">{{t.days_text}}</text>
+          </view>
+        </view>
+      </view>
+
       <!-- 材料卡片：可编辑字段、导出 Word -->
       <view wx:if="{{item.doc}}" class="doc-card">
         <view class="dc-head">

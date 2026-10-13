@@ -26,6 +26,9 @@ def main():
     if not os.path.isdir(DOCS_DIR):
         print(f"目录不存在：{DOCS_DIR}")
         return
+    if "--reset" in sys.argv:
+        store.reset()
+        print("已清空原知识库，开始重建索引…")
     total = 0
     for name in sorted(os.listdir(DOCS_DIR)):
         if name.startswith("."):

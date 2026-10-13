@@ -43,22 +43,33 @@ def _resolve_llm(llm: dict | None) -> tuple[OpenAI, str]:
 MAX_TOOL_ROUNDS = 4
 
 
-def route(user_message: str, llm: dict | None = None) -> str:
-    """路由：判断该由哪个 Agent 处理。失败则回退默认 Agent。"""
+def route(user_message: str, llm: dict | None = None) -> tuple[str, list[str]]:
+    """路由：返回 (该由哪个 Agent 处理, 检索关键词列表)。失败回退默认 Agent。"""
     try:
         client, model = _resolve_llm(llm)
         r = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": ROUTER_PROMPT + user_message}],
-            temperature=0, max_tokens=8,
+            temperature=0, max_tokens=48,
         )
         txt = (r.choices[0].message.content or "").strip()
-        for word, key in ROUTE_MAP.items():
+
+        key = DEFAULT_AGENT
+        for word, k in ROUTE_MAP.items():
             if word in txt:
-                return key
+                key = k
+                break
+
+        kws: list[str] = []
+        if "|" in txt:
+            tail = txt.split("|", 1)[1]
+            for w in tail.replace("，", " ").replace(",", " ").replace("、", " ").split():
+                w = w.strip(" 　|")
+                if w:
+                    kws.append(w)
+        return key, kws[:4]
     except Exception:
-        pass
-    return DEFAULT_AGENT
+        return DEFAULT_AGENT, []
 
 
 def chat(user_message: str, history: list[dict], ctx: ToolContext,
@@ -68,11 +79,14 @@ def chat(user_message: str, history: list[dict], ctx: ToolContext,
     llm:       用户自选的模型配置 {provider, api_key, model}，为空则用服务端默认。
     agent_key: 指定用哪个智能体；为空则先路由判断。
     """
-    key = agent_key if agent_key in AGENTS else route(user_message, llm)
+    if agent_key in AGENTS:
+        key, extra_q = agent_key, []
+    else:
+        key, extra_q = route(user_message, llm)
     adef = AGENTS.get(key) or AGENTS[DEFAULT_AGENT]
 
-    # 1) RAG 检索，把命中片段注入上下文
-    hits = store.retrieve(user_message)
+    # 1) RAG 检索（多查询：原句 + 路由产出的关键词），把命中片段注入上下文
+    hits = store.retrieve(user_message, extra_queries=extra_q)
     rag_block = ""
     if hits:
         rag_block = "\n\n【校园资料】\n" + "\n---\n".join(

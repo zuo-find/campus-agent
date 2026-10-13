@@ -6,6 +6,7 @@
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, date
 from typing import Any, Callable
@@ -86,6 +87,75 @@ def gen_document(ctx: ToolContext, doc_type: str, fields: dict | None = None) ->
     }
 
 
+# ---------------------------------------------------------------- 日程 / 待办
+
+_DATE_YMD = re.compile(r"(\d{4})\s*[-/年.]\s*(\d{1,2})\s*[-/月.]\s*(\d{1,2})")
+_DATE_MD = re.compile(r"(\d{1,2})\s*月\s*(\d{1,2})\s*[日号]")
+_DATE_SLASH = re.compile(r"(?<!\d)(\d{1,2})\s*[/-]\s*(\d{1,2})(?!\d)")
+
+
+def _parse_date(s: str | None):
+    """尽量容错地解析日期：2026-11-30 / 2026年11月30日 / 11月30日 / 11/30。"""
+    if not s:
+        return None
+    s = str(s).strip()
+    year = date.today().year
+    m = _DATE_YMD.search(s)
+    if m:
+        try:
+            return date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        except ValueError:
+            return None
+    m = _DATE_MD.search(s) or _DATE_SLASH.search(s)
+    if m:
+        try:
+            return date(year, int(m.group(1)), int(m.group(2)))
+        except ValueError:
+            return None
+    return None
+
+
+def gen_todos(ctx: ToolContext, items: list | None = None) -> dict:
+    """把从通知/资料里提取到的关键时间点整理成一份待办清单。"""
+    today = date.today()
+    out: list[dict] = []
+    for it in (items or []):
+        if not isinstance(it, dict):
+            continue
+        title = str(it.get("title") or it.get("事项") or it.get("name") or "").strip()
+        if not title:
+            continue
+        raw_due = str(it.get("due") or it.get("截止") or it.get("日期") or it.get("date") or "").strip()
+        note = str(it.get("note") or it.get("说明") or "").strip()
+        d = _parse_date(raw_due)
+        days = (d - today).days if d else None
+        if days is None:
+            days_text, urgent = "", False
+        elif days < 0:
+            days_text, urgent = "已过", False
+        elif days == 0:
+            days_text, urgent = "今天", True
+        else:
+            days_text, urgent = f"还有{days}天", days <= 7
+        out.append({
+            "title": title,
+            "due": d.isoformat() if d else raw_due,
+            "due_text": f"{d.month}月{d.day}日" if d else (raw_due or "待确认"),
+            "days_left": days,
+            "days_text": days_text,
+            "urgent": urgent,
+            "note": note,
+        })
+    out.sort(key=lambda x: (x["days_left"] is None,
+                            x["days_left"] if x["days_left"] is not None else 0))
+    return {
+        "ok": bool(out),
+        "today": today.isoformat(),
+        "todos": out,
+        "msg": "" if out else "没有提取到明确时间点。",
+    }
+
+
 # ---------------------------------------------------------------- DDL 提醒
 
 def list_ddls(ctx: ToolContext) -> dict:
@@ -154,6 +224,36 @@ TOOLS: dict[str, tuple[Callable[..., dict], dict]] = {
                     },
                 },
                 "required": ["doc_type"],
+            },
+        },
+    }),
+    "gen_todos": (gen_todos, {
+        "type": "function",
+        "function": {
+            "name": "gen_todos",
+            "description": (
+                "把从通知/资料中提取到的关键时间点整理成待办清单。"
+                "当用户问报名时间、赛程、材料提交截止、比赛安排，或要求'帮我整理提醒/待办'时调用。"
+                "请依据【校园资料】中的真实日期填入，不要编造；资料里没有的日期不要写。"
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "description": "关键时间点列表",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "title": {"type": "string", "description": "事项，如 报名、作品提交"},
+                                "due": {"type": "string", "description": "日期，如 2026-11-30 或 11月30日"},
+                                "note": {"type": "string", "description": "补充说明（可选），如 24:00截止"},
+                            },
+                            "required": ["title"],
+                        },
+                    },
+                },
+                "required": ["items"],
             },
         },
     }),

@@ -48,6 +48,23 @@
 .dc-btn.ghost { color: #1a73e8; border: 1rpx solid #cfe0fb; margin-right: 20rpx; }
 .dc-btn.primary { color: #fff; background: #1a73e8; }
 
+/* ---------- 待办清单卡片 ---------- */
+.todo-card { margin: 8rpx 24rpx 20rpx; background: #fff; border-radius: 18rpx; overflow: hidden;
+  border: 1rpx solid #f3e7d3; box-shadow: 0 8rpx 24rpx rgba(24,39,75,.06); }
+.tc-head { display: flex; align-items: center; padding: 22rpx 24rpx 12rpx; }
+.tc-badge { font-size: 20rpx; color: #d97706; background: #fff5e6; border-radius: 6rpx; padding: 4rpx 12rpx; margin-right: 14rpx; }
+.tc-title { flex: 1; font-size: 30rpx; font-weight: 600; color: #1a2233; }
+.tc-item { display: flex; align-items: center; padding: 18rpx 24rpx; border-top: 1rpx solid #f5f7fa; }
+.tc-dot { width: 12rpx; height: 12rpx; border-radius: 50%; background: #c6d0de; margin-right: 18rpx; flex-shrink: 0; }
+.tc-dot.urgent { background: #ff8a00; }
+.tc-main { flex: 1; min-width: 0; }
+.tc-t { display: block; font-size: 28rpx; color: #1a2233; }
+.tc-note { display: block; font-size: 22rpx; color: #9aa6b5; margin-top: 4rpx; }
+.tc-right { display: flex; flex-direction: column; align-items: flex-end; margin-left: 16rpx; }
+.tc-due { font-size: 24rpx; color: #5a6684; }
+.tc-days { font-size: 22rpx; color: #a6b0c0; margin-top: 4rpx; }
+.tc-days.urgent { color: #ff8a00; font-weight: 600; }
+
 /* ---------- 字段编辑弹层 ---------- */
 .de-mask { position: fixed; inset: 0; background: rgba(16,24,40,.5); z-index: 60; display: flex; align-items: flex-end; }
 .de-sheet { width: 100%; background: #fff; border-radius: 28rpx 28rpx 0 0; padding: 28rpx 32rpx 40rpx; box-sizing: border-box; }
