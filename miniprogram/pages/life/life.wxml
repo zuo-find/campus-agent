@@ -4,6 +4,7 @@
     <view class="seg-item {{tab=='home'?'on':''}}" data-tab="home" bindtap="switchTab">天气·校历</view>
     <view class="seg-item {{tab=='errand'?'on':''}}" data-tab="errand" bindtap="switchTab">快递外卖</view>
     <view class="seg-item {{tab=='lost'?'on':''}}" data-tab="lost" bindtap="switchTab">失物招领</view>
+    <view class="seg-item {{tab=='market'?'on':''}}" data-tab="market" bindtap="switchTab">二手市场</view>
   </view>
 
   <!-- ============ 天气 + 校历作息 ============ -->
@@ -64,6 +65,106 @@
       <text class="qr-close" catchtap="closeQr">关闭</text>
     </view>
   </view>
+
+  <!-- ============ 二手市场 ============ -->
+  <block wx:if="{{tab=='market'}}">
+    <scroll-view class="cat-bar" scroll-x>
+      <view class="cat-chip {{cat==item?'on':''}}" wx:for="{{cats}}" wx:key="*this" data-cat="{{item}}" bindtap="pickCat">{{item}}</view>
+    </scroll-view>
+
+    <view class="mk-hint">校园闲置交易 · 图片由卖家上传，交易请当面验货</view>
+
+    <view wx:if="{{goodsLoading}}" class="muted center">加载中…</view>
+
+    <view class="mk-grid" wx:if="{{goods.length}}">
+      <view class="mk-card" wx:for="{{goods}}" wx:key="id" data-id="{{item.id}}" bindtap="openItem">
+        <view class="mk-thumb">
+          <image wx:if="{{item.coverUrl}}" class="mk-img" src="{{item.coverUrl}}" mode="aspectFill" />
+          <view wx:else class="mk-ph" style="background:{{item.catColor}}">{{item.category}}</view>
+          <view class="mk-sold" wx:if="{{item.status=='sold'}}">已售出</view>
+        </view>
+        <view class="mk-body">
+          <text class="mk-title">{{item.title}}</text>
+          <view class="mk-prow">
+            <text class="mk-yen">¥</text><text class="mk-price">{{item.price}}</text>
+            <text class="mk-orig" wx:if="{{item.orig_price}}">¥{{item.orig_price}}</text>
+          </view>
+          <view class="mk-mm">
+            <text class="mk-cat">{{item.category}}</text>
+            <text class="mk-t">{{item.timeText}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{!goodsLoading && !goods.length}}" class="lf-empty">
+      <view class="empty-mark"></view>
+      <text class="empty-t">还没有宝贝</text>
+      <text class="empty-d">点右下角「＋」，发布你的第一个闲置</text>
+    </view>
+
+    <view class="mk-fab" bindtap="toggleSell">＋</view>
+
+    <!-- 发布表单 -->
+    <view class="mk-sheet-mask" wx:if="{{sellShow}}" bindtap="toggleSell">
+      <view class="mk-sheet" catchtap="noop">
+        <view class="sheet-h">发布闲置<text class="sheet-x" catchtap="toggleSell">✕</text></view>
+        <scroll-view class="sheet-body" scroll-y>
+          <input class="f-input" placeholder="宝贝标题，如 高等数学教材（上册）" value="{{gTitle}}" bindinput="onGTitle" />
+          <view class="mk-price-row">
+            <input class="f-input half" type="digit" placeholder="售价 ¥" value="{{gPrice}}" bindinput="onGPrice" />
+            <input class="f-input half" type="digit" placeholder="原价 ¥（选填）" value="{{gOrig}}" bindinput="onGOrig" />
+          </view>
+          <picker range="{{cats}}" value="{{gCatIdx}}" bindchange="onGCat">
+            <view class="picker">分类：{{cats[gCatIdx]}}</view>
+          </picker>
+          <textarea class="f-area" placeholder="描述一下成色、来源、可议价等" value="{{gDetail}}" bindinput="onGDetail" maxlength="300" />
+          <input class="f-input" placeholder="联系方式（微信/手机号）" value="{{gContact}}" bindinput="onGContact" />
+
+          <view class="img-picker">
+            <view class="img-item" wx:for="{{gImages}}" wx:key="*this">
+              <image class="img-thumb" src="{{item}}" mode="aspectFill" />
+              <view class="img-del" data-i="{{index}}" catchtap="removeImage">✕</view>
+            </view>
+            <view class="img-add" wx:if="{{gImages.length < 3}}" bindtap="chooseImages">
+              <text class="img-add-plus">＋</text><text class="img-add-t">添加图片</text>
+            </view>
+          </view>
+
+          <button class="btn-primary" bindtap="submitItem" disabled="{{uploading}}">{{uploading ? '发布中…' : '发布'}}</button>
+        </scroll-view>
+      </view>
+    </view>
+
+    <!-- 商品详情弹层 -->
+    <view class="mk-sheet-mask" wx:if="{{cur}}" bindtap="closeItem">
+      <view class="mk-detail" catchtap="noop">
+        <swiper wx:if="{{cur.imgUrls.length}}" class="d-swiper" indicator-dots circular>
+          <swiper-item wx:for="{{cur.imgUrls}}" wx:key="*this">
+            <image class="d-img" src="{{item}}" mode="aspectFill" />
+          </swiper-item>
+        </swiper>
+        <view wx:else class="d-ph" style="background:{{cur.catColor}}">{{cur.category}}</view>
+
+        <view class="d-body">
+          <view class="d-prow">
+            <text class="d-yen">¥</text><text class="d-price">{{cur.price}}</text>
+            <text class="d-orig" wx:if="{{cur.orig_price}}">原价 ¥{{cur.orig_price}}</text>
+          </view>
+          <text class="d-title">{{cur.title}}</text>
+          <view class="d-tags"><text class="d-tag">{{cur.category}}</text><text class="d-tag" wx:if="{{cur.status=='sold'}}">已售出</text></view>
+          <text class="d-detail" wx:if="{{cur.detail}}">{{cur.detail}}</text>
+          <view class="d-seller" wx:if="{{cur.contact}}">卖家联系方式：{{cur.contact}}</view>
+        </view>
+
+        <view class="d-btns">
+          <button class="btn-ghost flex1" bindtap="markSold">标记已售出</button>
+          <button class="btn-primary flex1" bindtap="callContact">复制联系方式</button>
+        </view>
+        <text class="d-close" bindtap="closeItem">关闭</text>
+      </view>
+    </view>
+  </block>
 
   <!-- ============ 失物招领 ============ -->
   <block wx:if="{{tab=='lost'}}">

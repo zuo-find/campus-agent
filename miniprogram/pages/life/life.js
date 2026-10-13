@@ -47,8 +47,16 @@ const JUMP = {
 
 Page({
   data: {
-    tab: 'home',               // home | errand | lost
+    tab: 'home',               // home | errand | lost | market
     weather: null, advice: '', wLoading: true,
+    // 二手市场
+    cats: ['全部', '教材书籍', '数码电子', '生活用品', '服饰鞋包', '运动户外', '其他'],
+    cat: '全部',
+    goods: [], goodsLoading: false,
+    sellShow: false,           // 发布表单
+    cur: null,                 // 当前查看的商品（详情弹层）
+    gTitle: '', gPrice: '', gOrig: '', gCatIdx: 0, gDetail: '', gContact: '',
+    gImages: [], uploading: false,
     // 失物招领
     lfKind: 'lost', lfList: [], lfLoading: false,
     showForm: false, fTitle: '', fLocation: '', fContact: '', fDetail: '',
@@ -106,6 +114,144 @@ Page({
     const tab = e.currentTarget.dataset.tab;
     this.setData({ tab });
     if (tab === 'lost') this.loadLost();
+    if (tab === 'market') this.loadMarket();
+  },
+
+  // ================= 二手市场 =================
+  // 把后端返回的 /uploads/xxx 拼成完整地址
+  _fixItem(it) {
+    const imgs = (it.images || []).map(p => API + p);
+    return { ...it, imgUrls: imgs, coverUrl: imgs[0] || '', timeText: fmtTime(it.created_at) };
+  },
+
+  noop() {},
+
+  loadMarket() {
+    this.setData({ goodsLoading: true });
+    const cat = this.data.cat === '全部' ? '' : this.data.cat;
+    wx.request({
+      url: API + '/life/market?category=' + encodeURIComponent(cat), timeout: 15000,
+      success: res => {
+        const d = res.data || {};
+        this.setData({ goods: (d.items || []).map(it => this._fixItem(it)) });
+      },
+      fail: () => wx.showToast({ title: '加载失败', icon: 'none' }),
+      complete: () => this.setData({ goodsLoading: false })
+    });
+  },
+
+  pickCat(e) {
+    const cat = e.currentTarget.dataset.cat;
+    this.setData({ cat }, this.loadMarket);
+  },
+
+  openItem(e) {
+    const id = e.currentTarget.dataset.id;
+    const cur = this.data.goods.find(g => g.id === id) || null;
+    this.setData({ cur });
+  },
+  closeItem() { this.setData({ cur: null }); },
+
+  callContact(e) {
+    const c = (this.data.cur && this.data.cur.contact) || '';
+    if (!c) { wx.showToast({ title: '卖家未留联系方式', icon: 'none' }); return; }
+    wx.setClipboardData({ data: c, success: () => wx.showToast({ title: '联系方式已复制', icon: 'none' }) });
+  },
+
+  markSold() {
+    const cur = this.data.cur;
+    if (!cur) return;
+    wx.showModal({
+      title: '标记已售出', content: '确认这件宝贝已卖出？',
+      success: r => {
+        if (!r.confirm) return;
+        wx.request({
+          url: API + '/life/market/' + cur.id + '/sold', method: 'POST',
+          success: () => { this.setData({ cur: null }, this.loadMarket); }
+        });
+      }
+    });
+  },
+
+  // ---- 发布表单 ----
+  toggleSell() { this.setData({ sellShow: !this.data.sellShow }); },
+  onGTitle(e) { this.setData({ gTitle: e.detail.value }); },
+  onGPrice(e) { this.setData({ gPrice: e.detail.value }); },
+  onGOrig(e) { this.setData({ gOrig: e.detail.value }); },
+  onGDetail(e) { this.setData({ gDetail: e.detail.value }); },
+  onGContact(e) { this.setData({ gContact: e.detail.value }); },
+  onGCat(e) { this.setData({ gCatIdx: Number(e.detail.value) }); },
+
+  chooseImages() {
+    const left = 3 - this.data.gImages.length;
+    if (left <= 0) { wx.showToast({ title: '最多 3 张', icon: 'none' }); return; }
+    wx.chooseMedia({
+      count: left, mediaType: ['image'], sizeType: ['compressed'],
+      success: r => {
+        const add = r.tempFiles.map(f => f.tempFilePath);
+        this.setData({ gImages: this.data.gImages.concat(add) });
+      }
+    });
+  },
+  removeImage(e) {
+    const i = e.currentTarget.dataset.i;
+    const gImages = this.data.gImages.slice();
+    gImages.splice(i, 1);
+    this.setData({ gImages });
+  },
+
+  // 上传一张图片，返回 Promise<url>
+  _uploadOne(path) {
+    return new Promise((resolve, reject) => {
+      wx.uploadFile({
+        url: API + '/life/market/upload', filePath: path, name: 'file',
+        success: r => {
+          try { const d = JSON.parse(r.data); d.ok ? resolve(d.url) : reject(d.msg); }
+          catch (e) { reject('上传失败'); }
+        },
+        fail: () => reject('上传失败')
+      });
+    });
+  },
+
+  submitItem() {
+    const { gTitle, gPrice, gOrig, gImages } = this.data;
+    if (!gTitle.trim()) { wx.showToast({ title: '请填宝贝标题', icon: 'none' }); return; }
+    if (!gPrice) { wx.showToast({ title: '请填价格', icon: 'none' }); return; }
+    this.setData({ uploading: true });
+    wx.showLoading({ title: '发布中…' });
+
+    Promise.all(gImages.map(p => this._uploadOne(p)))
+      .then(urls => {
+        wx.request({
+          url: API + '/life/market', method: 'POST', timeout: 20000,
+          data: {
+            title: gTitle.trim(),
+            price: Number(gPrice),
+            orig_price: gOrig ? Number(gOrig) : null,
+            category: this.data.cats[this.data.gCatIdx + 1] || '其他',
+            detail: this.data.gDetail,
+            images: urls,
+            contact: this.data.gContact
+          },
+          success: r => {
+            if ((r.data || {}).ok) {
+              wx.hideLoading();
+              wx.showToast({ title: '发布成功' });
+              this.setData({
+                sellShow: false, uploading: false,
+                gTitle: '', gPrice: '', gOrig: '', gDetail: '', gContact: '', gImages: [], gCatIdx: 0
+              }, this.loadMarket);
+            } else {
+              wx.hideLoading();
+              this.setData({ uploading: false });
+              wx.showToast({ title: (r.data || {}).msg || '发布失败', icon: 'none' });
+            }
+          },
+          fail: () => { wx.hideLoading(); this.setData({ uploading: false }); wx.showToast({ title: '发布失败', icon: 'none' }); }
+        });
+      })
+      .catch(() => { wx.hideLoading(); this.setData({ uploading: false }); wx.showToast({ title: '图片上传失败', icon: 'none' }); });
   },
 
   // ---- 天气

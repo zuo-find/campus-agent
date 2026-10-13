@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import agent, auth, life, providers
+from app import agent, auth, life, market, providers
 from app.tools import ToolContext
 from rag import store
 
@@ -16,8 +17,11 @@ app.add_middleware(
     CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
 )
 
-life.init_db()  # 启动即建失物招领表
-auth.init_db()  # 启动即建用户表
+life.init_db()    # 启动即建失物招领表
+auth.init_db()    # 启动即建用户表
+market.init_db()  # 启动即建二手市场表
+# 二手市场图片静态托管
+app.mount("/uploads", StaticFiles(directory=market.UPLOAD_DIR), name="uploads")
 
 
 class Course(BaseModel):
@@ -148,6 +152,48 @@ def life_lf_list(kind: str = ""):
 @app.post("/life/lostfound/{item_id}/close")
 def life_lf_close(item_id: int):
     return life.close_lost_found(item_id)
+
+
+# ------------------------------------------------------------ 二手市场
+
+class MarketReq(BaseModel):
+    title: str
+    price: float
+    orig_price: float | None = None
+    category: str = ""
+    detail: str = ""
+    images: list[str] = []
+    contact: str = ""
+
+
+@app.get("/life/market")
+def market_list(category: str = ""):
+    return market.list_items(category)
+
+
+@app.get("/life/market/{item_id}")
+def market_detail(item_id: int):
+    return market.get_item(item_id)
+
+
+@app.post("/life/market")
+def market_create(req: MarketReq):
+    return market.add_item(req.title, req.price, req.orig_price, req.category,
+                           req.detail, req.images, req.contact)
+
+
+@app.post("/life/market/{item_id}/sold")
+def market_sold(item_id: int):
+    return market.mark_sold(item_id)
+
+
+@app.post("/life/market/upload")
+async def market_upload(file: UploadFile = File(...)):
+    data = await file.read()
+    if len(data) > 8 * 1024 * 1024:
+        return {"ok": False, "msg": "图片过大（限 8MB）"}
+    url = market.save_image(data, file.filename or "img.jpg")
+    return {"ok": True, "url": url}
 
 
 # ------------------------------------------------------------ 微信登录

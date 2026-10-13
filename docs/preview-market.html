@@ -1,0 +1,66 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 二手市场网格 1:1 还原(1rpx=0.5px) */
+body{margin:0;background:#f5f6f8;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.cat-bar{padding:9px 8px 3px;white-space:nowrap;overflow:hidden}
+.cat-chip{display:inline-block;font-size:13px;color:#5a6684;background:#fff;border-radius:15px;padding:5px 13px;margin-right:7px;border:0.5px solid #e6ebf3}
+.cat-chip.on{background:#1a73e8;color:#fff;border-color:#1a73e8;font-weight:500}
+.mk-hint{font-size:11px;color:#a6b0c0;margin:6px 14px 2px}
+.mk-grid{display:flex;flex-wrap:wrap;padding:3px 9px 20px}
+.mk-card{width:calc(50% - 9px);margin:4.5px;background:#fff;border-radius:9px;overflow:hidden;box-shadow:0 3px 10px rgba(24,39,75,.06)}
+.mk-thumb{position:relative;width:100%;height:165px;background:#eef1f6}
+.mk-img{width:100%;height:100%}
+.mk-ph{width:100%;height:100%;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;opacity:.82}
+.mk-sold{position:absolute;left:0;top:0;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:3px 9px;border-radius:0 0 7px 0}
+.mk-body{padding:8px 9px 10px}
+.mk-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13.5px;color:#1a2233;line-height:1.4;height:38px}
+.mk-prow{display:flex;align-items:baseline;margin-top:6px}
+.mk-yen{color:#ff4d4f;font-size:11px;font-weight:600}
+.mk-price{color:#ff4d4f;font-size:18px;font-weight:700;margin-left:1px}
+.mk-orig{color:#b6c0cf;font-size:11px;text-decoration:line-through;margin-left:6px}
+.mk-mm{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.mk-cat{font-size:10px;color:#8c98ab;background:#f2f5fa;border-radius:4px;padding:2px 6px}
+.mk-t{font-size:10px;color:#b6c0cf}
+</style></head><body>
+<div class="cat-bar">
+  <span class="cat-chip on">全部</span><span class="cat-chip">教材书籍</span><span class="cat-chip">数码电子</span><span class="cat-chip">生活用品</span>
+</div>
+<div class="mk-hint">校园闲置交易 · 图片由卖家上传，交易请当面验货</div>
+<div class="mk-grid">
+  <div class="mk-card">
+    <div class="mk-thumb"><div class="mk-img" style="background:linear-gradient(135deg,#dbe7ff,#9fc2ff)"></div></div>
+    <div class="mk-body">
+      <div class="mk-title">高等数学教材（上册·第7版）</div>
+      <div class="mk-prow"><span class="mk-yen">¥</span><span class="mk-price">15</span><span class="mk-orig">¥42</span></div>
+      <div class="mk-mm"><span class="mk-cat">教材书籍</span><span class="mk-t">今天 11:26</span></div>
+    </div>
+  </div>
+  <div class="mk-card">
+    <div class="mk-thumb">
+      <div class="mk-ph" style="background:#7c3aed">数码电子</div>
+      <div class="mk-sold">已售出</div>
+    </div>
+    <div class="mk-body">
+      <div class="mk-title">蓝牙耳机（充电盒丢了）</div>
+      <div class="mk-prow"><span class="mk-yen">¥</span><span class="mk-price">30</span><span class="mk-orig">¥199</span></div>
+      <div class="mk-mm"><span class="mk-cat">数码电子</span><span class="mk-t">3天前</span></div>
+    </div>
+  </div>
+  <div class="mk-card">
+    <div class="mk-thumb"><div class="mk-img" style="background:linear-gradient(135deg,#cdeee0,#6fd3ab)"></div></div>
+    <div class="mk-body">
+      <div class="mk-title">宿舍小台灯 可调光 用了一学期</div>
+      <div class="mk-prow"><span class="mk-yen">¥</span><span class="mk-price">18</span><span class="mk-orig">¥59</span></div>
+      <div class="mk-mm"><span class="mk-cat">生活用品</span><span class="mk-t">昨天 20:11</span></div>
+    </div>
+  </div>
+  <div class="mk-card">
+    <div class="mk-thumb"><div class="mk-ph" style="background:#ec4899">服饰鞋包</div></div>
+    <div class="mk-body">
+      <div class="mk-title">学院风卫衣 全新 一次没穿过</div>
+      <div class="mk-prow"><span class="mk-yen">¥</span><span class="mk-price">45</span></div>
+      <div class="mk-mm"><span class="mk-cat">服饰鞋包</span><span class="mk-t">2天前</span></div>
+    </div>
+  </div>
+</div>
+</body></html>
