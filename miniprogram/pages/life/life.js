@@ -18,6 +18,22 @@ const CALENDAR = [
   { label: '寒假', date: '2027-01-18 起' }
 ];
 
+// 把 ISO 时间串(如 2026-10-13T11:26)转成"今天 11:26 / 昨天 / 3天前 / 10月13日"
+function fmtTime(iso) {
+  if (!iso) return '';
+  const d = new Date(String(iso).replace('T', ' ').replace(/-/g, '/'));
+  if (isNaN(d.getTime())) return String(iso);
+  const pad = n => (n < 10 ? '0' + n : '' + n);
+  const hm = pad(d.getHours()) + ':' + pad(d.getMinutes());
+  const today = new Date();
+  const d0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const diff = Math.round((d0 - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+  if (diff <= 0) return '今天 ' + hm;
+  if (diff === 1) return '昨天 ' + hm;
+  if (diff < 7) return diff + '天前';
+  return (d.getMonth() + 1) + '月' + d.getDate() + '日';
+}
+
 // ====== 跑腿/快递/外卖 跳转配置 ======
 // 两种跳转方式：
 //   mode:'appid'   有 AppID，一键跳转（wx.navigateToMiniProgram）
@@ -102,7 +118,15 @@ Page({
     this.setData({ lfLoading: true });
     wx.request({
       url: API + '/life/lostfound?kind=' + this.data.lfKind, timeout: 15000,
-      success: res => { const d=res.data||{}; this.setData({ lfList: d.items||[] }); },
+      success: res => {
+        const d = res.data || {};
+        const list = (d.items || []).map(it => ({
+          ...it,
+          isLost: it.kind === 'lost',
+          timeText: fmtTime(it.created_at)
+        }));
+        this.setData({ lfList: list });
+      },
       fail: () => wx.showToast({ title:'加载失败', icon:'none' }),
       complete: () => this.setData({ lfLoading: false })
     });
