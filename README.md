@@ -1,0 +1,73 @@
+# 校园服务智能体（AI+校园）· 微信小程序
+
+> 西安思源学院电子信息工程学院第二届计算机综合实践挑战赛 · **T4 AI 应用与软件开发赛**参赛作品
+>
+> 一款"能答会办"的校园服务智能体小程序：以 RAG 知识库问答为底座，叠加大模型 function-calling 工具调用，帮同学解答校园制度流程，并能查成绩、算绩点、生成请假条、整理 DDL。
+
+## 命中的 AI 能力（对应赛题要求「至少含一项」，本作品含三项）
+
+| AI 能力 | 实现 |
+|---|---|
+| RAG 知识库检索 | 校园制度文档切块入 Chroma 向量库，检索 top-k 片段并**标注来源**作答，不编造 |
+| 大模型问答 | DeepSeek 自然语言理解与生成，口语化应答 |
+| 工具调用（Agent） | 大模型 function-calling 自主决定调用 查成绩 / 算绩点 / 请假条 / DDL 四个工具 |
+
+## 目录结构
+
+```
+campus-agent/
+├─ backend/                FastAPI 后端
+│  ├─ app/
+│  │  ├─ main.py           API：/chat、/rag/upload、/health
+│  │  ├─ agent.py          Agent 核心：RAG 注入 + function-calling 循环
+│  │  ├─ config.py         配置（从 .env 读密钥）
+│  │  └─ tools/__init__.py 四个工具 + JSON Schema + 注册表
+│  ├─ rag/store.py         Chroma 向量库：切块 / 入库 / 检索
+│  ├─ scripts/ingest.py    批量导入 data/docs/ 下的校园文档
+│  ├─ tests/test_tools.py  工具层单元测试（7 条，纯逻辑可复现）
+│  └─ data/docs/           示例校园文档（请替换为学校官方文件）
+└─ miniprogram/            微信原生小程序
+   ├─ pages/chat/          问答（核心页，含来源标注、快捷提问）
+   ├─ pages/scores/        成绩录入 + 本地绩点计算
+   └─ pages/ddl/           DDL 清单（按紧急度排序）
+```
+
+## 快速开始
+
+### 后端
+
+```bash
+cd backend
+python -m venv .venv && .venv\Scripts\activate   # Windows
+pip install -r requirements.txt
+
+copy .env.example .env        # 然后填入 DeepSeek 密钥 LLM_API_KEY
+
+python scripts\ingest.py      # 导入 data/docs 下的校园文档到向量库
+uvicorn app.main:app --reload # 启动，默认 http://127.0.0.1:8000
+```
+
+验证：浏览器打开 `http://127.0.0.1:8000/health` 应返回 `docs_indexed` 数量。
+
+### 小程序
+
+1. 用微信开发者工具导入项目根目录（`campus-agent/`）。
+2. 本地调试：设置 → 关闭「不校验合法域名」。
+3. `miniprogram/app.js` 里 `apiBase` 默认指向本地后端，上线时改为 https 域名。
+
+### 跑测试
+
+```bash
+cd backend
+python -I tests\test_tools.py       # 或 python -I -m pytest tests/ -v
+```
+
+## 数据与合规说明
+
+- 成绩数据由用户在小程序本地录入，仅存手机 `wx.storage`，随对话发给后端做即时计算，**后端不落库、不爬取教务系统**，落地合规。
+- 校园制度文档请使用学校公开/授权文件；`data/docs/` 内为示例，须替换。
+- 大模型密钥通过 `.env` 注入，不入库、不进 git。
+
+## AI 工具使用声明
+
+见 `docs/AI工具使用声明.md`（随作品提交，对应赛事纪律要求）。

@@ -1,0 +1,14 @@
+{
+  "miniprogramRoot": "miniprogram/",
+  "appid": "touristappid",
+  "projectname": "campus-agent",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.5.0"
+}

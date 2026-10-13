@@ -1,0 +1,10 @@
+# 校园服务智能体 · 后端依赖
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+openai==1.51.0          # 用 OpenAI SDK 兼容接口调用 DeepSeek
+chromadb==0.5.5         # 本地向量库
+python-multipart==0.0.9 # 文件上传(RAG 文档导入)
+pypdf==5.0.1            # PDF 文档解析
+python-dotenv==1.0.1

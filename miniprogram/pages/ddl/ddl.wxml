@@ -1,0 +1,26 @@
+<view class="container">
+  <view class="card">
+    <view class="form-title">添加 DDL</view>
+    <input class="f-input" placeholder="事项，如：数据结构大作业" value="{{title}}" bindinput="onTitle" />
+    <picker mode="date" value="{{due}}" bindchange="onDate">
+      <view class="picker">{{due || '选择截止日期'}}</view>
+    </picker>
+    <button class="btn-primary" bindtap="add">添加</button>
+  </view>
+
+  <view wx:if="{{ddls.length}}">
+    <view class="card ddl-item" wx:for="{{ddls}}" wx:key="index">
+      <view class="ddl-left">
+        <text class="ddl-title">{{item.title}}</text>
+        <text class="ddl-due">截止 {{item.due}}</text>
+      </view>
+      <view class="ddl-right">
+        <text class="days {{item.daysLeft<0?'over':(item.daysLeft<=3?'urgent':'')}}">
+          {{item.daysLeft<0 ? '已过期' : (item.daysLeft==0 ? '今天' : item.daysLeft+'天')}}
+        </text>
+        <text class="ddl-del" data-i="{{index}}" bindtap="remove">删除</text>
+      </view>
+    </view>
+  </view>
+  <view wx:else class="tip">还没有 ddl，添加一个吧。也可以直接在「问答」里说"记一下 xx 作业"。</view>
+</view>

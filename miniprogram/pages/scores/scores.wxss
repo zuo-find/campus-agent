@@ -1,0 +1,19 @@
+.summary { display: flex; justify-content: space-around; }
+.sum-item { display: flex; flex-direction: column; align-items: center; }
+.sum-num { font-size: 48rpx; color: #1a73e8; font-weight: 600; }
+.sum-label { font-size: 24rpx; color: #888; margin-top: 8rpx; }
+
+.form-title { font-size: 30rpx; font-weight: 600; margin-bottom: 20rpx; }
+.form-row { display: flex; margin-bottom: 20rpx; }
+.f-input { flex: 1; background: #f0f1f3; border-radius: 10rpx; padding: 16rpx 20rpx; font-size: 28rpx; margin-right: 12rpx; }
+.f-input.flex2 { flex: 2; }
+.form-row .f-input:last-child { margin-right: 0; }
+
+.list-row { display: flex; align-items: center; padding: 18rpx 0; border-bottom: 1rpx solid #f0f0f0; font-size: 28rpx; }
+.list-row.head { color: #999; font-size: 24rpx; }
+.c-name { flex: 2; }
+.c-val { flex: 1; text-align: center; }
+.c-val.fail { color: #e53935; font-weight: 600; }
+.c-del { width: 60rpx; text-align: center; color: #e53935; }
+
+.tip { font-size: 24rpx; color: #aaa; text-align: center; margin: 24rpx; }

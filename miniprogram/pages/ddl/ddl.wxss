@@ -1,0 +1,15 @@
+.form-title { font-size: 30rpx; font-weight: 600; margin-bottom: 20rpx; }
+.f-input { background: #f0f1f3; border-radius: 10rpx; padding: 18rpx 20rpx; font-size: 28rpx; margin-bottom: 18rpx; }
+.picker { background: #f0f1f3; border-radius: 10rpx; padding: 18rpx 20rpx; font-size: 28rpx; color: #555; margin-bottom: 18rpx; }
+
+.ddl-item { display: flex; justify-content: space-between; align-items: center; }
+.ddl-left { display: flex; flex-direction: column; }
+.ddl-title { font-size: 30rpx; color: #222; }
+.ddl-due { font-size: 24rpx; color: #999; margin-top: 8rpx; }
+.ddl-right { display: flex; flex-direction: column; align-items: flex-end; }
+.days { font-size: 30rpx; color: #1a73e8; font-weight: 600; }
+.days.urgent { color: #fb8c00; }
+.days.over { color: #bbb; }
+.ddl-del { font-size: 22rpx; color: #e53935; margin-top: 10rpx; }
+
+.tip { font-size: 24rpx; color: #aaa; text-align: center; margin: 40rpx 24rpx; }

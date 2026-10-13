@@ -1,0 +1,15 @@
+# 密钥与本地配置
+backend/.env
+# 向量库数据
+backend/data/chroma/
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+# 小程序
+miniprogram/node_modules/
+# 系统
+.DS_Store
+Thumbs.db

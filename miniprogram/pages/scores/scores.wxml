@@ -1,0 +1,31 @@
+<view class="container">
+  <view class="card summary" wx:if="{{gpa}}">
+    <view class="sum-item"><text class="sum-num">{{gpa}}</text><text class="sum-label">平均绩点</text></view>
+    <view class="sum-item"><text class="sum-num">{{avg}}</text><text class="sum-label">加权均分</text></view>
+    <view class="sum-item"><text class="sum-num">{{courses.length}}</text><text class="sum-label">课程数</text></view>
+  </view>
+
+  <view class="card">
+    <view class="form-title">录入成绩</view>
+    <view class="form-row">
+      <input class="f-input flex2" placeholder="课程名" value="{{name}}" bindinput="onName" />
+      <input class="f-input" type="digit" placeholder="学分" value="{{credit}}" bindinput="onCredit" />
+      <input class="f-input" type="digit" placeholder="分数" value="{{score}}" bindinput="onScore" />
+    </view>
+    <button class="btn-primary" bindtap="add">添加</button>
+  </view>
+
+  <view class="card" wx:if="{{courses.length}}">
+    <view class="list-row head">
+      <text class="c-name">课程</text><text class="c-val">学分</text><text class="c-val">分数</text><text class="c-del"></text>
+    </view>
+    <view class="list-row" wx:for="{{courses}}" wx:key="index">
+      <text class="c-name">{{item.name}}</text>
+      <text class="c-val">{{item.credit}}</text>
+      <text class="c-val {{item.score<60?'fail':''}}">{{item.score}}</text>
+      <text class="c-del" data-i="{{index}}" bindtap="remove">删</text>
+    </view>
+  </view>
+
+  <view class="tip">成绩仅保存在你的手机本地，用于算绩点和问答，不上传服务器存储。</view>
+</view>

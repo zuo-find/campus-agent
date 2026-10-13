@@ -1,0 +1,25 @@
+{
+  "pages": [
+    "pages/chat/chat",
+    "pages/scores/scores",
+    "pages/ddl/ddl"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#1a73e8",
+    "navigationBarTitleText": "校园助手",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f6f8"
+  },
+  "tabBar": {
+    "color": "#8a8a8a",
+    "selectedColor": "#1a73e8",
+    "backgroundColor": "#ffffff",
+    "list": [
+      { "pagePath": "pages/chat/chat", "text": "问答" },
+      { "pagePath": "pages/scores/scores", "text": "成绩" },
+      { "pagePath": "pages/ddl/ddl", "text": "DDL" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
