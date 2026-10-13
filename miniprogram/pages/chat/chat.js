@@ -6,12 +6,12 @@ Page({
     input: '',
     loading: false,
     scrollTop: 0,
-    quickAsks: ['帮我算一下绩点', '请假3天怎么走流程', '挂科了怎么重修', '我最近有哪些ddl']
+    quickAsks: ['帮我算一下绩点', '请假3天怎么走流程', '挂科了怎么重修', '奖学金怎么评']
   },
 
   onLoad() {
     this.setData({
-      messages: [{ role: 'assistant', content: '你好！我是校园助手 👋 可以问我制度流程，也能帮你算绩点、查成绩、写请假条、看 ddl。' }]
+      messages: [{ role: 'assistant', content: '你好！我是校园助手 👋 可以问我制度流程，也能帮你算绩点、查成绩、写请假条。' }]
     });
   },
 

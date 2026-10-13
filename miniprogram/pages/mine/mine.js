@@ -26,7 +26,7 @@ Page({
     wx.showModal({
       title: type,
       content: type === '用户协议'
-        ? '本作品为校园服务智能体（T4 参赛作品）。登录仅用于识别身份、同步你录入的成绩与 DDL，不会收集或上传你的隐私信息。成绩数据保存在你的手机本地。'
+        ? '本作品为校园服务智能体（T4 参赛作品）。登录仅用于识别身份、同步你录入的成绩与使用数据，不会收集或上传你的隐私信息。成绩数据保存在你的手机本地。'
         : '我们仅在小程序内保存你的登录标识（openid）、昵称与头像，用于展示个人信息。不会向任何第三方共享，你可随时退出登录清除本地数据。',
       showCancel: false, confirmText: '我知道了'
     });
@@ -112,6 +112,5 @@ Page({
     });
   },
 
-  goScores() { wx.switchTab({ url: '/pages/scores/scores' }); },
-  goDdl() { wx.switchTab({ url: '/pages/ddl/ddl' }); }
+  goScores() { wx.switchTab({ url: '/pages/scores/scores' }); }
 });

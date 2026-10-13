@@ -18,8 +18,10 @@
 campus-agent/
 ├─ backend/                FastAPI 后端
 │  ├─ app/
-│  │  ├─ main.py           API：/chat、/rag/upload、/health
+│  │  ├─ main.py           API：/chat、/rag/upload、/life/*、/auth/*、/health
 │  │  ├─ agent.py          Agent 核心：RAG 注入 + function-calling 循环
+│  │  ├─ life.py           「生活」栏：天气/食堂推荐/失物招领
+│  │  ├─ auth.py           微信登录：code→openid→会话 token
 │  │  ├─ config.py         配置（从 .env 读密钥）
 │  │  └─ tools/__init__.py 四个工具 + JSON Schema + 注册表
 │  ├─ rag/store.py         Chroma 向量库：切块 / 入库 / 检索
@@ -29,7 +31,8 @@ campus-agent/
 └─ miniprogram/            微信原生小程序
    ├─ pages/chat/          问答（核心页，含来源标注、快捷提问）
    ├─ pages/scores/        成绩录入 + 本地绩点计算
-   └─ pages/ddl/           DDL 清单（按紧急度排序）
+   ├─ pages/life/          生活：天气·校历 / 食堂推荐 / 快递外卖 / 失物招领
+   └─ pages/mine/          我的：微信登录 + 个人中心
 ```
 
 ## 快速开始

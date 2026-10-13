@@ -12,7 +12,7 @@
   <view wx:if="{{!logged}}" class="login-card">
     <view class="avatar-ph"></view>
     <text class="login-title">登录校园助手</text>
-    <text class="login-sub">同步成绩 · DDL · 让 AI 更懂你</text>
+    <text class="login-sub">同步成绩 · 让 AI 更懂你</text>
 
     <button class="wx-btn" bindtap="wxLogin" disabled="{{logging}}">
       <view class="wx-logo">
@@ -48,7 +48,6 @@
 
     <view class="card menu">
       <view class="menu-item" bindtap="goScores"><text class="mi-ico">📊</text><text class="mi-txt">我的成绩</text><text class="arrow">›</text></view>
-      <view class="menu-item" bindtap="goDdl"><text class="mi-ico">⏰</text><text class="mi-txt">我的 DDL</text><text class="arrow">›</text></view>
     </view>
 
     <view class="card menu">
@@ -58,7 +57,7 @@
 
   <!-- 未登录：功能说明 -->
   <view wx:if="{{!logged}}" class="card feats">
-    <view class="feat"><text class="feat-ico">📊</text><view><text class="feat-t">成绩与 DDL 同步</text><text class="feat-d">换手机也不丢数据</text></view></view>
+    <view class="feat"><text class="feat-ico">📊</text><view><text class="feat-t">成绩同步</text><text class="feat-d">换手机也不丢数据</text></view></view>
     <view class="feat"><text class="feat-ico">🤖</text><view><text class="feat-t">AI 更懂你</text><text class="feat-d">记住你的偏好与课表</text></view></view>
     <view class="feat"><text class="feat-ico">📦</text><view><text class="feat-t">失物招领归属</text><text class="feat-d">发布记录绑定到你的账号</text></view></view>
   </view>
