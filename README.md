@@ -28,7 +28,7 @@ campus-agent/
 │  ├─ app/
 │  │  ├─ main.py           API：/chat、/rag/upload、/life/*、/auth/*、/health
 │  │  ├─ agent.py          Agent 核心：RAG 注入 + function-calling 循环
-│  │  ├─ life.py           「生活」栏：天气/食堂推荐/失物招领
+│  │  ├─ life.py           「生活」栏后端：天气/食堂推荐(接口保留)/失物招领
 │  │  ├─ auth.py           微信登录：code→openid→会话 token
 │  │  ├─ providers.py      大模型厂商注册表（8 家国内主流，OpenAI 兼容）
 │  │  ├─ config.py         配置（从 .env 读密钥）
@@ -40,7 +40,7 @@ campus-agent/
 └─ miniprogram/            微信原生小程序
    ├─ pages/chat/          问答（核心页，含来源标注、快捷提问）
    ├─ pages/scores/        成绩录入 + 本地绩点计算
-   ├─ pages/life/          生活：天气·校历 / 食堂推荐 / 快递外卖 / 失物招领
+   ├─ pages/life/          生活：天气·校历 / 快递外卖 / 失物招领
    ├─ pages/model/         选择大模型：切换厂商 + 填自己的 API Key
    └─ pages/mine/          我的：微信登录 + 个人中心
 ```

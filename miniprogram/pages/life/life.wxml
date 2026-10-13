@@ -2,7 +2,6 @@
   <!-- 顶部功能切换 -->
   <view class="seg">
     <view class="seg-item {{tab=='home'?'on':''}}" data-tab="home" bindtap="switchTab">天气·校历</view>
-    <view class="seg-item {{tab=='meal'?'on':''}}" data-tab="meal" bindtap="switchTab">食堂推荐</view>
     <view class="seg-item {{tab=='errand'?'on':''}}" data-tab="errand" bindtap="switchTab">快递外卖</view>
     <view class="seg-item {{tab=='lost'?'on':''}}" data-tab="lost" bindtap="switchTab">失物招领</view>
   </view>
@@ -35,26 +34,6 @@
       <view class="sec-title">校历速查</view>
       <view class="row" wx:for="{{calendar}}" wx:key="label">
         <text class="row-l">{{item.label}}</text><text class="row-r">{{item.date}}</text>
-      </view>
-    </view>
-  </block>
-
-  <!-- ============ 食堂推荐 ============ -->
-  <block wx:if="{{tab=='meal'}}">
-    <view class="card">
-      <view class="sec-title">今天吃什么？AI 帮你选</view>
-      <input class="f-input" placeholder="口味偏好，如 麻辣/清淡（可留空）" value="{{taste}}" bindinput="onTaste" />
-      <input class="f-input" type="digit" placeholder="预算上限（元，可留空）" value="{{budget}}" bindinput="onBudget" />
-      <picker range="{{['早餐','午餐','晚餐']}}" bindchange="onMeal">
-        <view class="picker">餐段：{{meal}}</view>
-      </picker>
-      <button class="btn-primary" bindtap="recommendMeal" disabled="{{mealLoading}}">{{mealLoading?'推荐中…':'给我推荐'}}</button>
-      <view wx:if="{{mealResult}}" class="advice">🍽️ {{mealResult}}</view>
-    </view>
-    <view class="card" wx:if="{{menu.length}}">
-      <view class="sec-title">今日菜单</view>
-      <view class="row" wx:for="{{menu}}" wx:key="name">
-        <text class="row-l">{{item.name}}</text><text class="row-r">{{item.price}}元 · {{item.taste}}</text>
       </view>
     </view>
   </block>

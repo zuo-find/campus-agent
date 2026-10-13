@@ -31,10 +31,8 @@ const JUMP = {
 
 Page({
   data: {
-    tab: 'home',               // home | meal | errand | lost
+    tab: 'home',               // home | errand | lost
     weather: null, advice: '', wLoading: true,
-    // 食堂
-    taste: '', budget: '', meal: '午餐', mealResult: '', menu: [], mealLoading: false,
     // 失物招领
     lfKind: 'lost', lfList: [], lfLoading: false,
     showForm: false, fTitle: '', fLocation: '', fContact: '', fDetail: '',
@@ -95,25 +93,6 @@ Page({
       },
       fail: () => this.setData({ advice: '连接后端失败，请确认后端已启动' }),
       complete: () => this.setData({ wLoading: false })
-    });
-  },
-
-  // ---- 食堂推荐
-  onTaste(e){ this.setData({ taste: e.detail.value }); },
-  onBudget(e){ this.setData({ budget: e.detail.value }); },
-  onMeal(e){ this.setData({ meal: ['早餐','午餐','晚餐'][e.detail.value] }); },
-  recommendMeal() {
-    this.setData({ mealLoading: true, mealResult: '' });
-    wx.request({
-      url: API + '/life/meal', method: 'POST', timeout: 30000,
-      data: { taste: this.data.taste, budget: Number(this.data.budget)||0, meal: this.data.meal },
-      success: res => {
-        const d = res.data || {};
-        if (d.ok) this.setData({ mealResult: d.recommend, menu: d.menu });
-        else this.setData({ mealResult: '推荐失败：' + (d.error||'') });
-      },
-      fail: () => this.setData({ mealResult: '连接后端失败' }),
-      complete: () => this.setData({ mealLoading: false })
     });
   },
 
