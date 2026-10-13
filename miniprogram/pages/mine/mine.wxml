@@ -8,11 +8,13 @@
     </view>
   </view>
 
-  <!-- 未登录：登录卡片 -->
+  <!-- 未登录：登录卡片（点头像即可登录） -->
   <view wx:if="{{!logged}}" class="login-card">
-    <view class="avatar-ph"></view>
+    <view class="avatar-tap" bindtap="tapAvatar">
+      <view class="avatar-ph"></view>
+    </view>
     <text class="login-title">登录校园助手</text>
-    <text class="login-sub">同步成绩 · 让 AI 更懂你</text>
+    <text class="login-sub">点上方头像，或下方按钮登录</text>
 
     <button class="wx-btn" bindtap="wxLogin" disabled="{{logging}}">
       <view class="wx-logo">
@@ -36,11 +38,14 @@
   <!-- 已登录：个人卡片 -->
   <block wx:else>
     <view class="me-card">
+      <view class="ok-banner {{justLogged ? 'show' : ''}}">✓ 登录成功</view>
+
       <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
         <image wx:if="{{user.avatar}}" class="avatar" src="{{user.avatar}}" mode="aspectFill" />
         <view wx:else class="avatar-ph small"></view>
-        <view class="cam">📷</view>
       </button>
+      <view class="avatar-hint" wx:if="{{pendingAvatar}}">点头像可使用微信头像</view>
+
       <input class="nick" type="nickname" value="{{user.nickname}}" placeholder="点击设置昵称"
              bindblur="onNickBlur" />
       <view class="uid">ID {{shortId}}</view>

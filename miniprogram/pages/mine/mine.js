@@ -7,8 +7,12 @@ Page({
     logged: false,
     logging: false,
     agreed: false,          // 是否勾选用户协议
-    shortId: ''
+    shortId: '',
+    justLogged: false,      // 登录成功横幅
+    pendingAvatar: false    // 登录后提示去设置头像昵称
   },
+
+  onUnload() { if (this._okTimer) clearTimeout(this._okTimer); },
 
   onShow() {
     const u = app.getUser();
@@ -20,6 +24,12 @@ Page({
   },
 
   toggleAgree() { this.setData({ agreed: !this.data.agreed }); },
+
+  // 未登录时点头像 = 一键登录
+  tapAvatar() {
+    if (this.data.logged) return;
+    this.wxLogin();
+  },
 
   openDoc(e) {
     const type = e.currentTarget.dataset.type;
@@ -55,8 +65,13 @@ Page({
                 nickname: prev.nickname || '微信用户', avatar: prev.avatar || ''
               };
               app.setUser(user);
-              this.setData({ user, logged: true, shortId: d.openid.slice(0, 12) + '…' });
-              wx.showToast({ title: '登录成功', icon: 'success' });
+              this.setData({
+                user, logged: true, shortId: d.openid.slice(0, 12) + '…',
+                justLogged: true, pendingAvatar: !user.avatar
+              });
+              // 横幅自动隐藏
+              if (this._okTimer) clearTimeout(this._okTimer);
+              this._okTimer = setTimeout(() => this.setData({ justLogged: false }), 2600);
             } else {
               this.fail('登录失败：' + (d.error || ''));
             }
@@ -79,7 +94,7 @@ Page({
     const avatar = e.detail.avatarUrl;
     const user = { ...app.getUser(), avatar };
     app.setUser(user);
-    this.setData({ user });
+    this.setData({ user, pendingAvatar: false });
     this.saveProfile({ avatar });
   },
 

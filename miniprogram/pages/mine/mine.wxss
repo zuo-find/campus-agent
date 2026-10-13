@@ -91,12 +91,22 @@
 .avatar-btn { padding: 0; margin: 0; background: transparent; line-height: 0; border: none; position: relative; }
 .avatar-btn::after { border: none; }
 .avatar { width: 140rpx; height: 140rpx; border-radius: 50%; background: #eaf1fe; }
-.cam {
-  position: absolute; right: 0; bottom: 4rpx;
-  width: 46rpx; height: 46rpx; border-radius: 50%; background: #1a73e8;
-  display: flex; align-items: center; justify-content: center; font-size: 24rpx;
-  border: 4rpx solid #fff;
+.avatar-tap { padding: 8rpx; border-radius: 50%; transition: background .15s; }
+.avatar-tap:active { background: #eef4fe; }
+.avatar-hint { font-size: 22rpx; color: #1a73e8; margin-top: 16rpx; }
+
+/* 登录成功横幅（浮在卡片顶部、头像上方） */
+.ok-banner {
+  position: absolute; left: 50%; top: 0;
+  transform: translate(-50%, -50%) scale(.9);
+  background: #0f9d63; color: #fff; font-size: 24rpx; font-weight: 500;
+  padding: 12rpx 32rpx; border-radius: 32rpx; white-space: nowrap;
+  box-shadow: 0 10rpx 24rpx rgba(15,157,99,.32);
+  opacity: 0; pointer-events: none;
+  transition: all .3s cubic-bezier(.2,.8,.3,1);
+  z-index: 5;
 }
+.ok-banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 .nick { font-size: 36rpx; font-weight: 600; color: #1a2b45; text-align: center; margin-top: 26rpx; width: 70%; }
 .uid { font-size: 22rpx; color: #b6c0cf; margin-top: 10rpx; }
 

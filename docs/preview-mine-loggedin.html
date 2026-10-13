@@ -1,0 +1,41 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 「我的」页 已登录态 + 登录成功横幅，1:1 还原(1rpx=0.5px) */
+body{margin:0;background:#f2f4f8;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.page{min-height:700px;background:#f2f4f8;box-sizing:border-box}
+.hero{height:230px;background:linear-gradient(160deg,#2b7cf0 0%,#1a73e8 45%,#4a9bff 100%);
+  border-radius:0 0 24px 24px;display:flex;align-items:flex-start;justify-content:center;padding-top:48px;box-sizing:border-box}
+.brand{display:flex;flex-direction:column;align-items:center}
+.brand-logo{width:54px;height:54px;border-radius:15px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:11px}
+.brand-name{color:#fff;font-size:20px;font-weight:600}
+.brand-slogan{color:rgba(255,255,255,.8);font-size:12px;margin-top:5px}
+.me-card{background:#fff;border-radius:12px;margin:-40px 20px 10px;padding:22px;position:relative;z-index:2;
+  box-shadow:0 6px 20px rgba(26,115,232,.12);display:flex;flex-direction:column;align-items:center}
+.ok-banner{position:absolute;left:50%;top:0;transform:translate(-50%,-50%) scale(1);background:#0f9d63;color:#fff;
+  font-size:12px;font-weight:500;padding:6px 16px;border-radius:16px;white-space:nowrap;
+  box-shadow:0 5px 12px rgba(15,157,99,.32);z-index:5}
+.avatar-ph{position:relative;width:70px;height:70px;border-radius:50%;background:linear-gradient(160deg,#dbe7ff,#c2d6ff);overflow:hidden}
+.avatar-ph::before{content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;background:#8fb3f0}
+.avatar-ph::after{content:'';position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:48px;height:36px;border-radius:24px 24px 0 0;background:#8fb3f0}
+.avatar-hint{font-size:11px;color:#1a73e8;margin-top:8px}
+.nick{font-size:18px;font-weight:600;color:#1a2b45;margin-top:13px}
+.uid{font-size:11px;color:#b6c0cf;margin-top:5px}
+.card{background:#fff;border-radius:10px;margin:10px 20px;box-shadow:0 2px 9px rgba(0,0,0,.03);padding:0 16px}
+.menu-item{display:flex;align-items:center;padding:16px 0;border-bottom:0.5px solid #f2f4f8;font-size:15px}
+.menu-item:last-child{border-bottom:none}
+.mi-ico{font-size:17px;margin-right:10px}
+.mi-txt{flex:1;color:#24324a}
+.mi-txt.danger{color:#e5484d}
+.arrow{color:#c6d0de;font-size:20px}
+</style></head><body><div class="page">
+  <div class="hero"><div class="brand"><div class="brand-logo">🎓</div><div class="brand-name">校园助手</div><div class="brand-slogan">你的校园 AI 伙伴</div></div></div>
+  <div class="me-card">
+    <div class="ok-banner">✓ 登录成功</div>
+    <div class="avatar-ph"></div>
+    <div class="avatar-hint">点头像可使用微信头像</div>
+    <div class="nick">微信用户</div>
+    <div class="uid">ID demo_3343f2d…</div>
+  </div>
+  <div class="card"><div class="menu-item"><span class="mi-ico">📊</span><span class="mi-txt">我的成绩</span><span class="arrow">›</span></div></div>
+  <div class="card"><div class="menu-item"><span class="mi-ico">🚪</span><span class="mi-txt danger">退出登录</span><span class="arrow">›</span></div></div>
+</div></body></html>
