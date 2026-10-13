@@ -5,7 +5,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app import agent
+from app import agent, life
 from app.tools import ToolContext
 from rag import store
 
@@ -15,6 +15,8 @@ app = FastAPI(title="校园服务智能体 API", version="0.1.0")
 app.add_middleware(
     CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
 )
+
+life.init_db()  # 启动即建失物招领表
 
 
 class Course(BaseModel):
@@ -68,3 +70,50 @@ async def rag_upload(file: UploadFile = File(...)):
         text = raw.decode("utf-8", errors="ignore")
     n = store.add_document(doc_id=name, text=text, source=name)
     return {"ok": True, "source": name, "chunks": n}
+
+
+# ------------------------------------------------------------ 「生活」栏
+
+@app.get("/life/weather")
+def life_weather():
+    try:
+        return {"ok": True, **life.weather_advice()}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+class MealReq(BaseModel):
+    taste: str = ""
+    budget: float = 0
+    meal: str = "午餐"
+
+
+@app.post("/life/meal")
+def life_meal(req: MealReq):
+    try:
+        return {"ok": True, **life.recommend_meal(req.taste, req.budget, req.meal)}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+class LostFoundReq(BaseModel):
+    kind: str            # lost / found
+    title: str
+    location: str = ""
+    contact: str = ""
+    detail: str = ""
+
+
+@app.post("/life/lostfound")
+def life_lf_add(req: LostFoundReq):
+    return life.add_lost_found(req.kind, req.title, req.location, req.contact, req.detail)
+
+
+@app.get("/life/lostfound")
+def life_lf_list(kind: str = ""):
+    return life.list_lost_found(kind)
+
+
+@app.post("/life/lostfound/{item_id}/close")
+def life_lf_close(item_id: int):
+    return life.close_lost_found(item_id)

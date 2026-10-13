@@ -1,0 +1,119 @@
+const app = getApp();
+const API = app.globalData.apiBase;
+
+// 校历/作息为静态数据，可按学校实际修改
+const SCHEDULE = [
+  { period: '第一大节', time: '08:00 - 09:40' },
+  { period: '第二大节', time: '10:00 - 11:40' },
+  { period: '午休', time: '11:40 - 14:00' },
+  { period: '第三大节', time: '14:00 - 15:40' },
+  { period: '第四大节', time: '16:00 - 17:40' },
+  { period: '晚自习', time: '19:00 - 21:00' }
+];
+const CALENDAR = [
+  { label: '开学', date: '2026-09-01' },
+  { label: '国庆假期', date: '2026-10-01 ~ 10-07' },
+  { label: '期中考试', date: '2026-11-09 ~ 11-13' },
+  { label: '期末考试', date: '2027-01-05 ~ 01-16' },
+  { label: '寒假', date: '2027-01-18 起' }
+];
+
+Page({
+  data: {
+    tab: 'home',               // home | meal | lost
+    weather: null, advice: '', wLoading: true,
+    // 食堂
+    taste: '', budget: '', meal: '午餐', mealResult: '', menu: [], mealLoading: false,
+    // 失物招领
+    lfKind: 'lost', lfList: [], lfLoading: false,
+    showForm: false, fTitle: '', fLocation: '', fContact: '', fDetail: '',
+    // 校历作息
+    schedule: SCHEDULE, calendar: CALENDAR
+  },
+
+  onLoad() { this.loadWeather(); },
+
+  switchTab(e) {
+    const tab = e.currentTarget.dataset.tab;
+    this.setData({ tab });
+    if (tab === 'lost') this.loadLost();
+  },
+
+  // ---- 天气
+  loadWeather() {
+    this.setData({ wLoading: true });
+    wx.request({
+      url: API + '/life/weather', timeout: 15000,
+      success: res => {
+        const d = res.data || {};
+        if (d.ok) this.setData({ weather: d.weather, advice: d.advice });
+        else this.setData({ advice: '天气加载失败：' + (d.error || '') });
+      },
+      fail: () => this.setData({ advice: '连接后端失败，请确认后端已启动' }),
+      complete: () => this.setData({ wLoading: false })
+    });
+  },
+
+  // ---- 食堂推荐
+  onTaste(e){ this.setData({ taste: e.detail.value }); },
+  onBudget(e){ this.setData({ budget: e.detail.value }); },
+  onMeal(e){ this.setData({ meal: ['早餐','午餐','晚餐'][e.detail.value] }); },
+  recommendMeal() {
+    this.setData({ mealLoading: true, mealResult: '' });
+    wx.request({
+      url: API + '/life/meal', method: 'POST', timeout: 30000,
+      data: { taste: this.data.taste, budget: Number(this.data.budget)||0, meal: this.data.meal },
+      success: res => {
+        const d = res.data || {};
+        if (d.ok) this.setData({ mealResult: d.recommend, menu: d.menu });
+        else this.setData({ mealResult: '推荐失败：' + (d.error||'') });
+      },
+      fail: () => this.setData({ mealResult: '连接后端失败' }),
+      complete: () => this.setData({ mealLoading: false })
+    });
+  },
+
+  // ---- 失物招领
+  switchLfKind(e){ this.setData({ lfKind: e.currentTarget.dataset.k }, this.loadLost); },
+  loadLost() {
+    this.setData({ lfLoading: true });
+    wx.request({
+      url: API + '/life/lostfound?kind=' + this.data.lfKind, timeout: 15000,
+      success: res => { const d=res.data||{}; this.setData({ lfList: d.items||[] }); },
+      fail: () => wx.showToast({ title:'加载失败', icon:'none' }),
+      complete: () => this.setData({ lfLoading: false })
+    });
+  },
+  toggleForm(){ this.setData({ showForm: !this.data.showForm }); },
+  onFTitle(e){ this.setData({ fTitle: e.detail.value }); },
+  onFLoc(e){ this.setData({ fLocation: e.detail.value }); },
+  onFContact(e){ this.setData({ fContact: e.detail.value }); },
+  onFDetail(e){ this.setData({ fDetail: e.detail.value }); },
+  submitLf() {
+    if (!this.data.fTitle) { wx.showToast({ title:'请填物品', icon:'none' }); return; }
+    wx.request({
+      url: API + '/life/lostfound', method: 'POST',
+      data: { kind: this.data.lfKind, title: this.data.fTitle, location: this.data.fLocation, contact: this.data.fContact, detail: this.data.fDetail },
+      success: res => {
+        if ((res.data||{}).ok) {
+          wx.showToast({ title:'发布成功' });
+          this.setData({ showForm:false, fTitle:'', fLocation:'', fContact:'', fDetail:'' }, this.loadLost);
+        } else wx.showToast({ title:'发布失败', icon:'none' });
+      },
+      fail: () => wx.showToast({ title:'连接失败', icon:'none' })
+    });
+  },
+  closeLf(e) {
+    const id = e.currentTarget.dataset.id;
+    wx.showModal({
+      title:'确认', content:'标记为已解决并下架？',
+      success: r => {
+        if (!r.confirm) return;
+        wx.request({
+          url: API + '/life/lostfound/' + id + '/close', method: 'POST',
+          success: () => this.loadLost()
+        });
+      }
+    });
+  }
+});

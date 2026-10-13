@@ -1,0 +1,92 @@
+<view class="container">
+  <!-- 顶部功能切换 -->
+  <view class="seg">
+    <view class="seg-item {{tab=='home'?'on':''}}" data-tab="home" bindtap="switchTab">天气·校历</view>
+    <view class="seg-item {{tab=='meal'?'on':''}}" data-tab="meal" bindtap="switchTab">食堂推荐</view>
+    <view class="seg-item {{tab=='lost'?'on':''}}" data-tab="lost" bindtap="switchTab">失物招领</view>
+  </view>
+
+  <!-- ============ 天气 + 校历作息 ============ -->
+  <block wx:if="{{tab=='home'}}">
+    <view class="card weather-card">
+      <view wx:if="{{wLoading}}" class="muted">天气加载中…</view>
+      <block wx:elif="{{weather}}">
+        <view class="w-top">
+          <text class="w-temp">{{weather.temp}}°</text>
+          <view class="w-meta">
+            <text class="w-city">{{weather.city}} · {{weather.desc}}</text>
+            <text class="w-range">{{weather.temp_min}}° ~ {{weather.temp_max}}° · 降水{{weather.rain_prob}}%</text>
+          </view>
+        </view>
+        <view class="advice">🤖 {{advice}}</view>
+      </block>
+      <view wx:else class="muted">{{advice}}</view>
+    </view>
+
+    <view class="card">
+      <view class="sec-title">作息时间</view>
+      <view class="row" wx:for="{{schedule}}" wx:key="period">
+        <text class="row-l">{{item.period}}</text><text class="row-r">{{item.time}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="sec-title">校历速查</view>
+      <view class="row" wx:for="{{calendar}}" wx:key="label">
+        <text class="row-l">{{item.label}}</text><text class="row-r">{{item.date}}</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ============ 食堂推荐 ============ -->
+  <block wx:if="{{tab=='meal'}}">
+    <view class="card">
+      <view class="sec-title">今天吃什么？AI 帮你选</view>
+      <input class="f-input" placeholder="口味偏好，如 麻辣/清淡（可留空）" value="{{taste}}" bindinput="onTaste" />
+      <input class="f-input" type="digit" placeholder="预算上限（元，可留空）" value="{{budget}}" bindinput="onBudget" />
+      <picker range="{{['早餐','午餐','晚餐']}}" bindchange="onMeal">
+        <view class="picker">餐段：{{meal}}</view>
+      </picker>
+      <button class="btn-primary" bindtap="recommendMeal" disabled="{{mealLoading}}">{{mealLoading?'推荐中…':'给我推荐'}}</button>
+      <view wx:if="{{mealResult}}" class="advice">🍽️ {{mealResult}}</view>
+    </view>
+    <view class="card" wx:if="{{menu.length}}">
+      <view class="sec-title">今日菜单</view>
+      <view class="row" wx:for="{{menu}}" wx:key="name">
+        <text class="row-l">{{item.name}}</text><text class="row-r">{{item.price}}元 · {{item.taste}}</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ============ 失物招领 ============ -->
+  <block wx:if="{{tab=='lost'}}">
+    <view class="lf-head">
+      <view class="seg small">
+        <view class="seg-item {{lfKind=='lost'?'on':''}}" data-k="lost" bindtap="switchLfKind">我丢了</view>
+        <view class="seg-item {{lfKind=='found'?'on':''}}" data-k="found" bindtap="switchLfKind">我捡到</view>
+      </view>
+      <button class="mini-btn" bindtap="toggleForm">{{showForm?'收起':'+ 发布'}}</button>
+    </view>
+
+    <view class="card" wx:if="{{showForm}}">
+      <input class="f-input" placeholder="物品，如 黑色雨伞/校园卡" value="{{fTitle}}" bindinput="onFTitle" />
+      <input class="f-input" placeholder="地点，如 三教201" value="{{fLocation}}" bindinput="onFLoc" />
+      <input class="f-input" placeholder="联系方式" value="{{fContact}}" bindinput="onFContact" />
+      <input class="f-input" placeholder="补充描述（可留空）" value="{{fDetail}}" bindinput="onFDetail" />
+      <button class="btn-primary" bindtap="submitLf">发布</button>
+    </view>
+
+    <view wx:if="{{lfLoading}}" class="muted center">加载中…</view>
+    <view class="card lf-item" wx:for="{{lfList}}" wx:key="id">
+      <view class="lf-main">
+        <view class="lf-title">{{item.kind=='lost'?'🔴 丢失':'🟢 捡到'}} {{item.title}}</view>
+        <view class="lf-sub" wx:if="{{item.location}}">📍 {{item.location}}</view>
+        <view class="lf-sub" wx:if="{{item.detail}}">{{item.detail}}</view>
+        <view class="lf-sub" wx:if="{{item.contact}}">📞 {{item.contact}}</view>
+        <view class="lf-time">{{item.created_at}}</view>
+      </view>
+      <text class="lf-close" data-id="{{item.id}}" bindtap="closeLf">已解决</text>
+    </view>
+    <view wx:if="{{!lfLoading && !lfList.length}}" class="muted center">暂无记录，点右上角发布一条～</view>
+  </block>
+</view>
