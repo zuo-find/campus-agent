@@ -87,6 +87,7 @@
 }
 .cap-chip:last-child { margin-right: 0; }
 .cap-chip:active { background: #f3f6fb; }
+.cap-hover { background: #eaf1fe; }
 .cap-dot { width: 12rpx; height: 12rpx; border-radius: 50%; margin-right: 10rpx; flex-shrink: 0; }
 .cap-dot.qa { background: #1a73e8; }
 .cap-dot.doc { background: #10b981; }

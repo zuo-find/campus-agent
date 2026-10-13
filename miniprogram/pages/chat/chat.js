@@ -54,14 +54,18 @@ Page({
 
   // 能力入口：点了直接发一句能触发对应 Agent 的话
   onCap(e) {
-    const key = e.currentTarget.dataset.key;
+    const key = (e.currentTarget.dataset.cap || '').trim();
     if (key === 'doc') { this.setData({ docPick: true }); return; }
     const preset = {
       qa: '挂科了怎么重修？',
       schedule: '这次院内挑战赛什么时候报名、什么时候交作品？',
       study: '蓝桥杯该怎么备赛？我的动态规划比较弱'
     }[key];
-    if (preset) this.setData({ input: preset }, () => this.send());
+    if (preset) {
+      this.setData({ input: preset }, () => this.send());
+    } else {
+      wx.showToast({ title: '未识别的入口：' + key, icon: 'none' });
+    }
   },
   closeDocPick() { this.setData({ docPick: false }); },
   pickDocType(e) {
