@@ -36,3 +36,12 @@
 .lf-sub { font-size: 25rpx; color: #777; margin-top: 8rpx; }
 .lf-time { font-size: 22rpx; color: #bbb; margin-top: 10rpx; }
 .lf-close { font-size: 24rpx; color: #1a73e8; padding: 6rpx 12rpx; }
+
+/* 快递外卖 跳转卡片 */
+.jump-card { display: flex; align-items: center; background: #fff; border-radius: 16rpx; margin: 20rpx 24rpx; padding: 28rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,.04); }
+.jump-icon { font-size: 52rpx; margin-right: 24rpx; }
+.jump-main { flex: 1; display: flex; flex-direction: column; }
+.jump-title { font-size: 32rpx; color: #222; font-weight: 500; }
+.jump-sub { font-size: 25rpx; color: #999; margin-top: 8rpx; }
+.jump-arrow { font-size: 44rpx; color: #ccc; }
+.tip { font-size: 24rpx; color: #aaa; text-align: center; margin: 24rpx; }

@@ -3,6 +3,7 @@
   <view class="seg">
     <view class="seg-item {{tab=='home'?'on':''}}" data-tab="home" bindtap="switchTab">天气·校历</view>
     <view class="seg-item {{tab=='meal'?'on':''}}" data-tab="meal" bindtap="switchTab">食堂推荐</view>
+    <view class="seg-item {{tab=='errand'?'on':''}}" data-tab="errand" bindtap="switchTab">快递外卖</view>
     <view class="seg-item {{tab=='lost'?'on':''}}" data-tab="lost" bindtap="switchTab">失物招领</view>
   </view>
 
@@ -56,6 +57,26 @@
         <text class="row-l">{{item.name}}</text><text class="row-r">{{item.price}}元 · {{item.taste}}</text>
       </view>
     </view>
+  </block>
+
+  <!-- ============ 快递外卖（跳转第三方小程序） ============ -->
+  <block wx:if="{{tab=='errand'}}">
+    <view class="jump-card" data-key="express_take" bindtap="jumpTo">
+      <view class="jump-icon">📦</view>
+      <view class="jump-main"><text class="jump-title">快递代取</text><text class="jump-sub">帮我从驿站取快递</text></view>
+      <text class="jump-arrow">›</text>
+    </view>
+    <view class="jump-card" data-key="express_send" bindtap="jumpTo">
+      <view class="jump-icon">📮</view>
+      <view class="jump-main"><text class="jump-title">快递收寄</text><text class="jump-sub">寄快递 / 上门取件</text></view>
+      <text class="jump-arrow">›</text>
+    </view>
+    <view class="jump-card" data-key="takeout" bindtap="jumpTo">
+      <view class="jump-icon">🍱</view>
+      <view class="jump-main"><text class="jump-title">外卖</text><text class="jump-sub">点外卖 · 美团</text></view>
+      <text class="jump-arrow">›</text>
+    </view>
+    <view class="tip">点击将跳转到对应小程序。首次需在对方开发平台完成小程序关联。</view>
   </block>
 
   <!-- ============ 失物招领 ============ -->

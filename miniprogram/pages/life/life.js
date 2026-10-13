@@ -18,9 +18,19 @@ const CALENDAR = [
   { label: '寒假', date: '2027-01-18 起' }
 ];
 
+// ====== 跑腿/快递/外卖 跳转配置（把下面占位 AppID 换成真实值即可）======
+// 快递代取、快递收寄 = 你自己的快递小程序：填同一个 AppID（如两项是不同小程序就分别填）
+// path 可选：跳转后落地的页面路径（含参数），留空则进对方首页
+// 外卖 = 第三方，默认美团外卖（AppID 公开）
+const JUMP = {
+  express_take: { appId: '', path: '', name: '快递代取' },   // TODO: 填你的快递小程序 AppID
+  express_send: { appId: '', path: '', name: '快递收寄' },   // TODO: 同上（可与上面相同）
+  takeout:      { appId: 'wxde8ac0a21135c07d', path: '', name: '外卖(美团)' }
+};
+
 Page({
   data: {
-    tab: 'home',               // home | meal | lost
+    tab: 'home',               // home | meal | errand | lost
     weather: null, advice: '', wLoading: true,
     // 食堂
     taste: '', budget: '', meal: '午餐', mealResult: '', menu: [], mealLoading: false,
@@ -32,6 +42,28 @@ Page({
   },
 
   onLoad() { this.loadWeather(); },
+
+  // 跳转到快递/外卖小程序
+  jumpTo(e) {
+    const key = e.currentTarget.dataset.key;
+    const cfg = JUMP[key];
+    if (!cfg) return;
+    if (!cfg.appId) {
+      wx.showModal({
+        title: cfg.name, showCancel: false,
+        content: '还没配置该小程序的 AppID。请在 pages/life/life.js 顶部 JUMP 配置里填入 appId。'
+      });
+      return;
+    }
+    wx.navigateToMiniProgram({
+      appId: cfg.appId,
+      path: cfg.path || '',
+      fail: (err) => {
+        wx.showToast({ title: '跳转失败，检查 AppID 与关联', icon: 'none' });
+        console.error('navigateToMiniProgram fail:', err);
+      }
+    });
+  },
 
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab;
