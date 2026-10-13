@@ -1,7 +1,7 @@
 <view class="chat-container">
   <!-- 当前模型条：点开可切换厂商、填自己的 Key -->
   <view class="model-bar" bindtap="goModel">
-    <text class="mb-dot">🤖</text>
+    <view class="mb-dot"></view>
     <text class="mb-name">{{modelLabel}}</text>
     <text class="mb-switch">切换模型 ›</text>
   </view>

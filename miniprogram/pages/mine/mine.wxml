@@ -62,9 +62,9 @@
 
   <!-- 未登录：功能说明 -->
   <view wx:if="{{!logged}}" class="card feats">
-    <view class="feat"><text class="feat-ico">📊</text><view><text class="feat-t">成绩同步</text><text class="feat-d">换手机也不丢数据</text></view></view>
-    <view class="feat"><text class="feat-ico">🤖</text><view><text class="feat-t">AI 更懂你</text><text class="feat-d">记住你的偏好与课表</text></view></view>
-    <view class="feat"><text class="feat-ico">📦</text><view><text class="feat-t">失物招领归属</text><text class="feat-d">发布记录绑定到你的账号</text></view></view>
+    <view class="feat"><view class="feat-dot d0"></view><view><text class="feat-t">成绩同步</text><text class="feat-d">换手机也不丢数据</text></view></view>
+    <view class="feat"><view class="feat-dot d1"></view><view><text class="feat-t">AI 更懂你</text><text class="feat-d">记住你的偏好与课表</text></view></view>
+    <view class="feat"><view class="feat-dot d2"></view><view><text class="feat-t">失物招领归属</text><text class="feat-d">发布记录绑定到你的账号</text></view></view>
   </view>
 
   <view class="foot">校园服务智能体 · 参赛作品</view>

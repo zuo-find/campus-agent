@@ -123,7 +123,10 @@
 /* ---------- 功能说明 ---------- */
 .feats { padding: 16rpx 32rpx; }
 .feat { display: flex; align-items: center; padding: 24rpx 0; }
-.feat-ico { font-size: 44rpx; margin-right: 24rpx; }
+.feat-dot { width: 18rpx; height: 18rpx; border-radius: 50%; margin-right: 26rpx; flex-shrink: 0; }
+.feat-dot.d0 { background: #1a73e8; }
+.feat-dot.d1 { background: #ff8a00; }
+.feat-dot.d2 { background: #10b981; }
 .feat-t { display: block; font-size: 29rpx; color: #24324a; }
 .feat-d { display: block; font-size: 23rpx; color: #93a1b5; margin-top: 6rpx; }
 
