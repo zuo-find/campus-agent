@@ -13,3 +13,8 @@ miniprogram/node_modules/
 # 系统
 .DS_Store
 Thumbs.db
+
+# mermaid 渲染中间产物
+docs/node_modules/
+docs/package*.json
+docs/puppeteer-config.json

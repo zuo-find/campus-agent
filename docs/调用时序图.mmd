@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    actor U as 用户(学生)
+    participant MP as 微信小程序<br/>(前端)
+    participant API as FastAPI 后端<br/>Agent 核心
+    participant RAG as RAG 向量库<br/>(Chroma)
+    participant LLM as DeepSeek 大模型<br/>(deepseek-chat)
+    participant TOOL as 本地工具<br/>算绩点/请假条/DDL
+
+    U->>MP: 输入"帮我算一下绩点"
+    MP->>API: POST /chat<br/>{问题, 历史, 本地成绩, DDL}
+    API->>RAG: 检索相关校园文档
+    RAG-->>API: 返回 top-k 片段 + 来源
+    note over API: 把 RAG 资料注入系统提示<br/>并附上 4 个工具的 schema
+    API->>LLM: chat.completions<br/>(消息 + tools)
+    LLM-->>API: 决定调用工具<br/>tool_call: calc_gpa
+    API->>TOOL: 执行 calc_gpa(本地成绩)
+    TOOL-->>API: {GPA:2.44, 挂科:C语言}
+    API->>LLM: 回传工具结果
+    LLM-->>API: 生成自然语言回复
+    API-->>MP: {回复文本, 来源标注, 工具调用记录}
+    MP-->>U: 展示回答 + "来源:xxx" 标签

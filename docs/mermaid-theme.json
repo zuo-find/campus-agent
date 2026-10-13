@@ -1,0 +1,18 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#eaf1fe",
+    "primaryBorderColor": "#1a73e8",
+    "primaryTextColor": "#1a2b45",
+    "lineColor": "#1a73e8",
+    "actorBkg": "#1a73e8",
+    "actorTextColor": "#ffffff",
+    "actorBorder": "#1558c0",
+    "signalColor": "#33475b",
+    "signalTextColor": "#1a2b45",
+    "noteBkgColor": "#fff6d6",
+    "noteBorderColor": "#e0a800",
+    "fontFamily": "Microsoft YaHei, PingFang SC, sans-serif",
+    "fontSize": "15px"
+  }
+}
