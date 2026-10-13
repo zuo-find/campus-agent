@@ -1,0 +1,85 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 成绩页 1:1 还原(1rpx=0.5px) */
+body{margin:0;background:#f5f6f8;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.wrap{padding:10px 0 20px;box-sizing:border-box}
+.card{background:#fff;border-radius:8px;padding:14px;margin:10px 12px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.hero{background:linear-gradient(160deg,#2b7cf0 0%,#1a73e8 55%,#4a9bff 100%)}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between}
+.hero-label{font-size:12px;color:rgba(255,255,255,.82)}
+.hero-num{display:flex;align-items:baseline;margin-top:3px}
+.hero-gpa{font-size:38px;font-weight:700;color:#fff;line-height:1.05}
+.hero-max{font-size:13px;color:rgba(255,255,255,.7);margin-left:5px}
+.hero-badge{font-size:12px;color:#fff;background:rgba(255,255,255,.22);border-radius:15px;padding:4px 13px}
+.bar{height:7px;border-radius:4px;background:rgba(255,255,255,.25);margin-top:13px;overflow:hidden}
+.bar-in{height:100%;border-radius:4px;background:#fff}
+.hero-stats{display:flex;margin-top:13px}
+.stat{flex:1;display:flex;flex-direction:column;align-items:center}
+.stat-n{font-size:17px;font-weight:600;color:#fff}
+.stat-l{font-size:11px;color:rgba(255,255,255,.75);margin-top:3px}
+.warn{margin-top:12px;font-size:12.5px;color:#fff;line-height:1.6;background:rgba(255,80,80,.28);border-radius:6px;padding:8px 10px}
+.ai-btn{margin-top:13px;text-align:center;font-size:13.5px;color:#1a73e8;background:#fff;border-radius:22px;line-height:40px;font-weight:500}
+.sec-title{font-size:15px;font-weight:600;margin-bottom:10px;color:#1a2233}
+.dist-row{display:flex;align-items:center;margin-bottom:9px}
+.dist-l{width:55px;font-size:12.5px;color:#5a6684;flex-shrink:0}
+.dist-bar{flex:1;height:11px;background:#f2f5fa;border-radius:6px;overflow:hidden}
+.dist-in{height:100%;border-radius:6px}
+.dist-in.t-0{background:#10b981}.dist-in.t-1{background:#1a73e8}
+.dist-in.t-2{background:#f59e0b}.dist-in.t-3{background:#94a3b8}.dist-in.t-4{background:#ef4444}
+.dist-n{width:30px;text-align:right;font-size:12.5px;color:#8c98ab;flex-shrink:0}
+.plan-inputs{display:flex}
+.pi{flex:1}.pi:first-child{margin-right:10px}
+.pi-l{display:block;font-size:12px;color:#8c98ab;margin-bottom:5px}
+.pi-i{background:#f2f5fa;border-radius:5px;padding:8px 10px;font-size:14px;color:#333}
+.plan-out{margin-top:11px;font-size:13px;line-height:1.65;color:#1a2b45;background:#eaf1fe;border-radius:6px;padding:9px 11px}
+.row{display:flex;align-items:center;padding:10px 0;border-bottom:0.5px solid #f2f4f8}
+.row:last-child{border-bottom:none}
+.r-main{flex:1;min-width:0}
+.r-name{display:block;font-size:14.5px;color:#1a2233}
+.r-sub{display:block;font-size:11px;color:#9aa6b5;margin-top:3px}
+.r-lv{font-size:11px;border-radius:3px;padding:2px 6px;background:#f2f5fa;margin-right:8px}
+.r-score{font-size:17px;font-weight:700;width:38px;text-align:right}
+.t-a{color:#0f9d63}.t-b{color:#1a73e8}.t-c{color:#d97706}.t-d{color:#7c8a9e}.t-e{color:#e5484d}
+</style></head><body><div class="wrap">
+  <div class="card hero">
+    <div class="hero-top">
+      <div><div class="hero-label">平均绩点</div><div class="hero-num"><span class="hero-gpa">2.94</span><span class="hero-max">/ 4.0</span></div></div>
+      <div class="hero-badge">中等</div>
+    </div>
+    <div class="bar"><div class="bar-in" style="width:74%"></div></div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-n">81.0</span><span class="stat-l">加权均分</span></div>
+      <div class="stat"><span class="stat-n">5</span><span class="stat-l">门课程</span></div>
+      <div class="stat"><span class="stat-n">17</span><span class="stat-l">总学分</span></div>
+    </div>
+    <div class="warn">有 1 门不及格：线性代数，请尽快安排重修</div>
+    <div class="ai-btn">让 AI 分析我的成绩，给提升建议</div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">成绩分布</div>
+    <div class="dist-row"><span class="dist-l">优秀</span><div class="dist-bar"><div class="dist-in t-0" style="width:50%"></div></div><span class="dist-n">1</span></div>
+    <div class="dist-row"><span class="dist-l">良好</span><div class="dist-bar"><div class="dist-in t-1" style="width:100%"></div></div><span class="dist-n">2</span></div>
+    <div class="dist-row"><span class="dist-l">中等</span><div class="dist-bar"><div class="dist-in t-2" style="width:50%"></div></div><span class="dist-n">1</span></div>
+    <div class="dist-row"><span class="dist-l">及格</span><div class="dist-bar"><div class="dist-in t-3" style="width:0%"></div></div><span class="dist-n">0</span></div>
+    <div class="dist-row"><span class="dist-l">不及格</span><div class="dist-bar"><div class="dist-in t-4" style="width:50%"></div></div><span class="dist-n">1</span></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">提分测算</div>
+    <div class="plan-inputs">
+      <div class="pi"><span class="pi-l">目标绩点</span><div class="pi-i">3.5</div></div>
+      <div class="pi"><span class="pi-l">下学期学分</span><div class="pi-i">20</div></div>
+    </div>
+    <div class="plan-out">下学期这 20 学分，平均绩点需 ≥ 3.98，约合均分 85 分以上。</div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">课程（按分数排序）</div>
+    <div class="row"><div class="r-main"><span class="r-name">数据结构</span><span class="r-sub">4 学分</span></div><span class="r-lv t-a">优秀</span><span class="r-score t-a">92</span></div>
+    <div class="row"><div class="r-main"><span class="r-name">高等数学</span><span class="r-sub">4 学分</span></div><span class="r-lv t-b">良好</span><span class="r-score t-b">88</span></div>
+    <div class="row"><div class="r-main"><span class="r-name">程序设计</span><span class="r-sub">3 学分</span></div><span class="r-lv t-b">良好</span><span class="r-score t-b">85</span></div>
+    <div class="row"><div class="r-main"><span class="r-name">大学英语</span><span class="r-sub">3 学分</span></div><span class="r-lv t-c">中等</span><span class="r-score t-c">76</span></div>
+    <div class="row"><div class="r-main"><span class="r-name">线性代数</span><span class="r-sub">3 学分</span></div><span class="r-lv t-e">不及格</span><span class="r-score t-e">58</span></div>
+  </div>
+</div></body></html>

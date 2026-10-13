@@ -37,6 +37,13 @@ Page({
       ? (llm.name || llm.provider) + ' · ' + (llm.model || '')
       : '默认模型';
     this.setData({ modelLabel: label });
+
+    // 其他页面（如成绩页）带过来的提问，自动发出
+    const pending = app.globalData.pendingAsk;
+    if (pending) {
+      app.globalData.pendingAsk = '';
+      this.setData({ input: pending }, () => this.send());
+    }
   },
 
   goModel() { wx.navigateTo({ url: '/pages/model/model' }); },

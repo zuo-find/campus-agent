@@ -1,12 +1,58 @@
 <view class="container">
-  <view class="card summary" wx:if="{{gpa}}">
-    <view class="sum-item"><text class="sum-num">{{gpa}}</text><text class="sum-label">平均绩点</text></view>
-    <view class="sum-item"><text class="sum-num">{{avg}}</text><text class="sum-label">加权均分</text></view>
-    <view class="sum-item"><text class="sum-num">{{courses.length}}</text><text class="sum-label">课程数</text></view>
+  <!-- 总览 -->
+  <view class="card hero">
+    <block wx:if="{{gpa}}">
+      <view class="hero-top">
+        <view class="hero-left">
+          <text class="hero-label">平均绩点</text>
+          <view class="hero-num"><text class="hero-gpa">{{gpa}}</text><text class="hero-max">/ 4.0</text></view>
+        </view>
+        <view class="hero-badge tone-{{gpaLevel == '优秀' ? 'a' : (gpaLevel == '良好' ? 'b' : (gpaLevel == '中等' ? 'c' : (gpaLevel == '及格' ? 'd' : 'e')))}}">{{gpaLevel}}</view>
+      </view>
+      <view class="bar"><view class="bar-in" style="width:{{gpaPct}}%"></view></view>
+      <view class="hero-stats">
+        <view class="stat"><text class="stat-n">{{avg}}</text><text class="stat-l">加权均分</text></view>
+        <view class="stat"><text class="stat-n">{{count}}</text><text class="stat-l">门课程</text></view>
+        <view class="stat"><text class="stat-n">{{totalCredit}}</text><text class="stat-l">总学分</text></view>
+      </view>
+      <view wx:if="{{failed.length}}" class="warn">有 {{failed.length}} 门不及格：{{failed}}，请尽快安排重修</view>
+      <view class="ai-btn" bindtap="askAI">让 AI 分析我的成绩，给提升建议</view>
+    </block>
+    <view wx:else class="empty">
+      <text class="empty-t">还没有成绩</text>
+      <text class="empty-d">录入学分和分数，这里会显示绩点、等级分布和提分测算</text>
+    </view>
   </view>
 
+  <!-- 等级分布 -->
+  <view class="card" wx:if="{{dist.length}}">
+    <view class="sec-title">成绩分布</view>
+    <view class="dist-row" wx:for="{{dist}}" wx:key="text">
+      <text class="dist-l">{{item.text}}</text>
+      <view class="dist-bar"><view class="dist-in t-{{index}}" style="width:{{item.pct}}%"></view></view>
+      <text class="dist-n">{{item.n}}</text>
+    </view>
+  </view>
+
+  <!-- 提分测算 -->
+  <view class="card" wx:if="{{gpa}}">
+    <view class="sec-title">提分测算</view>
+    <view class="plan-inputs">
+      <view class="pi">
+        <text class="pi-l">目标绩点</text>
+        <input class="pi-i" type="digit" value="{{targetGpa}}" bindinput="onTarget" />
+      </view>
+      <view class="pi">
+        <text class="pi-l">下学期学分</text>
+        <input class="pi-i" type="digit" value="{{nextCredits}}" bindinput="onNextCredit" />
+      </view>
+    </view>
+    <view wx:if="{{planText}}" class="plan-out {{planWarn ? 'warn-out' : ''}}">{{planText}}</view>
+  </view>
+
+  <!-- 录入 -->
   <view class="card">
-    <view class="form-title">录入成绩</view>
+    <view class="sec-title">录入成绩</view>
     <view class="form-row">
       <input class="f-input flex2" placeholder="课程名" value="{{name}}" bindinput="onName" />
       <input class="f-input" type="digit" placeholder="学分" value="{{credit}}" bindinput="onCredit" />
@@ -15,15 +61,17 @@
     <button class="btn-primary" bindtap="add">添加</button>
   </view>
 
-  <view class="card" wx:if="{{courses.length}}">
-    <view class="list-row head">
-      <text class="c-name">课程</text><text class="c-val">学分</text><text class="c-val">分数</text><text class="c-del"></text>
-    </view>
-    <view class="list-row" wx:for="{{courses}}" wx:key="index">
-      <text class="c-name">{{item.name}}</text>
-      <text class="c-val">{{item.credit}}</text>
-      <text class="c-val {{item.score<60?'fail':''}}">{{item.score}}</text>
-      <text class="c-del" data-i="{{index}}" bindtap="remove">删</text>
+  <!-- 课程列表 -->
+  <view class="card" wx:if="{{list.length}}">
+    <view class="sec-title">课程（按分数排序）</view>
+    <view class="row" wx:for="{{list}}" wx:key="idx">
+      <view class="r-main">
+        <text class="r-name">{{item.name}}</text>
+        <text class="r-sub">{{item.credit}} 学分</text>
+      </view>
+      <text class="r-lv t-{{item.tone}}">{{item.level}}</text>
+      <text class="r-score t-{{item.tone}}">{{item.score}}</text>
+      <text class="r-del" data-i="{{item.idx}}" bindtap="remove">删</text>
     </view>
   </view>
 
