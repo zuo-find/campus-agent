@@ -12,6 +12,7 @@
 | 大模型问答 | DeepSeek 自然语言理解与生成，口语化应答 |
 | 工具调用（Agent） | 大模型 function-calling 自主决定调用 查成绩 / 算绩点 / **生成材料** / DDL 四个工具 |
 | 材料生成闭环 | 口语描述 → 抽取结构化字段 → 模板渲染成正式材料 → 人工编辑确认 → **导出 Word**（不止问答） |
+| 多 Agent 协同 | 路由式调度：**校园问答 / 刷题陪练 / 材料撰写 / 日程提醒** 四个专职智能体，各有独立提示词与工具子集 |
 | 多模型可插拔 | 问答页可切换 8 家国内主流大模型（DeepSeek/通义千问/智谱/Kimi/文心/星火/混元/豆包），用户填自己的 API Key 调用 |
 
 ### 切换大模型 / 自带 Key
@@ -28,7 +29,8 @@ campus-agent/
 ├─ backend/                FastAPI 后端
 │  ├─ app/
 │  │  ├─ main.py           API：/chat、/rag/upload、/life/*、/auth/*、/health
-│  │  ├─ agent.py          Agent 核心：RAG 注入 + function-calling 循环
+│  │  ├─ agent.py          Agent 核心：意图路由 + RAG 注入 + function-calling 循环
+│  │  ├─ agent_defs.py     多 Agent 定义（4 个专职智能体的提示词与工具子集）
 │  │  ├─ life.py           「生活」栏后端：天气/食堂推荐(接口保留)/失物招领
 │  │  ├─ market.py         二手市场：商品 + 图片上传 + 静态托管
 │  │  ├─ documents.py      材料模板库 + 渲染 + 导出 .docx

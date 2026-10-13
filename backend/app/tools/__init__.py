@@ -168,8 +168,11 @@ TOOLS: dict[str, tuple[Callable[..., dict], dict]] = {
 }
 
 
-def tool_schemas() -> list[dict]:
-    return [schema for _, schema in TOOLS.values()]
+def tool_schemas(names: list[str] | None = None) -> list[dict]:
+    """返回工具的 JSON Schema。names 为 None 时返回全部，否则只返回指定工具（供各 Agent 限定工具子集）。"""
+    if names is None:
+        return [schema for _, schema in TOOLS.values()]
+    return [TOOLS[n][1] for n in names if n in TOOLS]
 
 
 def run_tool(name: str, ctx: ToolContext, arguments: dict[str, Any]) -> dict:

@@ -21,6 +21,13 @@
 .bubble.assistant { background: #fff; }
 .bubble-text { font-size: 30rpx; line-height: 1.5; white-space: pre-wrap; color: #222; }
 
+/* 是哪个 Agent 在应答 */
+.agent-chip { display: inline-block; font-size: 20rpx; border-radius: 6rpx; padding: 3rpx 12rpx; margin-bottom: 10rpx; }
+.agent-chip.ac-qa { color: #1a73e8; background: #eaf1fe; }
+.agent-chip.ac-study { color: #7c3aed; background: #f3eeff; }
+.agent-chip.ac-doc { color: #0f9d63; background: #e6f8f0; }
+.agent-chip.ac-schedule { color: #d97706; background: #fff5e6; }
+
 .sources { margin-top: 14rpx; display: flex; flex-wrap: wrap; }
 .src-tag {
   font-size: 22rpx; color: #1a73e8; background: #eaf1fe;

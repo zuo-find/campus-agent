@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 多 Agent 应答标签预览(1rpx=0.5px) */
+body{margin:0;background:#f5f6f8;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.wrap{padding:10px 0;box-sizing:border-box}
+.msg-row{display:flex;padding:6px 12px}
+.msg-row.user{justify-content:flex-end}
+.bubble{max-width:80%;padding:10px 12px;border-radius:9px;word-break:break-all}
+.bubble.user{background:#1a73e8;color:#fff}
+.bubble.assistant{background:#fff;color:#222}
+.bubble-text{font-size:15px;line-height:1.5;white-space:pre-wrap}
+.agent-chip{display:inline-block;font-size:10px;border-radius:3px;padding:1.5px 6px;margin-bottom:5px}
+.ac-qa{color:#1a73e8;background:#eaf1fe}
+.ac-study{color:#7c3aed;background:#f3eeff}
+.ac-doc{color:#0f9d63;background:#e6f8f0}
+.ac-schedule{color:#d97706;background:#fff5e6}
+</style></head><body><div class="wrap">
+  <div class="msg-row user"><div class="bubble user"><span class="bubble-text">蓝桥杯该怎么备赛，我动态规划很弱</span></div></div>
+  <div class="msg-row"><div class="bubble assistant"><span class="agent-chip ac-study">刷题陪练</span><span class="bubble-text">
+动态规划入门建议按"线性 DP → 背包 → 区间 DP"的顺序练，先别急着上树形。你可以在洛谷上按这个标签刷 20 道……</span></div></div>
+
+  <div class="msg-row user"><div class="bubble user"><span class="bubble-text">帮我写一份请假条，感冒请2天</span></div></div>
+  <div class="msg-row"><div class="bubble assistant"><span class="agent-chip ac-doc">材料撰写</span><span class="bubble-text">
+请假条初稿帮你写好了。姓名、班级这些你没提到，我先留了空，你在卡片上补一下就能导出 Word。</span></div></div>
+
+  <div class="msg-row user"><div class="bubble user"><span class="bubble-text">我最近有哪些 ddl</span></div></div>
+  <div class="msg-row"><div class="bubble assistant"><span class="agent-chip ac-schedule">日程提醒</span><span class="bubble-text">
+帮你查好了：英语演讲稿（10-16，最急）和数据结构大作业（11-20）。建议这两天先写演讲稿。</span></div></div>
+
+  <div class="msg-row user"><div class="bubble user"><span class="bubble-text">挂科了怎么重修</span></div></div>
+  <div class="msg-row"><div class="bubble assistant"><span class="agent-chip ac-qa">校园问答</span><span class="bubble-text">
+挂科必须参加重修才能拿学分，分随班重修和单独开班两种……（来源：学业成绩与重修规定_示例.txt）</span></div></div>
+</div></body></html>

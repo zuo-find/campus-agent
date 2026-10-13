@@ -10,6 +10,7 @@
     <block wx:for="{{messages}}" wx:key="index">
       <view class="msg-row {{item.role}}">
         <view class="bubble {{item.role}}">
+          <view wx:if="{{item.agentName}}" class="agent-chip ac-{{item.agent}}">{{item.agentName}}</view>
           <text class="bubble-text">{{item.content}}</text>
           <view wx:if="{{item.sources.length}}" class="sources">
             <text class="src-tag" wx:for="{{item.sources}}" wx:for-item="s" wx:key="*this">来源：{{s}}</text>

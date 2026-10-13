@@ -6,6 +6,8 @@ backend/data/chroma/
 backend/data/*.db
 # 用户上传的图片（运行时生成，不入库）
 backend/data/uploads/
+# 导出的材料文档（运行时生成，不入库）
+backend/data/exports/
 # Python
 __pycache__/
 *.pyc

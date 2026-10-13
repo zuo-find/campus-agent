@@ -1,11 +1,9 @@
-"""Agent 核心：一轮对话里，让大模型自行决定
-  - 调用工具（查成绩/算绩点/请假条/ddl），还是
-  - 基于 RAG 检索到的校园文档作答，还是
-  - 直接回答。
+"""Agent 核心（多 Agent 版）：先把用户意图路由到一个专职智能体，再用该智能体的
+系统提示与工具子集跑一轮 function-calling 循环。
 
-实现方式：OpenAI 兼容的 function-calling 循环。先把 RAG 命中的文档片段
-作为“资料”注入系统提示，再把 4 个工具的 schema 交给模型；模型可多轮调用
-工具，最后产出自然语言回答。所有工具结果与引用来源一并返回前端，便于答辩溯源。
+- 路由 route()：轻量调用，把意图归类为 问答 / 刷题 / 材料 / 日程
+- 运行 chat()：注入 RAG 资料 → 模型自行决定调工具或直接回答 → 返回 reply/来源/工具调用
+所有工具结果与引用来源一并返回前端，便于答辩溯源与展示"哪个 Agent 在应答"。
 """
 from __future__ import annotations
 
@@ -14,6 +12,7 @@ import json
 from openai import OpenAI
 
 from app import providers
+from app.agent_defs import AGENTS, DEFAULT_AGENT, ROUTE_MAP, ROUTER_PROMPT
 from app.config import settings
 from app.tools import ToolContext, run_tool, tool_schemas
 from rag import store
@@ -41,24 +40,37 @@ def _resolve_llm(llm: dict | None) -> tuple[OpenAI, str]:
     return _llm(), settings.llm_model
 
 
-SYSTEM_PROMPT = """你是西安思源学院的「校园服务智能体」，帮助同学解答校园制度、办事流程问题，并能调用工具查成绩、算绩点、生成各类事务材料、整理 ddl。
-
-规则：
-1. 涉及学校制度、流程、规定的问题，优先依据【校园资料】中的内容回答，并在回答末尾用「来源：xxx」标注依据的文件；资料中没有的，明确说"资料里没找到，建议咨询教务老师"，不要编造。
-2. 涉及成绩、绩点、ddl 的操作，调用对应工具，不要凭空捏造数据。
-3. 当用户要写请假条、实训申请、活动策划、社团申报等**材料**时，调用 gen_document，尽量从用户描述里抽取字段；用户没说的字段留空即可，不要编造。生成后告诉用户可以在页面上修改字段并导出 Word。
-4. 回答简洁、口语化，像学长学姐一样亲切。
-5. 不要使用 emoji 表情符号，也不要堆砌加粗和表情式排版，保持干净、克制的文字。"""
-
 MAX_TOOL_ROUNDS = 4
 
 
-def chat(user_message: str, history: list[dict], ctx: ToolContext,
-         llm: dict | None = None) -> dict:
-    """处理一条用户消息，返回 {reply, sources, tool_calls}。
+def route(user_message: str, llm: dict | None = None) -> str:
+    """路由：判断该由哪个 Agent 处理。失败则回退默认 Agent。"""
+    try:
+        client, model = _resolve_llm(llm)
+        r = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": ROUTER_PROMPT + user_message}],
+            temperature=0, max_tokens=8,
+        )
+        txt = (r.choices[0].message.content or "").strip()
+        for word, key in ROUTE_MAP.items():
+            if word in txt:
+                return key
+    except Exception:
+        pass
+    return DEFAULT_AGENT
 
-    llm: 用户自选的模型配置 {provider, api_key, model}，为空则用服务端默认。
+
+def chat(user_message: str, history: list[dict], ctx: ToolContext,
+         llm: dict | None = None, agent_key: str | None = None) -> dict:
+    """处理一条用户消息，返回 {reply, sources, tool_calls, agent, agent_name}。
+
+    llm:       用户自选的模型配置 {provider, api_key, model}，为空则用服务端默认。
+    agent_key: 指定用哪个智能体；为空则先路由判断。
     """
+    key = agent_key if agent_key in AGENTS else route(user_message, llm)
+    adef = AGENTS.get(key) or AGENTS[DEFAULT_AGENT]
+
     # 1) RAG 检索，把命中片段注入上下文
     hits = store.retrieve(user_message)
     rag_block = ""
@@ -67,28 +79,34 @@ def chat(user_message: str, history: list[dict], ctx: ToolContext,
             f"[来源：{h['source']}]\n{h['text']}" for h in hits
         )
 
-    messages = [{"role": "system", "content": SYSTEM_PROMPT + rag_block}]
+    messages = [{"role": "system", "content": adef["system"] + rag_block}]
     messages.extend(history[-6:])  # 只带最近几轮，控制 token
     messages.append({"role": "user", "content": user_message})
 
     client, model = _resolve_llm(llm)
+    schemas = tool_schemas(adef["tools"])
     used_tools: list[dict] = []
+
+    def _result(reply: str) -> dict:
+        return {
+            "reply": reply,
+            "sources": [{"source": h["source"], "score": h["score"]} for h in hits],
+            "tool_calls": used_tools,
+            "agent": key,
+            "agent_name": adef["name"],
+        }
 
     for _ in range(MAX_TOOL_ROUNDS):
         resp = client.chat.completions.create(
             model=model,
             messages=messages,
-            tools=tool_schemas(),
+            tools=schemas,
             temperature=0.3,
         )
         msg = resp.choices[0].message
 
         if not msg.tool_calls:
-            return {
-                "reply": msg.content or "",
-                "sources": [{"source": h["source"], "score": h["score"]} for h in hits],
-                "tool_calls": used_tools,
-            }
+            return _result(msg.content or "")
 
         # 执行模型请求的工具调用
         messages.append(msg.model_dump(exclude_none=True))
@@ -106,8 +124,4 @@ def chat(user_message: str, history: list[dict], ctx: ToolContext,
     final = client.chat.completions.create(
         model=model, messages=messages, temperature=0.3,
     )
-    return {
-        "reply": final.choices[0].message.content or "",
-        "sources": [{"source": h["source"], "score": h["score"]} for h in hits],
-        "tool_calls": used_tools,
-    }
+    return _result(final.choices[0].message.content or "")

@@ -53,6 +53,7 @@ class ChatReq(BaseModel):
     ddls: list[Ddl] = []
     user_name: str = "同学"
     llm: LLMConfig | None = None
+    agent_key: str = ""     # 指定智能体；留空则由路由自动判断
 
 
 @app.get("/health")
@@ -90,7 +91,8 @@ def chat(req: ChatReq):
     )
     llm = req.llm.model_dump() if req.llm else None
     try:
-        return {"ok": True, **agent.chat(req.message, req.history, ctx, llm=llm)}
+        return {"ok": True, **agent.chat(req.message, req.history, ctx,
+                                         llm=llm, agent_key=req.agent_key or None)}
     except Exception as e:  # 统一错误出口，转成用户看得懂的话
         return {"ok": False, "error": _friendly_llm_error(e)}
 
