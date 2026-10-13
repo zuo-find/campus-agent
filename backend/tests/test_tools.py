@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.tools import ToolContext, calc_gpa, query_scores, gen_leave_note, list_ddls, _score_to_gpa
+from app.tools import ToolContext, calc_gpa, query_scores, gen_document, list_ddls, _score_to_gpa
 
 
 def test_score_to_gpa_boundaries():
@@ -52,11 +52,26 @@ def test_query_scores_filter():
     assert r["ok"] and len(r["courses"]) == 1
 
 
-def test_gen_leave_note():
-    ctx = ToolContext(user_name="张三")
-    r = gen_leave_note(ctx, reason="感冒发烧", days=2, start_date="2026-11-01")
+def test_gen_document_fills_fields():
+    r = gen_document(ToolContext(), "请假条", {"姓名": "张三", "请假事由": "感冒发烧", "请假天数": "2"})
     assert r["ok"]
-    assert "张三" in r["draft"] and "2天" in r["draft"] and "2026-11-01" in r["draft"]
+    assert r["title"] == "请假条"
+    assert "张三" in r["text"] and "感冒发烧" in r["text"] and "2" in r["text"]
+    labels = [f["label"] for f in r["fields"]]
+    assert "姓名" in labels and "请假事由" in labels
+
+
+def test_gen_document_blank_for_missing():
+    r = gen_document(ToolContext(), "请假条", {"姓名": "张三"})
+    assert r["ok"]
+    assert "＿＿" in r["text"]          # 未提供的字段渲染成空白线
+    assert "张三" in r["text"]
+
+
+def test_gen_document_unknown_type():
+    r = gen_document(ToolContext(), "不存在的类型", {})
+    assert r["ok"] is False
+    assert "请假条" in r["types"]
 
 
 def test_list_ddls_sorted():

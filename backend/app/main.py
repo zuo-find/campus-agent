@@ -1,12 +1,14 @@
 """FastAPI 入口：对小程序暴露 /chat 与 RAG 文档导入接口。"""
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import agent, auth, life, market, providers
+from app import agent, auth, documents, life, market, providers
 from app.tools import ToolContext
 from rag import store
 
@@ -20,8 +22,10 @@ app.add_middleware(
 life.init_db()    # 启动即建失物招领表
 auth.init_db()    # 启动即建用户表
 market.init_db()  # 启动即建二手市场表
-# 二手市场图片静态托管
+os.makedirs(documents.EXPORT_DIR, exist_ok=True)
+# 静态托管：二手市场图片、导出的文档
 app.mount("/uploads", StaticFiles(directory=market.UPLOAD_DIR), name="uploads")
+app.mount("/exports", StaticFiles(directory=documents.EXPORT_DIR), name="exports")
 
 
 class Course(BaseModel):
@@ -152,6 +156,36 @@ def life_lf_list(kind: str = ""):
 @app.post("/life/lostfound/{item_id}/close")
 def life_lf_close(item_id: int):
     return life.close_lost_found(item_id)
+
+
+# ------------------------------------------------------------ 材料生成 / 导出
+
+class DocRenderReq(BaseModel):
+    doc_type: str
+    fields: dict = {}
+
+
+@app.get("/doc/types")
+def doc_types():
+    """可生成的材料类型。"""
+    return {"ok": True, "types": documents.doc_types()}
+
+
+@app.post("/doc/render")
+def doc_render(req: DocRenderReq):
+    """用新字段重新渲染材料（前端编辑字段后调用）。"""
+    return documents.render(req.doc_type, req.fields)
+
+
+class DocExportReq(BaseModel):
+    title: str = ""
+    text: str = ""
+
+
+@app.post("/doc/export")
+def doc_export(req: DocExportReq):
+    """把材料文本导出为 .docx，返回下载地址。"""
+    return documents.export_docx(req.title, req.text)
 
 
 # ------------------------------------------------------------ 二手市场

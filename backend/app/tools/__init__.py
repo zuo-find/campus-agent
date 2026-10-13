@@ -66,19 +66,24 @@ def query_scores(ctx: ToolContext, keyword: str | None = None) -> dict:
 
 # ---------------------------------------------------------------- 请假条
 
-def gen_leave_note(ctx: ToolContext, reason: str, days: int,
-                   start_date: str | None = None) -> dict:
-    """生成一份请假条草稿文本，供用户修改后使用。"""
-    start = start_date or date.today().isoformat()
-    note = (
-        f"请假条\n\n"
-        f"尊敬的老师：\n"
-        f"    您好！我是{ctx.user_name}，因{reason}，"
-        f"需自{start}起请假{days}天，望批准。请假期间我会主动了解并补齐所学内容。\n\n"
-        f"    此致\n敬礼！\n\n"
-        f"请假人：{ctx.user_name}\n日期：{date.today().isoformat()}"
-    )
-    return {"ok": True, "draft": note, "note": "这是草稿，请根据实际情况修改后使用。"}
+def gen_document(ctx: ToolContext, doc_type: str, fields: dict | None = None) -> dict:
+    """生成校园事务材料初稿（模板填充）。
+
+    由大模型把用户口语描述抽成结构化字段，再用模板渲染成正式材料；
+    返回的 fields 供前端做成可编辑表单，确认后可导出 Word。
+    """
+    from app import documents
+    r = documents.render(doc_type, fields or {})
+    if not r.get("ok"):
+        return r
+    return {
+        "ok": True,
+        "doc_type": r["doc_type"],
+        "title": r["title"],
+        "text": r["text"],
+        "fields": r["fields"],
+        "note": "这是初稿。可在页面上修改字段后导出 Word。",
+    }
 
 
 # ---------------------------------------------------------------- DDL 提醒
@@ -123,19 +128,32 @@ TOOLS: dict[str, tuple[Callable[..., dict], dict]] = {
             },
         },
     }),
-    "gen_leave_note": (gen_leave_note, {
+    "gen_document": (gen_document, {
         "type": "function",
         "function": {
-            "name": "gen_leave_note",
-            "description": "生成请假条草稿。当用户想请假、要请假条时调用。",
+            "name": "gen_document",
+            "description": (
+                "生成校园事务材料初稿（模板填充）。当用户要写请假条、实训申请、活动策划、社团申报时调用。"
+                "doc_type 只能是：请假条 / 实训申请 / 活动策划 / 社团申报。"
+                "请从用户描述中抽取信息填入 fields（键用中文标签）；用户没提到的字段不要编造，留空即可。"
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "reason": {"type": "string", "description": "请假原因"},
-                    "days": {"type": "integer", "description": "请假天数"},
-                    "start_date": {"type": "string", "description": "起始日期 YYYY-MM-DD，可选，默认今天"},
+                    "doc_type": {
+                        "type": "string",
+                        "enum": ["请假条", "实训申请", "活动策划", "社团申报"],
+                        "description": "材料类型",
+                    },
+                    "fields": {
+                        "type": "object",
+                        "description": (
+                            "字段键值对，键用中文标签。例如请假条："
+                            "{\"姓名\":\"张三\",\"请假事由\":\"感冒发烧\",\"请假天数\":\"2\",\"开始日期\":\"2026-11-05\"}"
+                        ),
+                    },
                 },
-                "required": ["reason", "days"],
+                "required": ["doc_type"],
             },
         },
     }),

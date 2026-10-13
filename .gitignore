@@ -4,6 +4,8 @@ backend/.env
 backend/data/chroma/
 # 运行时数据库（本地生成，不入库）
 backend/data/*.db
+# 用户上传的图片（运行时生成，不入库）
+backend/data/uploads/
 # Python
 __pycache__/
 *.pyc

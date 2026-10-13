@@ -7,14 +7,31 @@
   </view>
 
   <scroll-view class="msg-list" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation>
-    <view wx:for="{{messages}}" wx:key="index" class="msg-row {{item.role}}">
-      <view class="bubble {{item.role}}">
-        <text class="bubble-text">{{item.content}}</text>
-        <view wx:if="{{item.sources.length}}" class="sources">
-          <text class="src-tag" wx:for="{{item.sources}}" wx:for-item="s" wx:key="*this">来源：{{s}}</text>
+    <block wx:for="{{messages}}" wx:key="index">
+      <view class="msg-row {{item.role}}">
+        <view class="bubble {{item.role}}">
+          <text class="bubble-text">{{item.content}}</text>
+          <view wx:if="{{item.sources.length}}" class="sources">
+            <text class="src-tag" wx:for="{{item.sources}}" wx:for-item="s" wx:key="*this">来源：{{s}}</text>
+          </view>
         </view>
       </view>
-    </view>
+
+      <!-- 材料卡片：可编辑字段、导出 Word -->
+      <view wx:if="{{item.doc}}" class="doc-card">
+        <view class="dc-head">
+          <view class="dc-badge">材料</view>
+          <text class="dc-title">{{item.doc.title}}</text>
+        </view>
+        <scroll-view class="dc-preview" scroll-y>
+          <text class="dc-text">{{item.doc.text}}</text>
+        </scroll-view>
+        <view class="dc-btns">
+          <view class="dc-btn ghost" data-idx="{{index}}" bindtap="editDoc">编辑字段</view>
+          <view class="dc-btn primary" data-idx="{{index}}" bindtap="exportDoc">导出 Word</view>
+        </view>
+      </view>
+    </block>
     <view wx:if="{{loading}}" class="msg-row assistant">
       <view class="bubble assistant"><text class="bubble-text">正在思考…</text></view>
     </view>
@@ -25,8 +42,25 @@
   </scroll-view>
 
   <view class="input-bar">
-    <input class="input" value="{{input}}" placeholder="问问校园制度，或让我帮你办事…"
+    <input class="input" value="{{input}}" placeholder="问制度，或「帮我写一份请假条…」"
            confirm-type="send" bindinput="onInput" bindconfirm="send" />
     <button class="send-btn" bindtap="send" disabled="{{loading}}">发送</button>
+  </view>
+
+  <!-- 字段编辑弹层 -->
+  <view wx:if="{{docEdit.show}}" class="de-mask" bindtap="closeDocEdit">
+    <view class="de-sheet" catchtap="noop">
+      <view class="de-h">编辑「{{docEdit.title}}」<text class="de-x" catchtap="closeDocEdit">✕</text></view>
+      <scroll-view class="de-body" scroll-y>
+        <view class="de-row" wx:for="{{docEdit.fields}}" wx:key="label">
+          <text class="de-label">{{item.label}}</text>
+          <textarea wx:if="{{item.multi}}" class="de-area" value="{{item.value}}" placeholder="—"
+                    data-i="{{index}}" bindinput="onFieldInput" auto-height maxlength="500" />
+          <input wx:else class="de-input" value="{{item.value}}" placeholder="—"
+                 data-i="{{index}}" bindinput="onFieldInput" />
+        </view>
+      </scroll-view>
+      <button class="btn-primary de-save" bindtap="saveDocEdit">保存修改</button>
+    </view>
   </view>
 </view>
