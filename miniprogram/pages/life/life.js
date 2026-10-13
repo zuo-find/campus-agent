@@ -18,14 +18,15 @@ const CALENDAR = [
   { label: '寒假', date: '2027-01-18 起' }
 ];
 
-// ====== 跑腿/快递/外卖 跳转配置（把下面占位 AppID 换成真实值即可）======
-// 快递代取、快递收寄 = 你自己的快递小程序：填同一个 AppID（如两项是不同小程序就分别填）
-// path 可选：跳转后落地的页面路径（含参数），留空则进对方首页
-// 外卖 = 第三方，默认美团外卖（AppID 公开）
+// ====== 跑腿/快递/外卖 跳转配置 ======
+// 两种跳转方式：
+//   mode:'appid'   有 AppID，一键跳转（wx.navigateToMiniProgram）
+//   mode:'qrcode'  无 AppID，弹出小程序码大图，用户长按识别进入（备选方案）
+// 快递「小猋」暂无 AppID，用 qrcode 方案；拿到 AppID 后把 mode 改回 'appid' 并填 appId 即可。
 const JUMP = {
-  express_take: { appId: '', path: '', name: '快递代取' },   // TODO: 填你的快递小程序 AppID
-  express_send: { appId: '', path: '', name: '快递收寄' },   // TODO: 同上（可与上面相同）
-  takeout:      { appId: 'wxde8ac0a21135c07d', path: '', name: '外卖(美团)' }
+  express_take: { mode: 'qrcode', qr: '/images/xiaobiao_qr.png', name: '快递代取（小猋）' },
+  express_send: { mode: 'qrcode', qr: '/images/xiaobiao_qr.png', name: '快递收寄（小猋）' },
+  takeout:      { mode: 'appid',  appId: 'wxde8ac0a21135c07d', path: '', name: '外卖(美团)' }
 };
 
 Page({
@@ -38,7 +39,9 @@ Page({
     lfKind: 'lost', lfList: [], lfLoading: false,
     showForm: false, fTitle: '', fLocation: '', fContact: '', fDetail: '',
     // 校历作息
-    schedule: SCHEDULE, calendar: CALENDAR
+    schedule: SCHEDULE, calendar: CALENDAR,
+    // 小程序码弹层
+    qrShow: false, qrSrc: '', qrName: ''
   },
 
   onLoad() { this.loadWeather(); },
@@ -48,11 +51,16 @@ Page({
     const key = e.currentTarget.dataset.key;
     const cfg = JUMP[key];
     if (!cfg) return;
+
+    // 备选方案：弹出小程序码大图，用户长按识别进入
+    if (cfg.mode === 'qrcode') {
+      this.setData({ qrShow: true, qrSrc: cfg.qr, qrName: cfg.name });
+      return;
+    }
+
+    // 一键跳转
     if (!cfg.appId) {
-      wx.showModal({
-        title: cfg.name, showCancel: false,
-        content: '还没配置该小程序的 AppID。请在 pages/life/life.js 顶部 JUMP 配置里填入 appId。'
-      });
+      wx.showModal({ title: cfg.name, showCancel: false, content: '尚未配置 AppID。' });
       return;
     }
     wx.navigateToMiniProgram({
@@ -64,6 +72,10 @@ Page({
       }
     });
   },
+
+  closeQr() { this.setData({ qrShow: false }); },
+  // 点大图可全屏预览（也可长按识别）
+  previewQr() { if (this.data.qrSrc) wx.previewImage({ urls: [this.data.qrSrc] }); },
 
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab;
