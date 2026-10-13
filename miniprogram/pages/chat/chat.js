@@ -12,7 +12,16 @@ Page({
     scrollTop: 0,
     modelLabel: '默认模型',
     docEdit: { show: false, idx: -1, docType: '', title: '', fields: [] },
-    quickAsks: ['帮我算一下绩点', '帮我写一份请假条：感冒发烧请2天', '挂科了怎么重修', '奖学金怎么评']
+    // 输入框上方的能力入口，对应后端四个智能体
+    caps: [
+      { key: 'qa', label: '问制度', tone: 'qa' },
+      { key: 'doc', label: '写材料', tone: 'doc' },
+      { key: 'schedule', label: '查日程', tone: 'schedule' },
+      { key: 'study', label: '刷题', tone: 'study' }
+    ],
+    docPick: false,
+    docTypes: ['请假条', '实训申请', '活动策划', '社团申报'],
+    quickAsks: ['帮我算一下绩点', '挂科了怎么重修', '奖学金怎么评']
   },
 
   onLoad() {
@@ -35,6 +44,23 @@ Page({
   onInput(e) { this.setData({ input: e.detail.value }); },
 
   onQuick(e) { this.setData({ input: e.currentTarget.dataset.q }, () => this.send()); },
+
+  // 能力入口：点了直接发一句能触发对应 Agent 的话
+  onCap(e) {
+    const key = e.currentTarget.dataset.key;
+    if (key === 'doc') { this.setData({ docPick: true }); return; }
+    const preset = {
+      qa: '挂科了怎么重修？',
+      schedule: '这次院内挑战赛什么时候报名、什么时候交作品？',
+      study: '蓝桥杯该怎么备赛？我的动态规划比较弱'
+    }[key];
+    if (preset) this.setData({ input: preset }, () => this.send());
+  },
+  closeDocPick() { this.setData({ docPick: false }); },
+  pickDocType(e) {
+    const t = e.currentTarget.dataset.t;
+    this.setData({ docPick: false, input: '帮我写一份' + t + '：' }, () => this.send());
+  },
 
   send() {
     const text = (this.data.input || '').trim();

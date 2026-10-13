@@ -54,6 +54,14 @@
     </view>
   </scroll-view>
 
+  <!-- 能力入口：对应后台的四个智能体 -->
+  <view class="cap-bar">
+    <view class="cap-chip" wx:for="{{caps}}" wx:key="key" data-key="{{item.key}}" bindtap="onCap">
+      <view class="cap-dot {{item.tone}}"></view>
+      <text class="cap-t">{{item.label}}</text>
+    </view>
+  </view>
+
   <scroll-view class="quick-bar" scroll-x>
     <view wx:for="{{quickAsks}}" wx:key="*this" class="quick-chip" data-q="{{item}}" bindtap="onQuick">{{item}}</view>
   </scroll-view>
@@ -62,6 +70,16 @@
     <input class="input" value="{{input}}" placeholder="问制度，或「帮我写一份请假条…」"
            confirm-type="send" bindinput="onInput" bindconfirm="send" />
     <button class="send-btn" bindtap="send" disabled="{{loading}}">发送</button>
+  </view>
+
+  <!-- 材料类型选择 -->
+  <view wx:if="{{docPick}}" class="de-mask" bindtap="closeDocPick">
+    <view class="de-sheet" catchtap="noop">
+      <view class="de-h">写哪种材料？<text class="de-x" catchtap="closeDocPick">✕</text></view>
+      <view class="dp-grid">
+        <view class="dp-item" wx:for="{{docTypes}}" wx:key="*this" data-t="{{item}}" bindtap="pickDocType">{{item}}</view>
+      </view>
+    </view>
   </view>
 
   <!-- 字段编辑弹层 -->
