@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="hint">选择大模型厂商，填入你自己的 API Key 即可调用。Key 只保存在你的手机本地，服务端不存储。</view>
+
+  <view class="card">
+    <view class="sec-title">选择厂商</view>
+    <view class="prov {{provider==item.id?'on':''}}" wx:for="{{providers}}" wx:key="id" data-id="{{item.id}}" bindtap="chooseProvider">
+      <view class="prov-main">
+        <text class="prov-name">{{item.name}}</text>
+        <text class="prov-note">{{item.note}}</text>
+      </view>
+      <view class="radio {{provider==item.id?'checked':''}}">{{provider==item.id?'✓':''}}</view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{provider}}">
+    <view class="sec-title">模型</view>
+    <picker range="{{models}}" value="{{modelIndex}}" bindchange="onModel">
+      <view class="picker">{{models[modelIndex]}}</view>
+    </picker>
+
+    <view class="sec-title" style="margin-top:28rpx">API Key</view>
+    <input class="f-input" password placeholder="粘贴你的 API Key" value="{{apiKey}}" bindinput="onKey" />
+    <view class="key-url" wx:if="{{keyUrl}}" bindtap="copyKeyUrl">获取 Key：{{keyUrl}}（点击复制）</view>
+  </view>
+
+  <view class="btns">
+    <button class="btn-primary" bindtap="save">保存并使用</button>
+    <button class="btn-ghost" bindtap="useDefault">使用默认模型</button>
+  </view>
+
+  <view class="foot">支持 DeepSeek、通义千问、智谱、Kimi、文心、星火、混元、豆包</view>
+</view>

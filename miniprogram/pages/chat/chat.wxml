@@ -1,4 +1,11 @@
 <view class="chat-container">
+  <!-- 当前模型条：点开可切换厂商、填自己的 Key -->
+  <view class="model-bar" bindtap="goModel">
+    <text class="mb-dot">🤖</text>
+    <text class="mb-name">{{modelLabel}}</text>
+    <text class="mb-switch">切换模型 ›</text>
+  </view>
+
   <scroll-view class="msg-list" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation>
     <view wx:for="{{messages}}" wx:key="index" class="msg-row {{item.role}}">
       <view class="bubble {{item.role}}">

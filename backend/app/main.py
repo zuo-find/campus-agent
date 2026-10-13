@@ -5,7 +5,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app import agent, auth, life
+from app import agent, auth, life, providers
 from app.tools import ToolContext
 from rag import store
 
@@ -31,17 +31,46 @@ class Ddl(BaseModel):
     due: str  # YYYY-MM-DD
 
 
+class LLMConfig(BaseModel):
+    """用户自选的大模型配置；key 由前端本地保存、随请求传入，服务端不落库。"""
+    provider: str = ""
+    api_key: str = ""
+    model: str = ""
+
+
 class ChatReq(BaseModel):
     message: str
     history: list[dict] = []
     courses: list[Course] = []
     ddls: list[Ddl] = []
     user_name: str = "同学"
+    llm: LLMConfig | None = None
 
 
 @app.get("/health")
 def health():
     return {"ok": True, "docs_indexed": store._get_collection().count()}
+
+
+@app.get("/providers")
+def providers_list():
+    """可供选择的大模型厂商列表（不含任何密钥）。"""
+    return {"ok": True, "providers": providers.list_providers()}
+
+
+def _friendly_llm_error(e: Exception) -> str:
+    """把大模型调用异常转成用户看得懂的提示。"""
+    s = str(e)
+    low = s.lower()
+    if "401" in s or "authentication" in low or "invalid" in low and "key" in low:
+        return "API Key 无效或已过期，请点问答页顶部的「切换模型」检查你填的 Key。"
+    if "404" in s or "model" in low and "not found" in low:
+        return "模型名不存在，请点问答页顶部的「切换模型」换一个模型。"
+    if "429" in s or "rate" in low or "quota" in low:
+        return "调用太频繁或额度用尽，稍后再试，或换一个模型/Key。"
+    if "connect" in low or "timeout" in low or "timed out" in low:
+        return "连接大模型服务失败，检查网络，或确认该厂商的调用地址是否可达。"
+    return "调用出错了：" + s[:200]
 
 
 @app.post("/chat")
@@ -51,10 +80,11 @@ def chat(req: ChatReq):
         ddls=[d.model_dump() for d in req.ddls],
         user_name=req.user_name,
     )
+    llm = req.llm.model_dump() if req.llm else None
     try:
-        return {"ok": True, **agent.chat(req.message, req.history, ctx)}
-    except Exception as e:  # 统一错误出口，前端好处理
-        return {"ok": False, "error": str(e)}
+        return {"ok": True, **agent.chat(req.message, req.history, ctx, llm=llm)}
+    except Exception as e:  # 统一错误出口，转成用户看得懂的话
+        return {"ok": False, "error": _friendly_llm_error(e)}
 
 
 @app.post("/rag/upload")

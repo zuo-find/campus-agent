@@ -1,4 +1,14 @@
 .chat-container { display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+
+/* 当前模型条 */
+.model-bar {
+  display: flex; align-items: center; background: #fff;
+  padding: 18rpx 28rpx; border-bottom: 1rpx solid #eef1f5;
+}
+.mb-dot { font-size: 28rpx; margin-right: 12rpx; }
+.mb-name { flex: 1; font-size: 26rpx; color: #24324a; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.mb-switch { font-size: 24rpx; color: #1a73e8; }
+
 .msg-list { flex: 1; padding: 20rpx 0; overflow: hidden; }
 
 .msg-row { display: flex; padding: 12rpx 24rpx; }

@@ -3,7 +3,8 @@
     "pages/chat/chat",
     "pages/scores/scores",
     "pages/life/life",
-    "pages/mine/mine"
+    "pages/mine/mine",
+    "pages/model/model"
   ],
   "window": {
     "navigationBarBackgroundColor": "#1a73e8",

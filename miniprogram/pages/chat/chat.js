@@ -6,14 +6,26 @@ Page({
     input: '',
     loading: false,
     scrollTop: 0,
+    modelLabel: '默认模型',
     quickAsks: ['帮我算一下绩点', '请假3天怎么走流程', '挂科了怎么重修', '奖学金怎么评']
   },
 
   onLoad() {
     this.setData({
-      messages: [{ role: 'assistant', content: '你好！我是校园助手 👋 可以问我制度流程，也能帮你算绩点、查成绩、写请假条。' }]
+      messages: [{ role: 'assistant', content: '你好！我是校园助手 👋 可以问我制度流程，也能帮你算绩点、查成绩、写请假条。\n\n点上方可切换大模型、填自己的 API Key。' }]
     });
   },
+
+  onShow() {
+    // 从「选择大模型」页返回时刷新当前模型显示
+    const llm = wx.getStorageSync('llm');
+    const label = llm && llm.apiKey
+      ? (llm.name || llm.provider) + ' · ' + (llm.model || '')
+      : '默认模型';
+    this.setData({ modelLabel: label });
+  },
+
+  goModel() { wx.navigateTo({ url: '/pages/model/model' }); },
 
   onInput(e) { this.setData({ input: e.detail.value }); },
 
@@ -27,6 +39,12 @@ Page({
       .filter(m => m.role === 'user' || m.role === 'assistant')
       .map(m => ({ role: m.role, content: m.content }));
 
+    // 用户自选的大模型（存本地，随请求发给后端；服务端不落库）
+    const llm = wx.getStorageSync('llm');
+    const llmPayload = llm && llm.apiKey
+      ? { provider: llm.provider, api_key: llm.apiKey, model: llm.model }
+      : null;
+
     const messages = this.data.messages.concat([{ role: 'user', content: text }]);
     this.setData({ messages, input: '', loading: true }, this.scrollToBottom);
 
@@ -38,9 +56,10 @@ Page({
         history: history,
         courses: app.getCourses(),
         ddls: app.getDdls(),
-        user_name: app.globalData.userName
+        user_name: app.globalData.userName,
+        llm: llmPayload
       },
-      timeout: 30000,
+      timeout: 60000,
       success: (res) => {
         const d = res.data || {};
         if (d.ok) {

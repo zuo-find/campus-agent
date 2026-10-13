@@ -2,6 +2,8 @@
 backend/.env
 # 向量库数据
 backend/data/chroma/
+# 运行时数据库（本地生成，不入库）
+backend/data/*.db
 # Python
 __pycache__/
 *.pyc

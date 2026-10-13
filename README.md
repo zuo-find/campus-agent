@@ -11,6 +11,14 @@
 | RAG 知识库检索 | 校园制度文档切块入 Chroma 向量库，检索 top-k 片段并**标注来源**作答，不编造 |
 | 大模型问答 | DeepSeek 自然语言理解与生成，口语化应答 |
 | 工具调用（Agent） | 大模型 function-calling 自主决定调用 查成绩 / 算绩点 / 请假条 / DDL 四个工具 |
+| 多模型可插拔 | 问答页可切换 8 家国内主流大模型（DeepSeek/通义千问/智谱/Kimi/文心/星火/混元/豆包），用户填自己的 API Key 调用 |
+
+### 切换大模型 / 自带 Key
+
+问答页顶部有「切换模型」条，点开可选厂商、选模型、填入自己的 API Key。
+- Key 只保存在**用户手机本地**（`wx.storage`），随请求发给后端**仅用于当次调用，服务端不落库**。
+- 各厂商均使用 OpenAI 兼容接口，后端统一用一份 SDK 调用；未配置时回退服务端默认模型。
+- 厂商与默认地址见 `backend/app/providers.py`，可自行增删。
 
 ## 目录结构
 
@@ -22,6 +30,7 @@ campus-agent/
 │  │  ├─ agent.py          Agent 核心：RAG 注入 + function-calling 循环
 │  │  ├─ life.py           「生活」栏：天气/食堂推荐/失物招领
 │  │  ├─ auth.py           微信登录：code→openid→会话 token
+│  │  ├─ providers.py      大模型厂商注册表（8 家国内主流，OpenAI 兼容）
 │  │  ├─ config.py         配置（从 .env 读密钥）
 │  │  └─ tools/__init__.py 四个工具 + JSON Schema + 注册表
 │  ├─ rag/store.py         Chroma 向量库：切块 / 入库 / 检索
@@ -32,6 +41,7 @@ campus-agent/
    ├─ pages/chat/          问答（核心页，含来源标注、快捷提问）
    ├─ pages/scores/        成绩录入 + 本地绩点计算
    ├─ pages/life/          生活：天气·校历 / 食堂推荐 / 快递外卖 / 失物招领
+   ├─ pages/model/         选择大模型：切换厂商 + 填自己的 API Key
    └─ pages/mine/          我的：微信登录 + 个人中心
 ```
 

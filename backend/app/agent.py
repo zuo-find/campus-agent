@@ -13,6 +13,7 @@ import json
 
 from openai import OpenAI
 
+from app import providers
 from app.config import settings
 from app.tools import ToolContext, run_tool, tool_schemas
 from rag import store
@@ -29,6 +30,17 @@ def _llm() -> OpenAI:
     return _client
 
 
+def _resolve_llm(llm: dict | None) -> tuple[OpenAI, str]:
+    """选择用哪个大模型：
+    - llm 带 api_key（用户在小程序里自填的 key）→ 用对应 provider 的地址与模型
+    - 否则用服务端 .env 里配置的默认（DeepSeek）
+    返回 (client, model)。"""
+    if llm and llm.get("api_key"):
+        base, model, _name = providers.resolve(llm.get("provider", ""), llm.get("model", ""))
+        return OpenAI(api_key=llm["api_key"], base_url=base), model
+    return _llm(), settings.llm_model
+
+
 SYSTEM_PROMPT = """你是西安思源学院的「校园服务智能体」，帮助同学解答校园制度、办事流程问题，并能调用工具查成绩、算绩点、生成请假条、整理 ddl。
 
 规则：
@@ -39,8 +51,12 @@ SYSTEM_PROMPT = """你是西安思源学院的「校园服务智能体」，帮�
 MAX_TOOL_ROUNDS = 4
 
 
-def chat(user_message: str, history: list[dict], ctx: ToolContext) -> dict:
-    """处理一条用户消息，返回 {reply, sources, tool_calls}。"""
+def chat(user_message: str, history: list[dict], ctx: ToolContext,
+         llm: dict | None = None) -> dict:
+    """处理一条用户消息，返回 {reply, sources, tool_calls}。
+
+    llm: 用户自选的模型配置 {provider, api_key, model}，为空则用服务端默认。
+    """
     # 1) RAG 检索，把命中片段注入上下文
     hits = store.retrieve(user_message)
     rag_block = ""
@@ -53,12 +69,12 @@ def chat(user_message: str, history: list[dict], ctx: ToolContext) -> dict:
     messages.extend(history[-6:])  # 只带最近几轮，控制 token
     messages.append({"role": "user", "content": user_message})
 
-    client = _llm()
+    client, model = _resolve_llm(llm)
     used_tools: list[dict] = []
 
     for _ in range(MAX_TOOL_ROUNDS):
         resp = client.chat.completions.create(
-            model=settings.llm_model,
+            model=model,
             messages=messages,
             tools=tool_schemas(),
             temperature=0.3,
@@ -86,7 +102,7 @@ def chat(user_message: str, history: list[dict], ctx: ToolContext) -> dict:
 
     # 超过最大轮数仍未收敛，兜底再问一次（不带工具）
     final = client.chat.completions.create(
-        model=settings.llm_model, messages=messages, temperature=0.3,
+        model=model, messages=messages, temperature=0.3,
     )
     return {
         "reply": final.choices[0].message.content or "",
