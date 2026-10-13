@@ -67,5 +67,12 @@
     <view class="feat"><view class="feat-dot d2"></view><view><text class="feat-t">失物招领归属</text><text class="feat-d">发布记录绑定到你的账号</text></view></view>
   </view>
 
+  <!-- 协议入口（登录前/后都可见） -->
+  <view class="links">
+    <text class="link-item" bindtap="goAgreement" data-type="service">服务协议</text>
+    <text class="link-sep">·</text>
+    <text class="link-item" bindtap="goAgreement" data-type="privacy">隐私政策</text>
+  </view>
+
   <view class="foot">校园服务智能体 · 参赛作品</view>
 </view>

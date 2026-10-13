@@ -1,0 +1,13 @@
+<view class="doc">
+  <view class="doc-head">
+    <text class="doc-title">{{title}}</text>
+    <text class="doc-updated">{{updated}}</text>
+  </view>
+
+  <view class="sec" wx:for="{{sections}}" wx:key="h">
+    <text class="sec-h">{{item.h}}</text>
+    <text class="sec-p" wx:for="{{item.p}}" wx:for-item="para" wx:key="*this">{{para}}</text>
+  </view>
+
+  <view class="doc-foot">校园助手 · 参赛作品</view>
+</view>

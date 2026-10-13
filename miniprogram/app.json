@@ -4,7 +4,8 @@
     "pages/scores/scores",
     "pages/life/life",
     "pages/mine/mine",
-    "pages/model/model"
+    "pages/model/model",
+    "pages/agreement/agreement"
   ],
   "window": {
     "navigationBarBackgroundColor": "#1a73e8",

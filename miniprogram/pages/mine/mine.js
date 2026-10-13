@@ -31,15 +31,16 @@ Page({
     this.wxLogin();
   },
 
+  // 打开协议页（登录卡片里的链接：data-type 传中文标题）
   openDoc(e) {
-    const type = e.currentTarget.dataset.type;
-    wx.showModal({
-      title: type,
-      content: type === '用户协议'
-        ? '本作品为校园服务智能体（T4 参赛作品）。登录仅用于识别身份、同步你录入的成绩与使用数据，不会收集或上传你的隐私信息。成绩数据保存在你的手机本地。'
-        : '我们仅在小程序内保存你的登录标识（openid）、昵称与头像，用于展示个人信息。不会向任何第三方共享，你可随时退出登录清除本地数据。',
-      showCancel: false, confirmText: '我知道了'
-    });
+    const t = e.currentTarget.dataset.type;
+    this.goAgreement({ currentTarget: { dataset: { type: t === '隐私政策' ? 'privacy' : 'service' } } });
+  },
+
+  // 打开协议页（底部链接：data-type 传 service | privacy）
+  goAgreement(e) {
+    const type = e && e.currentTarget && e.currentTarget.dataset.type === 'privacy' ? 'privacy' : 'service';
+    wx.navigateTo({ url: '/pages/agreement/agreement?type=' + type });
   },
 
   // ---- 微信登录：wx.login → 后端换 openid → 存 token ----

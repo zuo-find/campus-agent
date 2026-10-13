@@ -130,4 +130,8 @@
 .feat-t { display: block; font-size: 29rpx; color: #24324a; }
 .feat-d { display: block; font-size: 23rpx; color: #93a1b5; margin-top: 6rpx; }
 
-.foot { text-align: center; font-size: 22rpx; color: #b6c0cf; margin-top: 50rpx; }
+.links { display: flex; align-items: center; justify-content: center; margin-top: 50rpx; }
+.link-item { font-size: 25rpx; color: #1a73e8; padding: 8rpx 20rpx; }
+.link-sep { font-size: 22rpx; color: #c6d0de; }
+
+.foot { text-align: center; font-size: 22rpx; color: #b6c0cf; margin-top: 18rpx; }
