@@ -77,12 +77,27 @@
 .empty-d { font-size: 24rpx; color: #a6b0c0; margin-top: 14rpx; text-align: center; line-height: 1.6; }
 
 /* 快递外卖 跳转卡片 */
-.jump-card { display: flex; align-items: center; background: #fff; border-radius: 16rpx; margin: 20rpx 24rpx; padding: 28rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,.04); }
-.jump-icon { font-size: 52rpx; margin-right: 24rpx; }
+.jump-card { display: flex; align-items: center; background: #fff; border-radius: 20rpx; margin: 20rpx 24rpx; padding: 28rpx;
+  box-shadow: 0 8rpx 26rpx rgba(24,39,75,.06); }
+.jump-badge {
+  width: 80rpx; height: 80rpx; border-radius: 24rpx; margin-right: 26rpx; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36rpx; font-weight: 600; color: #fff;
+}
+.jump-badge.tone0 { background: linear-gradient(135deg,#ffb020,#ff8a00); }
+.jump-badge.tone1 { background: linear-gradient(135deg,#4a9bff,#1a73e8); }
+.jump-badge.tone2 { background: linear-gradient(135deg,#34d399,#10b981); }
+.jump-badge.tone3 { background: linear-gradient(135deg,#a78bfa,#7c3aed); }
 .jump-main { flex: 1; display: flex; flex-direction: column; }
-.jump-title { font-size: 32rpx; color: #222; font-weight: 500; }
-.jump-sub { font-size: 25rpx; color: #999; margin-top: 8rpx; }
-.jump-arrow { font-size: 44rpx; color: #ccc; }
+.jump-title { font-size: 32rpx; color: #1a2233; font-weight: 600; }
+.jump-sub { font-size: 25rpx; color: #9aa6b5; margin-top: 8rpx; }
+.jump-arrow { font-size: 44rpx; color: #cdd6e2; }
+
+/* 未接入占位卡片 */
+.jump-card.ghost { box-shadow: none; border: 1rpx dashed #dbe2ec; background: #fafbfd; }
+.jump-badge.ghost-mark { background: #eef1f6; color: #b6c0cf; font-weight: 400; font-size: 40rpx; }
+.jump-card.ghost .jump-title { color: #8c98ab; font-weight: 500; }
+
 .tip { font-size: 24rpx; color: #aaa; text-align: center; margin: 24rpx; }
 
 /* 小程序码弹层 */

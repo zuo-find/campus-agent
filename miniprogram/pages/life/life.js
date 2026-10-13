@@ -34,15 +34,15 @@ function fmtTime(iso) {
   return (d.getMonth() + 1) + '月' + d.getDate() + '日';
 }
 
-// ====== 跑腿/快递/外卖 跳转配置 ======
-// 两种跳转方式：
-//   mode:'appid'   有 AppID，一键跳转（wx.navigateToMiniProgram）
-//   mode:'qrcode'  无 AppID，弹出小程序码大图，用户长按识别进入（备选方案）
-// 快递「小猋」暂无 AppID，用 qrcode 方案；拿到 AppID 后把 mode 改回 'appid' 并填 appId 即可。
+// ====== 快递/外卖 跳转配置（按需自行增删条目）======
+// 每个条目两种跳转方式：
+//   mode:'appid'   有对方小程序的 AppID，一键跳转（wx.navigateToMiniProgram）
+//   mode:'qrcode'  没有 AppID，弹出小程序码大图，用户长按识别进入
+// 例如要加"快递代取"，在这里加一条：
+//   express_take: { mode: 'appid', appId: '对方的AppID', name: '快递代取' }
+// 页面会自动为每条生成一个入口卡片，无需改 wxml。
 const JUMP = {
-  express_take: { mode: 'qrcode', qr: '/images/xiaobiao_qr.png', name: '快递代取（小猋）' },
-  express_send: { mode: 'qrcode', qr: '/images/xiaobiao_qr.png', name: '快递收寄（小猋）' },
-  takeout:      { mode: 'appid',  appId: 'wxde8ac0a21135c07d', path: '', name: '外卖(美团)' }
+  takeout: { mode: 'appid', appId: 'wxde8ac0a21135c07d', path: '', name: '外卖(美团)' }
 };
 
 Page({
@@ -54,6 +54,17 @@ Page({
     showForm: false, fTitle: '', fLocation: '', fContact: '', fDetail: '',
     // 校历作息
     schedule: SCHEDULE, calendar: CALENDAR,
+    // 快递/外卖入口（由 JUMP 配置自动生成）
+    jumps: Object.keys(JUMP).map((k, i) => {
+      const c = JUMP[k];
+      return {
+        key: k,
+        name: c.name,
+        sub: c.mode === 'qrcode' ? '长按识别进入' : '点击进入小程序',
+        initial: (c.name || '?').slice(0, 1),
+        tone: i % 4
+      };
+    }),
     // 小程序码弹层
     qrShow: false, qrSrc: '', qrName: ''
   },

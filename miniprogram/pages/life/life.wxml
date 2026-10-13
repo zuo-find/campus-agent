@@ -40,22 +40,19 @@
 
   <!-- ============ 快递外卖（跳转第三方小程序） ============ -->
   <block wx:if="{{tab=='errand'}}">
-    <view class="jump-card" data-key="express_take" bindtap="jumpTo">
-      <view class="jump-icon">📦</view>
-      <view class="jump-main"><text class="jump-title">快递代取</text><text class="jump-sub">小猋 · 长按识别进入</text></view>
+    <view class="jump-card" wx:for="{{jumps}}" wx:key="key" data-key="{{item.key}}" bindtap="jumpTo">
+      <view class="jump-badge tone{{item.tone}}">{{item.initial}}</view>
+      <view class="jump-main"><text class="jump-title">{{item.name}}</text><text class="jump-sub">{{item.sub}}</text></view>
       <text class="jump-arrow">›</text>
     </view>
-    <view class="jump-card" data-key="express_send" bindtap="jumpTo">
-      <view class="jump-icon">📮</view>
-      <view class="jump-main"><text class="jump-title">快递收寄</text><text class="jump-sub">小猋 · 长按识别进入</text></view>
-      <text class="jump-arrow">›</text>
+
+    <!-- 未接入的快递入口（可由管理员在 life.js 的 JUMP 中配置后自动出现） -->
+    <view class="jump-card ghost">
+      <view class="jump-badge ghost-mark">＋</view>
+      <view class="jump-main"><text class="jump-title">快递代取 / 收寄</text><text class="jump-sub">暂未接入，可由管理员配置</text></view>
     </view>
-    <view class="jump-card" data-key="takeout" bindtap="jumpTo">
-      <view class="jump-icon">🍱</view>
-      <view class="jump-main"><text class="jump-title">外卖</text><text class="jump-sub">点外卖 · 美团</text></view>
-      <text class="jump-arrow">›</text>
-    </view>
-    <view class="tip">快递跳转「小猋」小程序；外卖跳转美团。</view>
+
+    <view class="tip">点击卡片跳转到对应小程序。</view>
   </block>
 
   <!-- 小程序码弹层（备选跳转方案：长按识别） -->
