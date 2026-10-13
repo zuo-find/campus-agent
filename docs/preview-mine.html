@@ -1,0 +1,66 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 按 750rpx=375px 换算，1rpx=0.5px，1:1 还原「我的」页未登录态 */
+body{margin:0;background:#f2f4f8;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.page{min-height:812px;background:#f2f4f8;padding-bottom:30px;box-sizing:border-box}
+.hero{height:230px;background:linear-gradient(160deg,#2b7cf0 0%,#1a73e8 45%,#4a9bff 100%);
+  border-radius:0 0 24px 24px;display:flex;align-items:flex-start;justify-content:center;padding-top:48px;box-sizing:border-box}
+.brand{display:flex;flex-direction:column;align-items:center}
+.brand-logo{width:54px;height:54px;border-radius:15px;background:rgba(255,255,255,.22);
+  display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:11px}
+.brand-name{color:#fff;font-size:20px;font-weight:600;letter-spacing:1px}
+.brand-slogan{color:rgba(255,255,255,.8);font-size:12px;margin-top:5px}
+.login-card{background:#fff;border-radius:12px;margin:-40px 20px 0;padding:28px 22px 20px;
+  position:relative;z-index:2;box-shadow:0 6px 20px rgba(26,115,232,.12);
+  display:flex;flex-direction:column;align-items:center}
+.avatar-ph{position:relative;width:75px;height:75px;border-radius:50%;
+  background:linear-gradient(160deg,#dbe7ff,#c2d6ff);overflow:hidden;flex-shrink:0}
+.avatar-ph::before{content:'';position:absolute;top:15px;left:50%;transform:translateX(-50%);
+  width:25px;height:25px;border-radius:50%;background:#8fb3f0}
+.avatar-ph::after{content:'';position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);
+  width:52px;height:38px;border-radius:26px 26px 0 0;background:#8fb3f0}
+.login-title{font-size:18px;font-weight:600;color:#1a2b45;margin-top:15px}
+.login-sub{font-size:12.5px;color:#93a1b5;margin-top:7px;margin-bottom:22px}
+.wx-btn{width:100%;display:flex;align-items:center;justify-content:center;background:#07c160;
+  color:#fff;border-radius:24px;font-size:15.5px;line-height:46px;border:none;cursor:pointer;
+  box-shadow:0 4px 10px rgba(7,193,96,.28);padding:0}
+.wx-logo{position:relative;width:28px;height:22px;margin-right:9px}
+.bub{position:absolute;background:#fff;border-radius:50%}
+.bub-a{width:18px;height:15px;top:0;left:0}
+.bub-b{width:14px;height:11.5px;bottom:0;right:0}
+.tail{position:absolute;width:0;height:0;border-left:3.5px solid transparent;
+  border-right:3.5px solid transparent;border-top:4.5px solid #fff}
+.tail-a{bottom:-2.5px;left:4.5px}.tail-b{bottom:-1px;right:3.5px}
+.bub-a::after{content:'';position:absolute;width:3.5px;height:3.5px;border-radius:50%;
+  background:#07c160;top:5px;left:3.5px;box-shadow:5.5px 0 0 #07c160}
+.bub-b::after{content:'';position:absolute;width:3px;height:3px;border-radius:50%;
+  background:#07c160;top:4px;left:3px;box-shadow:4.5px 0 0 #07c160}
+.agree{display:flex;align-items:flex-start;margin-top:17px;padding:0 2px}
+.cb{width:16px;height:16px;border-radius:50%;border:1px solid #c6d0de;margin-right:7px;
+  flex-shrink:0;box-sizing:border-box}
+.agree-txt{font-size:11.5px;color:#8a97a8;line-height:1.5}
+.link{color:#1a73e8}
+.card{background:#fff;border-radius:10px;margin:10px 20px;box-shadow:0 2px 9px rgba(0,0,0,.03)}
+.feats{padding:8px 16px}
+.feat{display:flex;align-items:center;padding:12px 0}
+.feat-ico{font-size:22px;margin-right:12px}
+.feat-t{display:block;font-size:14.5px;color:#24324a}
+.feat-d{display:block;font-size:11.5px;color:#93a1b5;margin-top:3px}
+.foot{text-align:center;font-size:11px;color:#b6c0cf;margin-top:25px}
+</style></head><body><div class="page">
+<div class="hero"><div class="brand"><div class="brand-logo">🎓</div>
+<div class="brand-name">校园助手</div><div class="brand-slogan">你的校园 AI 伙伴</div></div></div>
+<div class="login-card">
+  <div class="avatar-ph"></div>
+  <div class="login-title">登录校园助手</div>
+  <div class="login-sub">同步成绩 · DDL · 让 AI 更懂你</div>
+  <button class="wx-btn"><span class="wx-logo"><span class="bub bub-a"></span><span class="bub bub-b"></span><span class="tail tail-a"></span><span class="tail tail-b"></span></span>微信一键登录</button>
+  <div class="agree"><div class="cb"></div><div class="agree-txt">我已阅读并同意<span class="link">《用户协议》</span>和<span class="link">《隐私政策》</span></div></div>
+</div>
+<div class="card feats">
+  <div class="feat"><span class="feat-ico">📊</span><div><span class="feat-t">成绩与 DDL 同步</span><span class="feat-d">换手机也不丢数据</span></div></div>
+  <div class="feat"><span class="feat-ico">🤖</span><div><span class="feat-t">AI 更懂你</span><span class="feat-d">记住你的偏好与课表</span></div></div>
+  <div class="feat"><span class="feat-ico">📦</span><div><span class="feat-t">失物招领归属</span><span class="feat-d">发布记录绑定到你的账号</span></div></div>
+</div>
+<div class="foot">校园服务智能体 · 参赛作品</div>
+</div></body></html>

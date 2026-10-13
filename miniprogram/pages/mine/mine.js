@@ -6,82 +6,97 @@ Page({
     user: null,             // { token, openid, nickname, avatar }
     logged: false,
     logging: false,
-    // 微信新版头像昵称填写能力
-    hasAvatar: false, hasNick: false,
-    tapCount: 0
+    agreed: false,          // 是否勾选用户协议
+    shortId: ''
   },
 
   onShow() {
     const u = app.getUser();
-    this.setData({ user: u, logged: app.isLoggedIn() });
+    this.setData({
+      user: u,
+      logged: app.isLoggedIn(),
+      shortId: u && u.openid ? u.openid.slice(0, 12) + '…' : ''
+    });
+  },
+
+  toggleAgree() { this.setData({ agreed: !this.data.agreed }); },
+
+  openDoc(e) {
+    const type = e.currentTarget.dataset.type;
+    wx.showModal({
+      title: type,
+      content: type === '用户协议'
+        ? '本作品为校园服务智能体（T4 参赛作品）。登录仅用于识别身份、同步你录入的成绩与 DDL，不会收集或上传你的隐私信息。成绩数据保存在你的手机本地。'
+        : '我们仅在小程序内保存你的登录标识（openid）、昵称与头像，用于展示个人信息。不会向任何第三方共享，你可随时退出登录清除本地数据。',
+      showCancel: false, confirmText: '我知道了'
+    });
   },
 
   // ---- 微信登录：wx.login → 后端换 openid → 存 token ----
   wxLogin() {
     if (this.data.logging) return;
+    if (!this.data.agreed) {
+      wx.showToast({ title: '请先阅读并同意用户协议', icon: 'none' });
+      return;
+    }
     this.setData({ logging: true });
     wx.login({
       success: (res) => {
-        if (!res.code) { this.fail('获取 code 失败'); return; }
+        if (!res.code) { this.fail('获取登录凭证失败'); return; }
         wx.request({
           url: API + '/auth/login', method: 'POST', timeout: 15000,
           data: { code: res.code },
           success: (r) => {
             const d = r.data || {};
             if (d.ok) {
-              const user = { token: d.token, openid: d.openid, nickname: this.data.user?.nickname || '同学', avatar: this.data.user?.avatar || '' };
+              const prev = this.data.user || {};
+              const user = {
+                token: d.token, openid: d.openid,
+                nickname: prev.nickname || '微信用户', avatar: prev.avatar || ''
+              };
               app.setUser(user);
-              this.setData({ user, logged: true });
-              wx.showToast({ title: d.is_real ? '登录成功' : '登录成功(演示模式)', icon: 'none' });
+              this.setData({ user, logged: true, shortId: d.openid.slice(0, 12) + '…' });
+              wx.showToast({ title: '登录成功', icon: 'success' });
             } else {
               this.fail('登录失败：' + (d.error || ''));
             }
           },
-          fail: () => this.fail('连接后端失败'),
+          fail: () => this.fail('连接后端失败，请确认后端已启动'),
           complete: () => this.setData({ logging: false })
         });
       },
-      fail: () => this.fail('wx.login 失败')
+      fail: () => this.fail('微信登录失败')
     });
   },
 
-  // ---- 头像选择（新版能力）----
+  fail(msg) {
+    this.setData({ logging: false });
+    wx.showToast({ title: msg, icon: 'none' });
+  },
+
+  // ---- 头像/昵称授权（微信新版能力）----
   onChooseAvatar(e) {
     const avatar = e.detail.avatarUrl;
-    this.setData({ 'user.avatar': avatar, hasAvatar: true });
-    // 临时路径需上传到服务器才能长期使用；演示阶段先存本地
+    const user = { ...app.getUser(), avatar };
+    app.setUser(user);
+    this.setData({ user });
     this.saveProfile({ avatar });
   },
 
-  onNickInput(e) {
-    this.setData({ nickInput: e.detail.value });
-  },
-  onNickBlur(e) { this.setData({ 'user.nickname': e.detail.value, hasNick: true }); this.saveProfile({ nickname: e.detail.value }); },
-
-  // 长按头像时兜底（部分机型没有 chooseAvatar）
-  onChooseAvatarTap(e) {
-    // 用 getUserProfile 兜底
-    if (wx.getUserProfile) {
-      wx.getUserProfile({
-        desc: '用于完善会员资料',
-        success: (res) => {
-          const { nickName, avatarUrl } = res.userInfo;
-          app.setUser({ ...this.data.user, nickname: nickName, avatar: avatarUrl });
-          this.setData({ user: app.getUser(), hasAvatar: true, hasNick: true });
-          this.saveProfile({ nickname: nickName, avatar: avatarUrl });
-        }
-      });
-    }
+  onNickBlur(e) {
+    const nickname = e.detail.value.trim() || '微信用户';
+    const user = { ...app.getUser(), nickname };
+    app.setUser(user);
+    this.setData({ user });
+    this.saveProfile({ nickname });
   },
 
   saveProfile(patch) {
     if (!app.isLoggedIn()) return;
-    const user = app.getUser();
-    const merged = { ...user, ...patch };
-    app.setUser(merged);
+    const u = app.getUser();
     wx.request({
       url: API + '/auth/profile', method: 'POST',
-      data: { token: merged.token, nickname: merged.nickname || '', avatar: merged.avatar || '' }
+      data: { token: u.token, nickname: u.nickname || '', avatar: u.avatar || '' }
     });
   },
 
@@ -91,15 +106,10 @@ Page({
       success: (r) => {
         if (r.confirm) {
           app.clearUser();
-          this.setData({ user: null, logged: false, hasAvatar: false, hasNick: false });
+          this.setData({ user: null, logged: false, agreed: false, shortId: '' });
         }
       }
     });
-  },
-
-  fail(msg) {
-    this.setData({ logging: false });
-    wx.showToast({ title: msg, icon: 'none' });
   },
 
   goScores() { wx.switchTab({ url: '/pages/scores/scores' }); },
