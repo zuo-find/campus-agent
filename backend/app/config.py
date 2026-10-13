@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     llm_base_url: str = "https://api.deepseek.com"
     llm_model: str = "deepseek-chat"
 
+    # 微信小程序登录（填了 appid+secret 走真实登录，否则降级游客模式）
+    wx_appid: str = ""
+    wx_secret: str = ""
+
     # 向量库 / RAG
     chroma_dir: str = "./data/chroma"
     rag_collection: str = "campus_docs"

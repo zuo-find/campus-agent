@@ -1,0 +1,42 @@
+<view class="container">
+  <!-- 头部：头像 + 昵称 -->
+  <view class="header {{logged?'on':''}}">
+    <block wx:if="{{logged}}">
+      <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <image class="avatar" src="{{user.avatar || '/images/default_avatar.png'}}" mode="aspectFill" />
+      </button>
+      <input class="nick-input" type="nickname" placeholder="点击设置昵称"
+             value="{{user.nickname}}" bindblur="onNickBlur" />
+      <text class="openid">ID: {{user.openid}}</text>
+    </block>
+    <block wx:else>
+      <image class="avatar" src="/images/default_avatar.png" mode="aspectFill" />
+      <text class="login-tip">登录后同步你的成绩与 DDL</text>
+      <button class="login-btn" bindtap="wxLogin" disabled="{{logging}}">
+        <text class="wx-icon">微</text>{{logging?'登录中…':'微信一键登录'}}
+      </button>
+    </block>
+  </view>
+
+  <!-- 已登录：功能入口 -->
+  <block wx:if="{{logged}}">
+    <view class="card menu">
+      <view class="menu-item" bindtap="goScores"><text>我的成绩</text><text class="arrow">›</text></view>
+      <view class="menu-item" bindtap="goDdl"><text>我的 DDL</text><text class="arrow">›</text></view>
+    </view>
+    <view class="card menu">
+      <view class="menu-item danger" bindtap="logout"><text>退出登录</text><text class="arrow">›</text></view>
+    </view>
+  </block>
+
+  <!-- 未登录：说明 -->
+  <block wx:else>
+    <view class="card">
+      <view class="sec-title">登录能做什么</view>
+      <view class="feat">· 跨设备同步成绩与 DDL</view>
+      <view class="feat">· AI 助手记住你的偏好</view>
+      <view class="feat">· 失物招领发布归属于你</view>
+    </view>
+    <view class="tip">本作品为校园服务智能体，登录仅用于身份识别，不收集敏感信息。</view>
+  </block>
+</view>

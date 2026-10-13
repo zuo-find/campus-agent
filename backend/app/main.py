@@ -5,7 +5,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app import agent, life
+from app import agent, auth, life
 from app.tools import ToolContext
 from rag import store
 
@@ -17,6 +17,7 @@ app.add_middleware(
 )
 
 life.init_db()  # 启动即建失物招领表
+auth.init_db()  # 启动即建用户表
 
 
 class Course(BaseModel):
@@ -117,3 +118,34 @@ def life_lf_list(kind: str = ""):
 @app.post("/life/lostfound/{item_id}/close")
 def life_lf_close(item_id: int):
     return life.close_lost_found(item_id)
+
+
+# ------------------------------------------------------------ 微信登录
+
+class LoginReq(BaseModel):
+    code: str
+
+
+@app.post("/auth/login")
+def auth_login(req: LoginReq):
+    """小程序 wx.login 的 code → openid → 会话 token。"""
+    try:
+        return auth.login(req.code)
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+class ProfileReq(BaseModel):
+    token: str
+    nickname: str = ""
+    avatar: str = ""
+
+
+@app.post("/auth/profile")
+def auth_profile(req: ProfileReq):
+    return auth.update_profile(req.token, req.nickname, req.avatar)
+
+
+@app.get("/auth/me")
+def auth_me(token: str):
+    return auth.get_user(token)
