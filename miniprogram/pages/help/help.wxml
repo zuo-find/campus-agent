@@ -1,0 +1,58 @@
+<view class="container">
+  <!-- 头部 -->
+  <view class="hero">
+    <text class="hero-t">使用帮助</text>
+    <text class="hero-d">这个小程序能帮你问制度、写材料、查日程、算绩点，还能同步学校官网的信息。下面按「怎么用」写清楚了，照着做就行。</text>
+  </view>
+
+  <!-- 目录 -->
+  <scroll-view class="nav" scroll-x>
+    <view class="nav-chip" wx:for="{{navs}}" wx:key="id" data-id="{{item.id}}" bindtap="jump">{{item.label}}</view>
+  </scroll-view>
+
+  <!-- 功能说明（折叠） -->
+  <view class="grp-t">功能怎么用</view>
+  <view class="card g-card" wx:for="{{guides}}" wx:key="id" id="{{item.id}}">
+    <view class="g-head" data-id="{{item.id}}" bindtap="toggle">
+      <text class="g-icon">{{item.icon}}</text>
+      <view class="g-tt">
+        <text class="g-title">{{item.title}}</text>
+        <text class="g-sub">{{item.sub}}</text>
+      </view>
+      <text class="g-arrow {{open[item.id] ? 'up' : ''}}">⌄</text>
+    </view>
+
+    <view class="g-body" wx:if="{{open[item.id]}}">
+      <view class="step" wx:for="{{item.steps}}" wx:for-item="s" wx:key="t">
+        <view class="step-no">{{index + 1}}</view>
+        <view class="step-c">
+          <text class="step-t">{{s.t}}</text>
+          <text class="step-d">{{s.d}}</text>
+        </view>
+      </view>
+      <view class="g-tip" wx:if="{{item.tip}}" user-select>{{item.tip}}</view>
+    </view>
+  </view>
+
+  <!-- 常见问题（折叠） -->
+  <view class="grp-t">常见问题</view>
+  <view class="card q-card">
+    <block wx:for="{{faqs}}" wx:key="id">
+      <view class="q-item {{index == 0 ? '' : 'q-line'}}" data-id="{{item.id}}" bindtap="toggle">
+        <text class="q-mark">Q</text>
+        <text class="q-t">{{item.q}}</text>
+        <text class="g-arrow {{open[item.id] ? 'up' : ''}}">⌄</text>
+      </view>
+      <view class="q-a" wx:if="{{open[item.id]}}">{{item.a}}</view>
+    </block>
+  </view>
+
+  <!-- 底部 -->
+  <view class="card more-card" bindtap="feedback">
+    <text class="more-t">没找到想问的？</text>
+    <text class="more-d">去「我的 → 意见反馈」联系我们，说明你遇到的问题就行。</text>
+    <text class="more-a">查看联系方式 ›</text>
+  </view>
+
+  <view class="foot">校园服务智能体 · 参赛作品 · 版本 1.0.0</view>
+</view>

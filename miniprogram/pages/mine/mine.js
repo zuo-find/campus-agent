@@ -157,17 +157,7 @@ Page({
   },
 
   // ---- 帮助与关于 ----
-  openHelp() {
-    wx.showModal({
-      title: '使用帮助', showCancel: false, confirmText: '知道了',
-      content: '· 问制度：直接问校园制度、办事流程\n' +
-        '· 写材料：输入「帮我写一份请假条：感冒发烧请2天」，生成后可改字段、导出 Word\n' +
-        '· 查日程：问比赛报名/截止时间，会把关键时间点整理成带倒计时的待办\n' +
-        '· 成绩：录入学分和分数即可算绩点、看分布、测算提分目标\n' +
-        '· 官网同步：在生活页(校历/作息)和成绩页(成绩规则)填官网网址即可同步\n' +
-        '· 数据说明：成绩等仅保存在你手机本地'
-    });
-  },
+  openHelp() { wx.navigateTo({ url: '/pages/help/help' }); },
   openFeedback() {
     wx.showModal({
       title: '意见反馈', showCancel: false, confirmText: '复制联系方式',

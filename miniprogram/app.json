@@ -6,7 +6,8 @@
     "pages/life/life",
     "pages/mine/mine",
     "pages/model/model",
-    "pages/agreement/agreement"
+    "pages/agreement/agreement",
+    "pages/help/help"
   ],
   "window": {
     "navigationBarBackgroundColor": "#1a73e8",
