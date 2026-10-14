@@ -115,6 +115,8 @@ def _friendly_llm_error(e: Exception) -> str:
         return "模型名不存在，请点问答页顶部的「切换模型」换一个模型。"
     if "429" in s or "rate" in low or "quota" in low:
         return "调用太频繁或额度用尽，稍后再试，或换一个模型/Key。"
+    if "max_tokens" in s:
+        return "这个模型对输出长度有上限，本次请求超出被拒。已自动降档，请再发一次。"
     if "connect" in low or "timeout" in low or "timed out" in low:
         return "连接大模型服务失败，检查网络，或确认该厂商的调用地址是否可达。"
     return "调用出错了：" + s[:200]
@@ -140,8 +142,8 @@ def chat_vision(req: VisionReq):
     """拍照识别：按用途走「识图 → 讲解 / 待办 / 结构化成绩」。"""
     if not req.image.startswith("data:image/"):
         return {"ok": False, "error": "图片格式不对，请重新选择一张图片。"}
-    if len(req.image) > 8 * 1024 * 1024:
-        return {"ok": False, "error": "图片太大了（超过 8MB），换一张小一点的。"}
+    if len(req.image) > 5 * 1024 * 1024:
+        return {"ok": False, "error": "图片太大了，换一张分辨率低一点的（多数识图模型限单图 5MB）。"}
     ctx = ToolContext(
         courses=[c.model_dump() for c in req.courses],
         ddls=[d.model_dump() for d in req.ddls],

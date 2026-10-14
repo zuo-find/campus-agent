@@ -40,12 +40,43 @@ def fake_ask(image, prompt, vision_llm, system=vision.VISION_SYSTEM, max_tokens=
     return NOTICE
 
 
+REAL_ASK_IMAGE = vision._ask_image      # 下面要用真的实现测 max_tokens 降档
 vision._ask_image = fake_ask
+
+
+def test_max_tokens_cap(fails: list) -> None:
+    """智谱 glm-4v-flash 只允许 max_tokens ∈ [1,1024]：撞到上限要自动降档并记住。"""
+    from types import SimpleNamespace
+
+    seen = []
+
+    def create(**kw):
+        seen.append(kw.get("max_tokens"))
+        if kw.get("max_tokens", 0) > 1024:
+            raise RuntimeError("Error code: 400 - {'error': {'code': '1210', "
+                               "'message': 'max_tokens参数非法：限制数值范围[1,1024]'}}")
+        return SimpleNamespace(choices=[SimpleNamespace(
+            message=SimpleNamespace(content="ok"))])
+
+    fake = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+    real_client = vision._client
+    vision._client = lambda vl: (fake, "glm-4v-flash")
+    vision._MAX_TOKENS_CAP.clear()
+    try:
+        REAL_ASK_IMAGE("data:image/jpeg;base64,x", "p", None, max_tokens=1800)
+        REAL_ASK_IMAGE("data:image/jpeg;base64,x", "p", None, max_tokens=1800)
+    finally:
+        vision._client = real_client
+    print("[maxtokens] 实际发出的 max_tokens:", seen)
+    if seen != [1800, 1024, 1024]:
+        fails.append(f"max_tokens 降档重试不对：{seen}")
 
 
 def main() -> int:
     ctx = ToolContext(courses=[], ddls=[], user_name="同学")
     fails = []
+
+    test_max_tokens_cap(fails)
 
     # ---- 1. 拍成绩单：结构化抽取 ----
     r = vision.handle("data:image/jpeg;base64,x", "scores", "", [], ctx)

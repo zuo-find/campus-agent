@@ -74,11 +74,41 @@ def _client(vision_llm: dict | None) -> tuple[OpenAI, str]:
     )
 
 
+# 各家的 max_tokens 上限不同（智谱 glm-4v-flash 只允许 [1,1024]）。
+# 撞到上限就按报文里给的区间自动降档重试一次，并记住这个模型的上限。
+_MAX_TOKENS_CAP: dict[str, int] = {}
+_RANGE_RE = re.compile(r"\[\s*(\d+)\s*,\s*(\d+)\s*\]")
+
+
+def _cap_from_error(msg: str) -> int | None:
+    """从「限制数值范围[1,1024]」这类报错里取出上限。"""
+    m = _RANGE_RE.search(msg or "")
+    return int(m.group(2)) if m else None
+
+
+def _create(client: OpenAI, **kw):
+    model = kw.get("model", "")
+    capped = min(kw.get("max_tokens", 0) or 0, _MAX_TOKENS_CAP.get(model, 10 ** 9))
+    if capped:
+        kw["max_tokens"] = capped
+    try:
+        return client.chat.completions.create(**kw)
+    except Exception as e:
+        msg = str(e)
+        if "max_tokens" not in msg:
+            raise
+        limit = _cap_from_error(msg) or 1024
+        _MAX_TOKENS_CAP[model] = limit
+        kw["max_tokens"] = min(kw.get("max_tokens", limit), limit)
+        return client.chat.completions.create(**kw)
+
+
 def _ask_image(image: str, prompt: str, vision_llm: dict | None,
                system: str = VISION_SYSTEM, max_tokens: int = 1200) -> str:
     """把图片 + 提示词发给多模态模型，返回文本。"""
     client, model = _client(vision_llm)
-    resp = client.chat.completions.create(
+    resp = _create(
+        client,
         model=model,
         messages=[
             {"role": "system", "content": system},

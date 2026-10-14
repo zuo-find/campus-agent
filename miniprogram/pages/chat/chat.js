@@ -210,7 +210,7 @@ Page({
         const ext = (file.split('.').pop() || 'jpg').toLowerCase();
         const mime = ext === 'png' ? 'image/png' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
         const dataUrl = 'data:' + mime + ';base64,' + res.data;
-        if (dataUrl.length > 7 * 1024 * 1024) {
+        if (dataUrl.length > 5 * 1024 * 1024) {
           this.stopThink();
           this.setData({ loading: false });
           wx.showToast({ title: '图片太大了，换一张', icon: 'none' });
