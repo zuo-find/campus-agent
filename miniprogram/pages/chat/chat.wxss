@@ -11,6 +11,56 @@
 
 .msg-list { flex: 1; padding: 20rpx 0; overflow: hidden; }
 
+/* ---------- 首屏欢迎区 ---------- */
+/* 首屏没有对话内容，整块上下居中，别堆在顶上留一大片空白 */
+.welcome {
+  display: flex; flex-direction: column; justify-content: center;
+  min-height: calc(100vh - 420rpx); padding: 26rpx 24rpx 10rpx; box-sizing: border-box;
+}
+.wc-hello { display: block; font-size: 42rpx; font-weight: 700; color: #1a2233; }
+.wc-sub { display: block; font-size: 26rpx; color: #8c98ab; line-height: 1.7; margin-top: 14rpx; }
+
+.wc-kb {
+  display: flex; align-items: center; background: #fff; border: 1rpx solid #e6ebf3;
+  border-radius: 14rpx; padding: 18rpx 22rpx; margin-top: 26rpx;
+}
+.wc-kb:active { background: #f3f6fb; }
+.wc-kb-dot {
+  width: 12rpx; height: 12rpx; border-radius: 50%; background: #1a73e8;
+  margin-right: 14rpx; flex-shrink: 0;
+}
+.wc-kb-t { flex: 1; font-size: 24rpx; color: #5a6684; }
+.wc-kb-a { font-size: 23rpx; color: #1a73e8; }
+
+.wc-grid { display: flex; flex-wrap: wrap; margin-top: 22rpx; }
+.wc-card {
+  width: calc(50% - 20rpx); box-sizing: border-box; background: #fff;
+  border: 1rpx solid #e6ebf3; border-radius: 16rpx; padding: 22rpx 20rpx;
+  margin: 0 20rpx 20rpx 0; box-shadow: 0 2rpx 10rpx rgba(24,39,75,.04);
+}
+.wc-card:nth-child(2n) { margin-right: 0; }
+.wc-card-hover { background: #f3f6fb; }
+.wc-line { display: flex; align-items: center; }
+.wc-dot { width: 12rpx; height: 12rpx; border-radius: 50%; margin-right: 12rpx; flex-shrink: 0; }
+.wc-dot.qa { background: #1a73e8; }
+.wc-dot.doc { background: #10b981; }
+.wc-dot.schedule { background: #ff8a00; }
+.wc-dot.study { background: #7c3aed; }
+.wc-label { font-size: 29rpx; font-weight: 600; color: #1a2233; }
+.wc-desc { display: block; font-size: 23rpx; color: #9aa6b5; margin-top: 10rpx; }
+
+/* ---------- 等待回答的流程提示 ---------- */
+.think-bubble { padding: 16rpx 22rpx; }
+.think-row { display: flex; align-items: center; padding: 7rpx 0; opacity: .3; }
+.think-row.on { opacity: 1; }
+.think-dot {
+  width: 12rpx; height: 12rpx; border-radius: 50%; background: #1a73e8;
+  margin-right: 16rpx; flex-shrink: 0;
+}
+.think-dot.live { animation: blink 1s ease-in-out infinite; }
+.think-t { font-size: 25rpx; color: #5a6684; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+
 .msg-row { display: flex; padding: 12rpx 24rpx; }
 .msg-row.user { justify-content: flex-end; }
 .msg-row.assistant { justify-content: flex-start; }
@@ -19,7 +69,7 @@
 .bubble.user { background: #1a73e8; }
 .bubble.user .bubble-text { color: #fff; }
 .bubble.assistant { background: #fff; }
-.bubble-text { font-size: 30rpx; line-height: 1.5; white-space: pre-wrap; color: #222; }
+.bubble-text { display: block; font-size: 30rpx; line-height: 1.5; white-space: pre-wrap; color: #222; }
 
 /* 是哪个 Agent 在应答 */
 .agent-chip { display: inline-block; font-size: 20rpx; border-radius: 6rpx; padding: 3rpx 12rpx; margin-bottom: 10rpx; }
@@ -104,12 +154,24 @@
 }
 .dp-item:active { background: #e7eefb; }
 
-.quick-bar { white-space: nowrap; padding: 12rpx 16rpx; background: #f5f6f8; }
+.quick-bar { display: flex; align-items: center; padding: 12rpx 16rpx; background: #f5f6f8; }
+.quick-l { font-size: 22rpx; color: #9aa6b5; margin-right: 14rpx; flex-shrink: 0; }
+.quick-scroll { flex: 1; white-space: nowrap; }
 .quick-chip {
   display: inline-block; font-size: 26rpx; color: #1a73e8;
   background: #fff; border: 1rpx solid #d4e2fc;
   padding: 10rpx 22rpx; border-radius: 30rpx; margin-right: 14rpx;
 }
+
+/* ---------- 知识库资料清单 ---------- */
+.kb-body { max-height: 760rpx; }
+.kb-item { display: flex; align-items: flex-start; padding: 18rpx 0; border-bottom: 1rpx solid #f2f4f8; }
+.kb-dot {
+  width: 10rpx; height: 10rpx; border-radius: 50%; background: #1a73e8;
+  margin: 14rpx 16rpx 0 0; flex-shrink: 0;
+}
+.kb-t { flex: 1; font-size: 26rpx; color: #1a2233; line-height: 1.55; word-break: break-all; }
+.kb-note { font-size: 23rpx; color: #9aa6b5; line-height: 1.75; margin-top: 22rpx; }
 
 .input-bar {
   display: flex; align-items: center; padding: 16rpx 24rpx;

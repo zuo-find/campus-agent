@@ -7,9 +7,33 @@
   </view>
 
   <scroll-view class="msg-list" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation>
+    <!-- 还没聊过：先给一块能上手的欢迎区，别让首屏空着 -->
+    <view wx:if="{{!messages.length}}" class="welcome">
+      <text class="wc-hello">{{greeting}}，我是校园助手</text>
+      <text class="wc-sub">查制度、写材料、查日程、算绩点 —— 说一句话就能用</text>
+
+      <view class="wc-kb" bindtap="openKb">
+        <view class="wc-kb-dot"></view>
+        <text class="wc-kb-t" wx:if="{{kb.chunks}}">已收录 {{kb.docs}} 篇校内资料 · {{kb.chunks}} 个知识片段</text>
+        <text class="wc-kb-t" wx:else>正在读取知识库…</text>
+        <text class="wc-kb-a" wx:if="{{kb.sources.length}}">查看 ›</text>
+      </view>
+
+      <view class="wc-grid">
+        <view class="wc-card" wx:for="{{welcomeCards}}" wx:key="key"
+              data-key="{{item.key}}" hover-class="wc-card-hover" hover-stay-time="80" bindtap="onWelcomeCard">
+          <view class="wc-line">
+            <view class="wc-dot {{item.tone}}"></view>
+            <text class="wc-label">{{item.label}}</text>
+          </view>
+          <text class="wc-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+
     <block wx:for="{{messages}}" wx:key="index">
       <view class="msg-row {{item.role}}">
-        <view class="bubble {{item.role}}">
+        <view class="bubble {{item.role}}" data-idx="{{index}}" bindlongpress="copyMsg">
           <view wx:if="{{item.agentName}}" class="agent-chip ac-{{item.agent}}">{{item.agentName}}</view>
           <text class="bubble-text">{{item.content}}</text>
           <view wx:if="{{item.sources.length}}" class="sources">
@@ -49,8 +73,14 @@
         </view>
       </view>
     </block>
+    <!-- 等待回答：把后端实际的处理流程显示出来，比一句"正在思考"有信息 -->
     <view wx:if="{{loading}}" class="msg-row assistant">
-      <view class="bubble assistant"><text class="bubble-text">正在思考…</text></view>
+      <view class="bubble assistant think-bubble">
+        <view class="think-row {{thinkStep >= index ? 'on' : ''}}" wx:for="{{thinkSteps}}" wx:key="*this">
+          <view class="think-dot {{thinkStep == index ? 'live' : ''}}"></view>
+          <text class="think-t">{{item}}</text>
+        </view>
+      </view>
     </view>
   </scroll-view>
 
@@ -63,14 +93,30 @@
     </view>
   </view>
 
-  <scroll-view class="quick-bar" scroll-x>
-    <view wx:for="{{quickAsks}}" wx:key="*this" class="quick-chip" data-q="{{item}}" bindtap="onQuick">{{item}}</view>
-  </scroll-view>
+  <view class="quick-bar">
+    <text class="quick-l">{{quickLabel}}</text>
+    <scroll-view class="quick-scroll" scroll-x>
+      <view wx:for="{{quickAsks}}" wx:key="*this" class="quick-chip" data-q="{{item}}" bindtap="onQuick">{{item}}</view>
+    </scroll-view>
+  </view>
 
   <view class="input-bar">
     <input class="input" value="{{input}}" placeholder="问制度，或「帮我写一份请假条…」"
            confirm-type="send" bindinput="onInput" bindconfirm="send" />
     <button class="send-btn" bindtap="send" disabled="{{loading}}">发送</button>
+  </view>
+
+  <!-- 知识库收录了哪些资料 -->
+  <view wx:if="{{kbShow}}" class="de-mask" bindtap="closeKb">
+    <view class="de-sheet" catchtap="noop">
+      <view class="de-h">知识库收录的资料<text class="de-x" catchtap="closeKb">✕</text></view>
+      <scroll-view class="de-body kb-body" scroll-y>
+        <view class="kb-item" wx:for="{{kb.sources}}" wx:key="*this">
+          <view class="kb-dot"></view><text class="kb-t">{{item}}</text>
+        </view>
+        <view class="kb-note">共 {{kb.docs}} 篇 · {{kb.chunks}} 个知识片段。回答制度类问题时会从这里检索原文，并在答案下方标出来源。</view>
+      </scroll-view>
+    </view>
   </view>
 
   <!-- 材料类型选择 -->

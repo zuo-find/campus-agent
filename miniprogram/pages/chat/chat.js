@@ -4,6 +4,30 @@ const API = app.globalData.apiBase;
 // 判定哪些字段应该用多行输入（长文本）
 const MULTI_KEYS = ['理由', '流程', '目的', '宗旨', '成员', '计划', '预算', '预案', '说明', '描述', '内容'];
 
+// 按时间打招呼
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 6) return '夜深了';
+  if (h < 11) return '早上好';
+  if (h < 14) return '中午好';
+  if (h < 18) return '下午好';
+  return '晚上好';
+}
+
+// 回答完给几条"接着问"，省得用户想下一句问什么
+const FOLLOWUPS = {
+  qa: ['需要准备哪些材料？', '在哪个部门办理？', '大概多久能办完？'],
+  doc: ['帮我把时间改成下周', '这份材料还需要盖章吗？', '再写一份活动策划'],
+  schedule: ['这些时间点里哪个最着急？', '报名需要什么条件？', '帮我把这些整理成一句话'],
+  study: ['再出几道难一点的', '讲讲刚才那道题的思路', '我该先补哪块知识？'],
+  '': ['能说得再具体一点吗？', '学校有相关的文件吗？', '那我要去哪里办？']
+};
+
+// 等待回答时展示的处理流程（与后端 route → retrieve → 生成 的实际流程对应）
+const THINK_STEPS = ['正在判断该由哪个智能体来答', '正在检索校园知识库', '正在组织回答'];
+
+const HOT_ASKS = ['帮我算一下绩点', '挂科了怎么重修', '奖学金怎么评'];
+
 Page({
   data: {
     messages: [],        // {role:'user'|'assistant', content, sources?}
@@ -21,14 +45,63 @@ Page({
     ],
     docPick: false,
     docTypes: ['请假条', '实训申请', '活动策划', '社团申报'],
-    quickAsks: ['帮我算一下绩点', '挂科了怎么重修', '奖学金怎么评']
+    quickAsks: HOT_ASKS,
+    quickLabel: '大家都在问',
+    // 空态欢迎区
+    greeting: '你好',
+    welcomeCards: [
+      { key: 'qa', tone: 'qa', label: '问制度', desc: '挂科了怎么重修', preset: '挂科了怎么重修？' },
+      { key: 'doc', tone: 'doc', label: '写材料', desc: '请假条 · 活动策划', preset: '' },
+      { key: 'schedule', tone: 'schedule', label: '查日程', desc: '比赛什么时候截止', preset: '这次的比赛什么时候报名、什么时候交作品？' },
+      { key: 'study', tone: 'study', label: '刷题陪练', desc: '出题 + 讲思路', preset: '出两道动态规划的题给我练练，顺便讲讲思路' }
+    ],
+    // 知识库概况
+    kb: { chunks: 0, docs: 0, sources: [] }, kbShow: false,
+    // 等待回答时的流程提示
+    thinkSteps: THINK_STEPS, thinkStep: 0
   },
 
   onLoad() {
-    this.setData({
-      messages: [{ role: 'assistant', content: '你好！我是校园助手 👋 可以问我制度流程，也能帮你算绩点、查成绩、写请假条。\n\n点上方可切换大模型、填自己的 API Key。' }]
+    this.setData({ greeting: greeting() });
+    this.loadKb();
+  },
+
+  // 知识库收录情况（空态里展示，回答完也算有个交代）
+  loadKb() {
+    wx.request({
+      url: API + '/kb/stats', timeout: 10000,
+      success: r => {
+        const d = r.data || {};
+        if (d.ok) this.setData({ kb: { chunks: d.chunks || 0, docs: d.docs || 0, sources: d.sources || [] } });
+      }
     });
   },
+  openKb() { if (this.data.kb.sources.length) this.setData({ kbShow: true }); },
+  closeKb() { this.setData({ kbShow: false }); },
+
+  // 空态能力卡：材料走选类型弹层，其余直接发问
+  onWelcomeCard(e) {
+    const key = e.currentTarget.dataset.key;
+    const card = this.data.welcomeCards.find(c => c.key === key);
+    if (!card) return;
+    if (key === 'doc') { this.setData({ docPick: true }); return; }
+    this.setData({ input: card.preset }, () => this.send());
+  },
+
+  // 等待中的流程动画：一步步点亮，最后一行停住直到回答返回
+  startThink() {
+    this.stopThink();
+    this.setData({ thinkStep: 0 });
+    this._thinkTimer = setInterval(() => {
+      if (this.data.thinkStep >= THINK_STEPS.length - 1) return;
+      this.setData({ thinkStep: this.data.thinkStep + 1 });
+    }, 1200);
+  },
+  stopThink() {
+    if (this._thinkTimer) { clearInterval(this._thinkTimer); this._thinkTimer = null; }
+  },
+
+  onUnload() { this.stopThink(); },
 
   onShow() {
     // 从「选择大模型」页返回时刷新当前模型显示
@@ -89,6 +162,7 @@ Page({
 
     const messages = this.data.messages.concat([{ role: 'user', content: text }]);
     this.setData({ messages, input: '', loading: true }, this.scrollToBottom);
+    this.startThink();
 
     wx.request({
       url: app.globalData.apiBase + '/chat',
@@ -119,7 +193,7 @@ Page({
         }
       },
       fail: () => this.appendAssistant('连接后端失败，请确认后端已启动、域名已配置。'),
-      complete: () => this.setData({ loading: false }, this.scrollToBottom)
+      complete: () => { this.stopThink(); this.setData({ loading: false }, this.scrollToBottom); }
     });
   },
 
@@ -129,7 +203,19 @@ Page({
       agent: agent || '', agentName: agentName || '',
       todos: todos || null
     }]);
-    this.setData({ messages }, this.scrollToBottom);
+    // 换一批"接着问"，让人能顺着聊下去
+    this.setData({
+      messages,
+      quickAsks: FOLLOWUPS[agent] || FOLLOWUPS[''],
+      quickLabel: '接着问'
+    }, this.scrollToBottom);
+  },
+
+  // 长按气泡里的回答可以复制走
+  copyMsg(e) {
+    const m = this.data.messages[e.currentTarget.dataset.idx];
+    if (!m || m.role !== 'assistant') return;
+    wx.setClipboardData({ data: m.content, success: () => wx.showToast({ title: '已复制', icon: 'none' }) });
   },
 
   // ---------- 材料生成：字段编辑 + 导出 ----------

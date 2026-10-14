@@ -1,0 +1,150 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 问答页改版 1:1 还原(1rpx=0.5px)：上半屏=首屏欢迎区，下半屏=对话中（含等待流程） */
+*{box-sizing:border-box}
+body{margin:0;background:#f5f6f8;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.screen{height:667px;display:flex;flex-direction:column;padding-bottom:6px}
+
+.model-bar{display:flex;align-items:center;background:#fff;padding:9px 14px;border-bottom:.5px solid #eef1f5}
+.mb-dot{width:7px;height:7px;border-radius:50%;background:#1a73e8;margin-right:8px;flex-shrink:0}
+.mb-name{flex:1;font-size:13px;color:#24324a}
+.mb-switch{font-size:12px;color:#1a73e8}
+
+.body{padding:13px 12px 5px;flex:1;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.body.talk{justify-content:flex-start}
+.wc-hello{display:block;font-size:21px;font-weight:700;color:#1a2233}
+.wc-sub{display:block;font-size:13px;color:#8c98ab;line-height:1.7;margin-top:7px}
+.wc-kb{display:flex;align-items:center;background:#fff;border:.5px solid #e6ebf3;border-radius:7px;padding:9px 11px;margin-top:13px}
+.wc-kb-dot{width:6px;height:6px;border-radius:50%;background:#1a73e8;margin-right:7px;flex-shrink:0}
+.wc-kb-t{flex:1;font-size:12px;color:#5a6684}
+.wc-kb-a{font-size:11.5px;color:#1a73e8}
+.wc-grid{display:flex;flex-wrap:wrap;margin-top:11px}
+.wc-card{width:calc(50% - 10px);background:#fff;border:.5px solid #e6ebf3;border-radius:8px;padding:11px 10px;
+  margin:0 10px 10px 0;box-shadow:0 1px 5px rgba(24,39,75,.04)}
+.wc-card:nth-child(2n){margin-right:0}
+.wc-line{display:flex;align-items:center}
+.wc-dot{width:6px;height:6px;border-radius:50%;margin-right:6px;flex-shrink:0}
+.wc-dot.qa{background:#1a73e8}.wc-dot.doc{background:#10b981}
+.wc-dot.schedule{background:#ff8a00}.wc-dot.study{background:#7c3aed}
+.wc-label{font-size:14.5px;font-weight:600;color:#1a2233}
+.wc-desc{display:block;font-size:11.5px;color:#9aa6b5;margin-top:5px}
+
+/* 对话态 */
+.msg-row{display:flex;padding:6px 12px}
+.msg-row.user{justify-content:flex-end}
+.bubble{max-width:78%;padding:10px 12px;border-radius:9px;word-break:break-all}
+.bubble.user{background:#1a73e8;color:#fff;font-size:15px}
+.bubble.assistant{background:#fff;font-size:15px;color:#222;line-height:1.5}
+.agent-chip{display:inline-block;width:fit-content;font-size:10px;border-radius:3px;padding:1.5px 6px;margin-bottom:5px}
+.agent-chip.ac-qa{color:#1a73e8;background:#eaf1fe}
+.sources{margin-top:7px;display:flex;flex-wrap:wrap}
+.src-tag{font-size:11px;color:#1a73e8;background:#eaf1fe;padding:2px 7px;border-radius:10px;margin:3px 4px 0 0}
+
+.think-bubble{padding:8px 11px}
+.think-row{display:flex;align-items:center;padding:3.5px 0;opacity:.3}
+.think-row.on{opacity:1}
+.think-dot{width:6px;height:6px;border-radius:50%;background:#1a73e8;margin-right:8px;flex-shrink:0}
+.think-dot.live{animation:blink 1s ease-in-out infinite}
+.think-t{font-size:12.5px;color:#5a6684}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+.cap-bar{display:flex;padding:7px 8px 2px;background:#f5f6f8}
+.cap-chip{flex:1;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:7px;
+  padding:7px 0;margin-right:6px;border:.5px solid #e6ebf3;box-shadow:0 1px 4px rgba(24,39,75,.04)}
+.cap-chip:last-child{margin-right:0}
+.cap-dot{width:6px;height:6px;border-radius:50%;margin-right:5px;flex-shrink:0}
+.cap-dot.qa{background:#1a73e8}.cap-dot.doc{background:#10b981}
+.cap-dot.schedule{background:#ff8a00}.cap-dot.study{background:#7c3aed}
+.cap-t{font-size:12.5px;color:#3d4a63}
+
+.quick-bar{display:flex;align-items:center;padding:6px 8px;background:#f5f6f8}
+.quick-l{font-size:11px;color:#9aa6b5;margin-right:7px;flex-shrink:0}
+.quick-scroll{flex:1;white-space:nowrap;overflow:hidden}
+.quick-chip{display:inline-block;font-size:13px;color:#1a73e8;background:#fff;border:.5px solid #d4e2fc;
+  padding:5px 11px;border-radius:15px;margin-right:7px}
+.input-bar{display:flex;align-items:center;padding:8px 12px;background:#fff;border-top:.5px solid #eee}
+.input{flex:1;background:#f0f1f3;border-radius:18px;padding:9px 14px;font-size:15px;color:#999}
+.send-btn{margin-left:8px;background:#1a73e8;color:#fff;font-size:14px;border-radius:18px;padding:0 18px;line-height:36px}
+
+.divider{height:26px;background:#eceef2;border-top:.5px solid #e0e3ea;border-bottom:.5px solid #e0e3ea;
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:#8c98ab}
+</style></head><body>
+
+<!-- ① 首屏（还没聊过） -->
+<div class="screen">
+  <div class="model-bar">
+    <div class="mb-dot"></div><span class="mb-name">DeepSeek 深度求索 · deepseek-chat</span><span class="mb-switch">切换模型 ›</span>
+  </div>
+
+  <div class="body">
+    <span class="wc-hello">下午好，我是校园助手</span>
+    <span class="wc-sub">查制度、写材料、查日程、算绩点 —— 说一句话就能用</span>
+
+    <div class="wc-kb">
+      <div class="wc-kb-dot"></div>
+      <span class="wc-kb-t">已收录 3 篇校内资料 · 27 个知识片段</span>
+      <span class="wc-kb-a">查看 ›</span>
+    </div>
+
+    <div class="wc-grid">
+      <div class="wc-card"><div class="wc-line"><span class="wc-dot qa"></span><span class="wc-label">问制度</span></div><span class="wc-desc">挂科了怎么重修</span></div>
+      <div class="wc-card"><div class="wc-line"><span class="wc-dot doc"></span><span class="wc-label">写材料</span></div><span class="wc-desc">请假条 · 活动策划</span></div>
+      <div class="wc-card"><div class="wc-line"><span class="wc-dot schedule"></span><span class="wc-label">查日程</span></div><span class="wc-desc">比赛什么时候截止</span></div>
+      <div class="wc-card"><div class="wc-line"><span class="wc-dot study"></span><span class="wc-label">刷题陪练</span></div><span class="wc-desc">出题 + 讲思路</span></div>
+    </div>
+  </div>
+
+  <div class="cap-bar">
+    <div class="cap-chip"><span class="cap-dot qa"></span><span class="cap-t">问制度</span></div>
+    <div class="cap-chip"><span class="cap-dot doc"></span><span class="cap-t">写材料</span></div>
+    <div class="cap-chip"><span class="cap-dot schedule"></span><span class="cap-t">查日程</span></div>
+    <div class="cap-chip"><span class="cap-dot study"></span><span class="cap-t">刷题</span></div>
+  </div>
+  <div class="quick-bar">
+    <span class="quick-l">大家都在问</span>
+    <div class="quick-scroll"><span class="quick-chip">帮我算一下绩点</span><span class="quick-chip">挂科了怎么重修</span><span class="quick-chip">奖学金怎么评</span></div>
+  </div>
+  <div class="input-bar"><div class="input">问制度，或「帮我写一份请假条…」</div><div class="send-btn">发送</div></div>
+</div>
+
+<div class="divider">对话中：回答带来源，等待时显示处理流程</div>
+
+<!-- ② 对话态（含等待流程） -->
+<div class="screen">
+  <div class="model-bar">
+    <div class="mb-dot"></div><span class="mb-name">DeepSeek 深度求索 · deepseek-chat</span><span class="mb-switch">切换模型 ›</span>
+  </div>
+
+  <div class="body talk">
+    <div class="msg-row user"><div class="bubble user">挂科了怎么重修？</div></div>
+
+    <div class="msg-row">
+      <div class="bubble assistant">
+        <div class="agent-chip ac-qa">校园问答</div>
+        <div style="display:block">必修课不及格的，需参加下一学期开学初的重修考试，成绩按「及格」记入，绩点按 1.0 计……</div>
+        <div class="sources"><span class="src-tag">来源：学业成绩与重修规定_示例.txt</span></div>
+      </div>
+    </div>
+
+    <div class="msg-row">
+      <div class="bubble assistant think-bubble">
+        <div class="think-row on"><div class="think-dot"></div><span class="think-t">正在判断该由哪个智能体来答</span></div>
+        <div class="think-row on"><div class="think-dot live"></div><span class="think-t">正在检索校园知识库</span></div>
+        <div class="think-row"><div class="think-dot"></div><span class="think-t">正在组织回答</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cap-bar">
+    <div class="cap-chip"><span class="cap-dot qa"></span><span class="cap-t">问制度</span></div>
+    <div class="cap-chip"><span class="cap-dot doc"></span><span class="cap-t">写材料</span></div>
+    <div class="cap-chip"><span class="cap-dot schedule"></span><span class="cap-t">查日程</span></div>
+    <div class="cap-chip"><span class="cap-dot study"></span><span class="cap-t">刷题</span></div>
+  </div>
+  <div class="quick-bar">
+    <span class="quick-l">接着问</span>
+    <div class="quick-scroll"><span class="quick-chip">需要准备哪些材料？</span><span class="quick-chip">在哪个部门办理？</span></div>
+  </div>
+  <div class="input-bar"><div class="input">问制度，或「帮我写一份请假条…」</div><div class="send-btn">发送</div></div>
+</div>
+</body></html>

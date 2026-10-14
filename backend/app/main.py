@@ -68,6 +68,21 @@ def providers_list():
     return {"ok": True, "providers": providers.list_providers()}
 
 
+@app.get("/kb/stats")
+def kb_stats():
+    """知识库概况：片段数 + 收录了哪些资料。问答页空态会展示这份数据。"""
+    col = store._get_collection()
+    total = col.count()
+    sources: list[str] = []
+    try:
+        metas = (col.get(include=["metadatas"]) or {}).get("metadatas") or []
+        names = {(m or {}).get("source", "") for m in metas}
+        sources = sorted(n for n in names if n)
+    except Exception:
+        sources = []   # 元数据读取失败不影响问答，只让概况少一块
+    return {"ok": True, "chunks": total, "docs": len(sources), "sources": sources}
+
+
 def _friendly_llm_error(e: Exception) -> str:
     """把大模型调用异常转成用户看得懂的提示。"""
     s = str(e)
