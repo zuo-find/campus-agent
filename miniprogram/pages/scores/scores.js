@@ -1,4 +1,5 @@
 const app = getApp();
+const API = app.globalData.apiBase;
 
 // 百分制 → 绩点（与后端 tools/_score_to_gpa 保持一致）
 function scoreToGpa(s) {
@@ -46,12 +47,76 @@ Page({
     dist: [],          // 等级分布
     maxDist: 1,
     // 提分测算
-    targetGpa: '3.5', nextCredits: '20', planText: '', planWarn: false
+    targetGpa: '3.5', nextCredits: '20', planText: '', planWarn: false,
+    // 官网同步的成绩规则
+    rules: [], ruleTime: '', ruleUrl: '',
+    srcShow: false, srcUrl: '', syncing: false
   },
 
   onShow() {
     const courses = wx.getStorageSync('courses') || [];
     this.setData({ courses }, this.recalc);
+    this.loadRules();
+  },
+
+  noop() {},
+
+  // ---------- 同步官网：成绩相关规则 ----------
+  loadRules() {
+    wx.request({
+      url: API + '/school/items?category=' + encodeURIComponent('成绩规则'), timeout: 15000,
+      success: res => {
+        const items = (res.data || {}).items || [];
+        this.setData({ rules: items });
+      }
+    });
+    wx.request({
+      url: API + '/school/sources', timeout: 15000,
+      success: res => {
+        const s = ((res.data || {}).sources || []).find(x => x.category === '成绩规则');
+        if (s) this.setData({ ruleUrl: s.url || '', ruleTime: s.synced_at || '' });
+      }
+    });
+  },
+
+  openSync() { this.setData({ srcShow: true, srcUrl: this.data.ruleUrl || '' }); },
+  closeSync() { this.setData({ srcShow: false }); },
+  onSrcUrl(e) { this.setData({ srcUrl: e.detail.value }); },
+
+  doSync() {
+    const url = (this.data.srcUrl || '').trim();
+    if (!/^https?:\/\//i.test(url)) {
+      wx.showToast({ title: '请填写 http(s):// 开头的网址', icon: 'none' });
+      return;
+    }
+    this.setData({ syncing: true });
+    wx.showLoading({ title: '抓取并抽取中…', mask: true });
+    wx.request({
+      url: API + '/school/source', method: 'POST', timeout: 15000,
+      data: { category: '成绩规则', url },
+      success: () => {
+        wx.request({
+          url: API + '/school/sync', method: 'POST', timeout: 120000,
+          data: { category: '成绩规则' },
+          success: r => {
+            wx.hideLoading();
+            this.setData({ syncing: false });
+            const d = r.data || {};
+            const done = (d.synced || [])[0];
+            const bad = (d.failed || [])[0];
+            if (bad) {
+              wx.showModal({ title: '同步失败', content: bad.msg, showCancel: false });
+            } else if (done) {
+              wx.showToast({ title: '已同步 ' + done.count + ' 条', icon: 'none' });
+              this.setData({ srcShow: false });
+              this.loadRules();
+            }
+          },
+          fail: () => { wx.hideLoading(); this.setData({ syncing: false }); wx.showToast({ title: '同步失败，检查后端', icon: 'none' }); }
+        });
+      },
+      fail: () => { wx.hideLoading(); this.setData({ syncing: false }); wx.showToast({ title: '保存失败，检查后端', icon: 'none' }); }
+    });
   },
 
   onName(e) { this.setData({ name: e.detail.value }); },

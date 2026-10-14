@@ -27,10 +27,10 @@ _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _DB = os.path.join(_BASE, "data", "school.db")
 
 # 允许同步的类别（与前端展示的卡片对应）
-CATEGORIES = ["校历", "作息", "通知公告"]
+CATEGORIES = ["校历", "作息", "通知公告", "成绩规则"]
 
 # 类别 → 文件名用的 ASCII 短名（URL 里不能出现中文）
-_SLUG = {"校历": "xiaoli", "作息": "zuoxi", "通知公告": "notice"}
+_SLUG = {"校历": "xiaoli", "作息": "zuoxi", "通知公告": "notice", "成绩规则": "chengji"}
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
 
@@ -299,6 +299,7 @@ EXTRACT_PROMPT = """下面是一所学校官网页面的正文。请从中抽取
 - 格式：{{"items":[{{"title":"条目标题","date":"日期(没有就留空)","content":"要点，一句话"}}]}}
 - 最多 20 条；按日期先后或重要性排列；正文里没有相关信息的，items 返回空数组。
 - 不要编造正文里没有的内容。
+- 若类别是「成绩规则」：抽取绩点/学分绩点计算办法、成绩等级划分、补考重修、奖学金评定等规则要点。
 
 正文：
 {text}"""

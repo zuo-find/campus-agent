@@ -75,5 +75,35 @@
     </view>
   </view>
 
+  <!-- 官网同步的成绩规则 -->
+  <view class="card">
+    <view class="sec-row">
+      <text class="sec-title">学校成绩规则</text>
+      <text class="sync-btn" bindtap="openSync">同步官网</text>
+    </view>
+    <block wx:if="{{rules.length}}">
+      <view class="rule" wx:for="{{rules}}" wx:key="id">
+        <view class="rule-t">{{item.title}}</view>
+        <view class="rule-c" wx:if="{{item.content}}">{{item.content}}</view>
+        <view class="rule-d" wx:if="{{item.date}}">{{item.date}}</view>
+      </view>
+      <view class="sync-note">来自学校官网 · {{ruleTime}}</view>
+    </block>
+    <view wx:else class="rule-empty">
+      还没有同步。填一个官网「学籍/成绩管理」类页面的网址，就能把本校的绩点算法、等级划分、奖学金评定等规则同步进来。
+    </view>
+  </view>
+
   <view class="tip">成绩仅保存在你的手机本地，用于算绩点和问答，不上传服务器存储。</view>
+
+  <!-- 同步设置 -->
+  <view wx:if="{{srcShow}}" class="mask" bindtap="closeSync">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-h">同步「成绩规则」<text class="sheet-x" catchtap="closeSync">✕</text></view>
+      <view class="sec-title" style="margin-bottom:16rpx">学校官网网址</view>
+      <input class="f-input full" placeholder="https://www.xxx.edu.cn/xxx" value="{{srcUrl}}" bindinput="onSrcUrl" />
+      <view class="sync-tip">由后端抓取该页正文，交给 AI 抽取成绩/绩点相关规则并展示；请只同步学校公开发布的信息。</view>
+      <button class="btn-primary" bindtap="doSync" disabled="{{syncing}}">{{syncing ? '同步中…' : '立即同步'}}</button>
+    </view>
+  </view>
 </view>

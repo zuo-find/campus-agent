@@ -1,0 +1,66 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 成绩页 · 新增「学校成绩规则（官网同步）」1:1 还原(1rpx=0.5px) */
+body{margin:0;background:#f5f6f8;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.wrap{padding:10px 0 20px;box-sizing:border-box}
+.card{background:#fff;border-radius:8px;padding:14px;margin:10px 12px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.hero{background:linear-gradient(160deg,#2b7cf0 0%,#1a73e8 55%,#4a9bff 100%)}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between}
+.hero-label{font-size:12px;color:rgba(255,255,255,.82)}
+.hero-num{display:flex;align-items:baseline;margin-top:3px}
+.hero-gpa{font-size:38px;font-weight:700;color:#fff;line-height:1.05}
+.hero-max{font-size:13px;color:rgba(255,255,255,.7);margin-left:5px}
+.hero-badge{font-size:12px;color:#fff;background:rgba(255,255,255,.22);border-radius:15px;padding:4px 13px}
+.bar{height:7px;border-radius:4px;background:rgba(255,255,255,.25);margin-top:13px;overflow:hidden}
+.bar-in{height:100%;border-radius:4px;background:#fff}
+.hero-stats{display:flex;margin-top:13px}
+.stat{flex:1;display:flex;flex-direction:column;align-items:center}
+.stat-n{font-size:17px;font-weight:600;color:#fff}
+.stat-l{font-size:11px;color:rgba(255,255,255,.75);margin-top:3px}
+.ai-btn{margin-top:13px;text-align:center;font-size:13.5px;color:#1a73e8;background:#fff;border-radius:22px;line-height:40px;font-weight:500}
+.sec-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.sec-title{font-size:15px;font-weight:600;color:#1a2233}
+.sync-btn{font-size:12px;color:#1a73e8;border:0.5px solid #cfe0fb;border-radius:15px;padding:3px 11px}
+.rule{padding:9px 0;border-bottom:0.5px solid #f2f4f8}
+.rule:last-of-type{border-bottom:none}
+.rule-t{font-size:14px;color:#1a2233}
+.rule-c{font-size:12px;color:#7c8a9e;margin-top:4px;line-height:1.6}
+.sync-note{font-size:11px;color:#a6b0c0;text-align:right;margin-top:7px}
+/* 同步弹层 */
+.mask{margin:14px 12px 0;background:#fff;border-radius:12px;padding:14px 16px 20px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.sheet-h{position:relative;text-align:center;font-size:16px;font-weight:600;color:#1a2233;padding-bottom:12px}
+.sheet-x{position:absolute;right:0;top:0;color:#a6b0c0;font-size:15px}
+.f-input.full{width:100%;box-sizing:border-box;background:#f2f5fa;border-radius:5px;padding:9px 11px;font-size:14px;color:#666;margin-bottom:8px}
+.sync-tip{font-size:11px;color:#9aa6b5;line-height:1.6;margin:6px 0 11px}
+.btn-primary{background:#1a73e8;color:#fff;border-radius:24px;font-size:15px;line-height:46px;text-align:center}
+</style></head><body><div class="wrap">
+  <div class="card hero">
+    <div class="hero-top">
+      <div><div class="hero-label">平均绩点</div><div class="hero-num"><span class="hero-gpa">2.94</span><span class="hero-max">/ 4.0</span></div></div>
+      <div class="hero-badge">中等</div>
+    </div>
+    <div class="bar"><div class="bar-in" style="width:74%"></div></div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-n">81.0</span><span class="stat-l">加权均分</span></div>
+      <div class="stat"><span class="stat-n">5</span><span class="stat-l">门课程</span></div>
+      <div class="stat"><span class="stat-n">17</span><span class="stat-l">总学分</span></div>
+    </div>
+    <div class="ai-btn">让 AI 分析我的成绩，给提升建议</div>
+  </div>
+
+  <div class="card">
+    <div class="sec-row"><span class="sec-title">学校成绩规则</span><span class="sync-btn">同步官网</span></div>
+    <div class="rule"><div class="rule-t">平均学分绩点</div><div class="rule-c">平均学分绩点（GPA）= Σ(课程绩点×课程学分) / Σ课程学分；百分制90分及以上绩点为4.0，85-89分为3.7</div></div>
+    <div class="rule"><div class="rule-t">奖学金评定</div><div class="rule-c">学业奖学金按学年评定，要求当学年无不及格课程，平均学分绩点不低于3.0。</div></div>
+    <div class="rule"><div class="rule-t">补考与重修</div><div class="rule-c">课程考核不合格者可参加一次补考，补考仍不合格的须重修，重修成绩标注"重修"字样。</div></div>
+    <div class="sync-note">来自学校官网 · 2026-10-14 19:02</div>
+  </div>
+
+  <div class="mask">
+    <div class="sheet-h">同步「成绩规则」<span class="sheet-x">✕</span></div>
+    <div class="sec-title" style="margin-bottom:8px">学校官网网址</div>
+    <div class="f-input full">https://www.xasyu.cn/xjgl/cjgl.htm</div>
+    <div class="sync-tip">由后端抓取该页正文，交给 AI 抽取成绩/绩点相关规则并展示；请只同步学校公开发布的信息。</div>
+    <div class="btn-primary">立即同步</div>
+  </div>
+</div></body></html>

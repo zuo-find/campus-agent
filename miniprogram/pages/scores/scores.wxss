@@ -79,3 +79,24 @@
 .r-del { font-size: 22rpx; color: #c6d0de; padding: 8rpx 0 8rpx 20rpx; }
 
 .tip { font-size: 24rpx; color: #aaa; text-align: center; margin: 24rpx; }
+
+/* ---------- 官网同步：成绩规则 ---------- */
+.sec-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18rpx; }
+.sec-row .sec-title { margin-bottom: 0; }
+.sync-btn { font-size: 24rpx; color: #1a73e8; border: 1rpx solid #cfe0fb; border-radius: 30rpx; padding: 6rpx 22rpx; }
+.sync-btn:active { background: #eaf1fe; }
+
+.rule { padding: 18rpx 0; border-bottom: 1rpx solid #f2f4f8; }
+.rule:last-of-type { border-bottom: none; }
+.rule-t { font-size: 28rpx; color: #1a2233; line-height: 1.5; }
+.rule-c { font-size: 24rpx; color: #7c8a9e; margin-top: 8rpx; line-height: 1.6; }
+.rule-d { font-size: 22rpx; color: #b6c0cf; margin-top: 8rpx; }
+.rule-empty { font-size: 24rpx; color: #9aa6b5; line-height: 1.7; }
+.sync-note { font-size: 22rpx; color: #a6b0c0; text-align: right; margin-top: 14rpx; }
+
+.mask { position: fixed; inset: 0; background: rgba(16,24,40,.5); z-index: 60; display: flex; align-items: flex-end; }
+.sheet { width: 100%; background: #fff; border-radius: 28rpx 28rpx 0 0; padding: 28rpx 32rpx 40rpx; box-sizing: border-box; }
+.sheet-h { position: relative; text-align: center; font-size: 32rpx; font-weight: 600; color: #1a2233; padding-bottom: 24rpx; }
+.sheet-x { position: absolute; right: 0; top: 0; font-size: 30rpx; color: #a6b0c0; padding: 0 8rpx; }
+.f-input.full { width: 100%; box-sizing: border-box; margin-bottom: 8rpx; }
+.sync-tip { font-size: 22rpx; color: #9aa6b5; line-height: 1.6; margin: 6rpx 0 22rpx; }
