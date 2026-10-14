@@ -162,6 +162,38 @@ def find_logo(html: str, base: str) -> str:
     return ""
 
 
+_A_RE = re.compile(r"<a\s[^>]*href\s*=\s*[\"']([^\"']+)[\"'][^>]*>(.*?)</a>", re.I | re.S)
+
+# 每类内容在官网上通常挂在哪些栏目下（用于"这页没内容时"给用户推荐子页面）
+_KW = {
+    "校历": ["校历", "学期", "教学安排", "日历", "开课"],
+    "作息": ["作息", "上课时间", "课表", "时间安排"],
+    "通知公告": ["通知", "公告", "新闻", "动态"],
+    "成绩规则": ["学籍", "成绩", "规章", "制度", "学分", "绩点", "考试", "培养方案",
+                 "管理办法", "教学管理", "规定", "办法", "细则"],
+}
+
+
+def find_links(html: str, base: str, category: str, limit: int = 6) -> list[dict]:
+    """从页面里挑出与类别相关的下钻链接（用户填了首页/栏目页时给建议）。"""
+    kws = _KW.get(category) or []
+    out, seen = [], set()
+    for href, inner in _A_RE.findall(html or ""):
+        text = re.sub(r"\s+", "", re.sub(r"<[^>]+>", "", inner or "")).strip()
+        if not text or len(text) > 24:
+            continue
+        if not any(k in text for k in kws):
+            continue
+        url = urljoin(base, href)
+        if url in seen or url.rstrip("/") == base.rstrip("/"):
+            continue
+        seen.add(url)
+        out.append({"text": text, "url": url})
+        if len(out) >= limit:
+            break
+    return out
+
+
 def find_title(html: str) -> str:
     m = _TITLE_RE.search(html)
     if not m:
@@ -387,8 +419,11 @@ def sync(category: str = "") -> dict:
                 c.execute("UPDATE school_sources SET synced_at=?, logo=COALESCE(NULLIF(?,''),logo), "
                           "name=COALESCE(NULLIF(?,''),name), logo_light=? WHERE category=?",
                           (now, logo, name, logo_light, cat))
+            # 一条都没抽到，多半是填了首页/栏目页（只有链接没有正文）：
+            # 顺手把这个页面里相关的下钻链接捞出来，给用户当"下一步该填什么"的建议
+            suggest = find_links(html, url, cat) if not items else []
             done.append({"category": cat, "count": len(items), "logo": logo,
-                         "name": name, "logo_light": logo_light})
+                         "name": name, "logo_light": logo_light, "suggest": suggest})
         except Exception as e:
             failed.append({"category": cat, "msg": str(e)[:160]})
 

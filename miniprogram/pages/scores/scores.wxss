@@ -100,3 +100,10 @@
 .sheet-x { position: absolute; right: 0; top: 0; font-size: 30rpx; color: #a6b0c0; padding: 0 8rpx; }
 .f-input.full { width: 100%; box-sizing: border-box; margin-bottom: 8rpx; }
 .sync-tip { font-size: 22rpx; color: #9aa6b5; line-height: 1.6; margin: 6rpx 0 22rpx; }
+
+/* 栏目建议 */
+.sug { background: #f7f9fd; border-radius: 14rpx; padding: 18rpx 20rpx; margin-bottom: 22rpx; }
+.sug-h { font-size: 23rpx; color: #5a6684; margin-bottom: 10rpx; }
+.sug-item { display: flex; align-items: center; padding: 16rpx 0; border-top: 1rpx solid #eef2f8; }
+.sug-t { flex: 1; font-size: 27rpx; color: #1a73e8; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.sug-a { color: #c6d0de; font-size: 34rpx; margin-left: 12rpx; }

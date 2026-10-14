@@ -103,6 +103,16 @@
       <view class="sec-title" style="margin-bottom:16rpx">学校官网网址</view>
       <input class="f-input full" placeholder="https://www.xxx.edu.cn/xxx" value="{{srcUrl}}" bindinput="onSrcUrl" />
       <view class="sync-tip">由后端抓取该页正文，交给 AI 抽取成绩/绩点相关规则并展示；请只同步学校公开发布的信息。</view>
+
+      <!-- 这页没抽到内容时，给出相关栏目建议 -->
+      <view wx:if="{{suggest.length}}" class="sug">
+        <view class="sug-h">这页只有链接、没有正文。试试这些相关栏目 👇</view>
+        <view class="sug-item" wx:for="{{suggest}}" wx:key="url" data-url="{{item.url}}" bindtap="useSuggest">
+          <text class="sug-t">{{item.text}}</text>
+          <text class="sug-a">›</text>
+        </view>
+      </view>
+
       <button class="btn-primary" bindtap="doSync" disabled="{{syncing}}">{{syncing ? '同步中…' : '立即同步'}}</button>
     </view>
   </view>

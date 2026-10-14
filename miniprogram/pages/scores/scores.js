@@ -50,7 +50,7 @@ Page({
     targetGpa: '3.5', nextCredits: '20', planText: '', planWarn: false,
     // 官网同步的成绩规则
     rules: [], ruleTime: '', ruleUrl: '',
-    srcShow: false, srcUrl: '', syncing: false
+    srcShow: false, srcUrl: '', syncing: false, suggest: []
   },
 
   onShow() {
@@ -79,9 +79,15 @@ Page({
     });
   },
 
-  openSync() { this.setData({ srcShow: true, srcUrl: this.data.ruleUrl || '' }); },
+  openSync() { this.setData({ srcShow: true, srcUrl: this.data.ruleUrl || '', suggest: [] }); },
   closeSync() { this.setData({ srcShow: false }); },
   onSrcUrl(e) { this.setData({ srcUrl: e.detail.value }); },
+
+  // 点建议的栏目链接 → 直接用它再同步一次
+  useSuggest(e) {
+    const url = e.currentTarget.dataset.url;
+    this.setData({ srcUrl: url, suggest: [] }, () => this.doSync());
+  },
 
   doSync() {
     const url = (this.data.srcUrl || '').trim();
@@ -107,9 +113,20 @@ Page({
             if (bad) {
               wx.showModal({ title: '同步失败', content: bad.msg, showCancel: false });
             } else if (done) {
-              wx.showToast({ title: '已同步 ' + done.count + ' 条', icon: 'none' });
-              this.setData({ srcShow: false });
-              this.loadRules();
+              if (done.count > 0) {
+                wx.showToast({ title: '已同步 ' + done.count + ' 条', icon: 'none' });
+                this.setData({ srcShow: false, suggest: [] });
+                this.loadRules();
+              } else if ((done.suggest || []).length) {
+                // 这页只有链接没有正文 —— 给出相关栏目，点一下直接再同步
+                this.setData({ suggest: done.suggest });
+              } else {
+                wx.showModal({
+                  title: '没抽到内容',
+                  content: '这个页面里没有找到成绩相关的规则。请换成具体的「学籍管理 / 成绩管理 / 规章制度」文章页再试。',
+                  showCancel: false
+                });
+              }
             }
           },
           fail: () => { wx.hideLoading(); this.setData({ syncing: false }); wx.showToast({ title: '同步失败，检查后端', icon: 'none' }); }
