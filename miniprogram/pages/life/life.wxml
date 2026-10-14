@@ -80,10 +80,10 @@
 
   <!-- 同步完成：学校 logo 过场动画 -->
   <view wx:if="{{logoAnim.show}}" class="logo-mask" bindtap="closeLogoAnim">
-    <view class="logo-wrap">
+    <view class="logo-wrap {{logoAnim.light ? 'on-dark' : ''}}">
       <view class="ring"></view>
-      <image wx:if="{{logoAnim.logo}}" class="logo-img" src="{{logoAnim.logo}}"
-             mode="aspectFit" binderror="onLogoErr" />
+      <image wx:if="{{logoAnim.logo}}" class="logo-img {{logoAnim.light ? 'light' : ''}}"
+             src="{{logoAnim.logo}}" mode="aspectFit" binderror="onLogoErr" />
       <view wx:else class="logo-ph">校</view>
     </view>
     <text class="logo-name">{{logoAnim.name}}</text>

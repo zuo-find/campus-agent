@@ -59,8 +59,9 @@ def init_db() -> None:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             category TEXT, title TEXT, date TEXT, content TEXT,
             source_url TEXT, synced_at TEXT)""")
-    _ensure_col("school_sources", "logo", "TEXT")   # 学校 logo 的本地路径
-    _ensure_col("school_sources", "name", "TEXT")   # 学校名称（取自网页标题）
+    _ensure_col("school_sources", "logo", "TEXT")        # 学校 logo 的本地路径
+    _ensure_col("school_sources", "name", "TEXT")        # 学校名称（取自网页标题）
+    _ensure_col("school_sources", "logo_light", "INTEGER")  # logo 是否为浅色(白 logo 需深色底)
 
 
 def list_sources() -> dict:
@@ -170,7 +171,77 @@ def find_title(html: str) -> str:
     return re.split(r"[-_|·—]", t)[0].strip()[:40] or t[:40]
 
 
-def save_logo(url: str, category: str) -> str:
+def _png_mean_luma(data: bytes) -> float | None:
+    """粗略算出 PNG 不透明像素的平均亮度(0~255)，用于判断 logo 是深色还是浅色。
+
+    只处理 8 位 RGB/RGBA、且尺寸不大的图；其他情况返回 None（跳过判断）。
+    纯 stdlib 实现，不引额外依赖。
+    """
+    import zlib
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        return None
+    pos, w, h, bd, ct = 8, 0, 0, None, None
+    idat = bytearray()
+    while pos + 8 <= len(data):
+        ln = int.from_bytes(data[pos:pos + 4], "big")
+        typ = data[pos + 4:pos + 8]
+        chunk = data[pos + 8:pos + 8 + ln]
+        if typ == b"IHDR":
+            w = int.from_bytes(chunk[0:4], "big")
+            h = int.from_bytes(chunk[4:8], "big")
+            bd, ct = chunk[8], chunk[9]
+        elif typ == b"IDAT":
+            idat += chunk
+        elif typ == b"IEND":
+            break
+        pos += 12 + ln
+    if bd != 8 or ct not in (2, 6) or not w or not h or w * h > 600000:
+        return None
+    try:
+        raw = zlib.decompress(bytes(idat))
+    except Exception:
+        return None
+
+    bpp = 4 if ct == 6 else 3
+    stride = w * bpp
+    prev = bytearray(stride)
+    total, cnt, p, y = 0.0, 0, 0, 0
+    step = max(1, w // 60)
+    while y < h and p + 1 + stride <= len(raw) + stride:
+        f = raw[p]; p += 1
+        if p + stride > len(raw):
+            break
+        line = bytearray(raw[p:p + stride]); p += stride
+        if f == 1:
+            for i in range(bpp, stride):
+                line[i] = (line[i] + line[i - bpp]) & 255
+        elif f == 2:
+            for i in range(stride):
+                line[i] = (line[i] + prev[i]) & 255
+        elif f == 3:
+            for i in range(stride):
+                a = line[i - bpp] if i >= bpp else 0
+                line[i] = (line[i] + ((a + prev[i]) >> 1)) & 255
+        elif f == 4:
+            for i in range(stride):
+                a = line[i - bpp] if i >= bpp else 0
+                b = prev[i]
+                c = prev[i - bpp] if i >= bpp else 0
+                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
+                pr = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
+                line[i] = (line[i] + pr) & 255
+        for x in range(0, w, step):
+            o = x * bpp
+            a = line[o + 3] if bpp == 4 else 255
+            if a > 40:
+                total += 0.299 * line[o] + 0.587 * line[o + 1] + 0.114 * line[o + 2]
+                cnt += 1
+        prev = line
+        y += 1
+    return (total / cnt) if cnt else None
+
+
+def save_logo(url: str, category: str) -> tuple[str, bool]:
     """把 logo 图片下载到本地并返回可访问路径（存本地，避免 http 图片在小程序真机加载不了）。"""
     from app.market import UPLOAD_DIR
     os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -180,7 +251,7 @@ def save_logo(url: str, category: str) -> str:
         r.raise_for_status()
         data = r.content
     if not data or len(data) > 3 * 1024 * 1024:
-        return ""
+        return "", False
     ct = (r.headers.get("content-type") or "").lower()
     low = url.lower()
     if "png" in ct or low.endswith(".png"):
@@ -198,7 +269,12 @@ def save_logo(url: str, category: str) -> str:
     name = f"school_logo_{slug}{ext}"
     with open(os.path.join(UPLOAD_DIR, name), "wb") as f:
         f.write(data)
-    return "/uploads/" + name
+
+    # 判断是不是"白色 logo"（官网深色导航栏常见）：白 logo 放白底上会看不见，
+    # 前端据此换成深色底。判断不出来时按深色处理（白底展示）。
+    luma = _png_mean_luma(data)
+    is_light = bool(luma is not None and luma > 205)
+    return "/uploads/" + name, is_light
 
 
 def fetch_text(url: str, limit: int = 8000) -> str:
@@ -289,13 +365,14 @@ def sync(category: str = "") -> dict:
 
             # 学校 logo / 名称（失败不影响主流程）
             name = find_title(html)
-            logo = ""
+            logo, logo_light = "", 0
             logo_src = find_logo(html, url)
             if logo_src:
                 try:
-                    logo = save_logo(logo_src, cat)
+                    logo, is_light = save_logo(logo_src, cat)
+                    logo_light = 1 if is_light else 0
                 except Exception:
-                    logo = ""
+                    logo, logo_light = "", 0
 
             items = _llm_extract(cat, text)
             now = datetime.now().isoformat(timespec="minutes")
@@ -307,9 +384,10 @@ def sync(category: str = "") -> dict:
                     [(cat, it["title"], it["date"], it["content"], url, now) for it in items],
                 )
                 c.execute("UPDATE school_sources SET synced_at=?, logo=COALESCE(NULLIF(?,''),logo), "
-                          "name=COALESCE(NULLIF(?,''),name) WHERE category=?",
-                          (now, logo, name, cat))
-            done.append({"category": cat, "count": len(items), "logo": logo, "name": name})
+                          "name=COALESCE(NULLIF(?,''),name), logo_light=? WHERE category=?",
+                          (now, logo, name, logo_light, cat))
+            done.append({"category": cat, "count": len(items), "logo": logo,
+                         "name": name, "logo_light": logo_light})
         except Exception as e:
             failed.append({"category": cat, "msg": str(e)[:160]})
 

@@ -57,7 +57,7 @@ Page({
     syncCats: ['校历', '作息', '通知公告'],
     srcShow: false, srcCat: '校历', srcUrl: '', srcUrls: {}, syncing: false,
     // 同步完成后的学校 logo 过场动画
-    logoAnim: { show: false, logo: '', name: '' }
+    logoAnim: { show: false, logo: '', name: '', light: false }
   },
 
   onLoad() {
@@ -143,7 +143,8 @@ Page({
                 logoAnim: {
                   show: true,
                   logo: done.logo ? API + done.logo : '',
-                  name: done.name || '学校官网'
+                  name: done.name || '学校官网',
+                  light: !!done.logo_light   // 白色 logo 要垫深色底，否则白底白图看不见
                 }
               });
               this.loadSchool();
