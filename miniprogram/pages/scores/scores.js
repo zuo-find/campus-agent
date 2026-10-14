@@ -50,7 +50,8 @@ Page({
     targetGpa: '3.5', nextCredits: '20', planText: '', planWarn: false,
     // 官网同步的成绩规则
     rules: [], ruleTime: '', ruleUrl: '',
-    srcShow: false, srcUrl: '', syncing: false, suggest: []
+    srcShow: false, srcUrl: '', syncing: false,
+    suggest: [], sugStack: []      // sugStack：下钻历史，供「返回上一级」
   },
 
   onShow() {
@@ -79,14 +80,30 @@ Page({
     });
   },
 
-  openSync() { this.setData({ srcShow: true, srcUrl: this.data.ruleUrl || '', suggest: [] }); },
+  openSync() {
+    this.setData({
+      srcShow: true, srcUrl: this.data.ruleUrl || '',
+      suggest: [], sugStack: []
+    });
+  },
   closeSync() { this.setData({ srcShow: false }); },
   onSrcUrl(e) { this.setData({ srcUrl: e.detail.value }); },
 
-  // 点建议的栏目链接 → 直接用它再同步一次
+  // 点建议的栏目链接 → 记下当前层级，再用它同步一次
   useSuggest(e) {
     const url = e.currentTarget.dataset.url;
-    this.setData({ srcUrl: url, suggest: [] }, () => this.doSync());
+    const stack = this.data.sugStack.concat([{
+      url: this.data.srcUrl, suggest: this.data.suggest
+    }]);
+    this.setData({ srcUrl: url, suggest: [], sugStack: stack }, () => this.doSync());
+  },
+
+  // 返回上一级（点错栏目时可以退回去重选）
+  backSuggest() {
+    const stack = this.data.sugStack.slice();
+    const prev = stack.pop();
+    if (!prev) return;
+    this.setData({ srcUrl: prev.url, suggest: prev.suggest, sugStack: stack });
   },
 
   doSync() {
@@ -115,7 +132,7 @@ Page({
             } else if (done) {
               if (done.count > 0) {
                 wx.showToast({ title: '已同步 ' + done.count + ' 条', icon: 'none' });
-                this.setData({ srcShow: false, suggest: [] });
+                this.setData({ srcShow: false, suggest: [], sugStack: [] });
                 this.loadRules();
               } else if ((done.suggest || []).length) {
                 // 这页只有链接没有正文 —— 给出相关栏目，点一下直接再同步

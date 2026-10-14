@@ -1,0 +1,37 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 同步弹层 · 栏目建议 + 返回上一级 1:1 还原(1rpx=0.5px) */
+body{margin:0;background:#f2f4f8;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.sheet{background:#fff;border-radius:14px 14px 0 0;padding:14px 16px 20px;margin-top:40px;box-sizing:border-box}
+.sheet-h{position:relative;text-align:center;font-size:16px;font-weight:600;color:#1a2233;padding-bottom:12px}
+.sheet-x{position:absolute;right:0;top:0;color:#a6b0c0;font-size:15px}
+.sec-title{font-size:15px;font-weight:600;color:#1a2233;margin-bottom:8px}
+.f-input{background:#f2f5fa;border-radius:5px;padding:9px 11px;font-size:14px;color:#666;margin-bottom:8px}
+.sync-tip{font-size:11px;color:#9aa6b5;line-height:1.6;margin:6px 0 11px}
+.sug{background:#f7f9fd;border-radius:7px;padding:9px 10px;margin-bottom:11px}
+.sug-back{display:flex;align-items:center;font-size:12px;color:#1a73e8;padding-bottom:7px;margin-bottom:3px;border-bottom:.5px solid #eef2f8}
+.sug-back-a{font-size:17px;margin-right:4px;line-height:1}
+.sug-h{font-size:11.5px;color:#5a6684;margin-bottom:5px}
+.sug-item{display:flex;align-items:center;padding:8px 0;border-top:.5px solid #eef2f8}
+.sug-t{flex:1;font-size:13.5px;color:#1a73e8;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.sug-a{color:#c6d0de;font-size:17px;margin-left:6px}
+.btn-primary{background:#1a73e8;color:#fff;border-radius:24px;font-size:15px;line-height:46px;text-align:center}
+</style></head><body>
+<div class="sheet">
+  <div class="sheet-h">同步「成绩规则」<span class="sheet-x">✕</span></div>
+  <div class="sec-title">学校官网网址</div>
+  <div class="f-input">https://home.xasyu.cn/web/jwc/</div>
+  <div class="sync-tip">由后端抓取该页正文，交给 AI 抽取成绩/绩点相关规则并展示；请只同步学校公开发布的信息。</div>
+
+  <div class="sug">
+    <div class="sug-back"><span class="sug-back-a">‹</span><span>返回上一级</span></div>
+    <div class="sug-h">这页只有链接、没有正文。试试这些相关栏目 👇</div>
+    <div class="sug-item"><span class="sug-t">学籍管理</span><span class="sug-a">›</span></div>
+    <div class="sug-item"><span class="sug-t">规章制度</span><span class="sug-a">›</span></div>
+    <div class="sug-item"><span class="sug-t">教学管理制度</span><span class="sug-a">›</span></div>
+    <div class="sug-item"><span class="sug-t">关于2025届本科结业生换证考试工作安排的通知</span><span class="sug-a">›</span></div>
+  </div>
+
+  <div class="btn-primary">立即同步</div>
+</div>
+</body></html>

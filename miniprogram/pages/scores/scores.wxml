@@ -106,6 +106,9 @@
 
       <!-- 这页没抽到内容时，给出相关栏目建议 -->
       <view wx:if="{{suggest.length}}" class="sug">
+        <view wx:if="{{sugStack.length}}" class="sug-back" bindtap="backSuggest">
+          <text class="sug-back-a">‹</text><text>返回上一级</text>
+        </view>
         <view class="sug-h">这页只有链接、没有正文。试试这些相关栏目 👇</view>
         <view class="sug-item" wx:for="{{suggest}}" wx:key="url" data-url="{{item.url}}" bindtap="useSuggest">
           <text class="sug-t">{{item.text}}</text>

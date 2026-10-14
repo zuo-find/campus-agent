@@ -103,6 +103,11 @@
 
 /* 栏目建议 */
 .sug { background: #f7f9fd; border-radius: 14rpx; padding: 18rpx 20rpx; margin-bottom: 22rpx; }
+.sug-back {
+  display: flex; align-items: center; font-size: 24rpx; color: #1a73e8;
+  padding-bottom: 14rpx; margin-bottom: 6rpx; border-bottom: 1rpx solid #eef2f8;
+}
+.sug-back-a { font-size: 34rpx; margin-right: 8rpx; line-height: 1; }
 .sug-h { font-size: 23rpx; color: #5a6684; margin-bottom: 10rpx; }
 .sug-item { display: flex; align-items: center; padding: 16rpx 0; border-top: 1rpx solid #eef2f8; }
 .sug-t { flex: 1; font-size: 27rpx; color: #1a73e8; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
