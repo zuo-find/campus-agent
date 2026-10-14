@@ -82,7 +82,8 @@
   <view wx:if="{{logoAnim.show}}" class="logo-mask" bindtap="closeLogoAnim">
     <view class="logo-wrap">
       <view class="ring"></view>
-      <image wx:if="{{logoAnim.logo}}" class="logo-img" src="{{logoAnim.logo}}" mode="aspectFit" />
+      <image wx:if="{{logoAnim.logo}}" class="logo-img" src="{{logoAnim.logo}}"
+             mode="aspectFit" binderror="onLogoErr" />
       <view wx:else class="logo-ph">校</view>
     </view>
     <text class="logo-name">{{logoAnim.name}}</text>

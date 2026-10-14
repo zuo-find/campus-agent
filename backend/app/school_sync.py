@@ -10,6 +10,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -27,6 +28,9 @@ _DB = os.path.join(_BASE, "data", "school.db")
 
 # 允许同步的类别（与前端展示的卡片对应）
 CATEGORIES = ["校历", "作息", "通知公告"]
+
+# 类别 → 文件名用的 ASCII 短名（URL 里不能出现中文）
+_SLUG = {"校历": "xiaoli", "作息": "zuoxi", "通知公告": "notice"}
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
 
@@ -189,7 +193,9 @@ def save_logo(url: str, category: str) -> str:
         ext = ".webp"
     else:
         ext = ".png"
-    name = f"school_logo_{category}{ext}"
+    # 文件名必须是纯 ASCII：URL 里出现中文会让 <image> 取不到图（服务端 404）
+    slug = _SLUG.get(category) or ("c" + hashlib.md5(category.encode("utf-8")).hexdigest()[:8])
+    name = f"school_logo_{slug}{ext}"
     with open(os.path.join(UPLOAD_DIR, name), "wb") as f:
         f.write(data)
     return "/uploads/" + name

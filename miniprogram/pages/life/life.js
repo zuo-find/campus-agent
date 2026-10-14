@@ -74,6 +74,9 @@ Page({
     this.setData({ 'logoAnim.show': false });
   },
 
+  // logo 图片加载失败 → 退回"校"字方块，避免出现空白
+  onLogoErr() { this.setData({ 'logoAnim.logo': '' }); },
+
   // ---------- 学校官网同步 ----------
   loadSchool() {
     wx.request({

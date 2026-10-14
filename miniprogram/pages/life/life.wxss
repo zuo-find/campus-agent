@@ -62,7 +62,8 @@
 @keyframes ringOut { 0% { opacity: .9; transform: scale(.9); } 100% { opacity: 0; transform: scale(2.1); } }
 
 .logo-img {
-  width: 176rpx; height: 176rpx; border-radius: 36rpx; background: #fff;
+  /* 用宽一些的框，横版校徽(如 425x72)也能完整显示 */
+  width: 380rpx; height: 190rpx; border-radius: 28rpx; background: #fff;
   box-shadow: 0 18rpx 50rpx rgba(24,39,75,.16);
   animation: logoIn .65s cubic-bezier(.2,.9,.3,1.25) both;
 }
