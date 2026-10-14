@@ -21,7 +21,6 @@
 /* ---------- 折叠卡 ---------- */
 .g-card { padding: 0; overflow: hidden; }
 .g-head { display: flex; align-items: center; padding: 26rpx 28rpx; }
-.g-icon { font-size: 38rpx; margin-right: 18rpx; }
 .g-tt { flex: 1; min-width: 0; }
 .g-title { display: block; font-size: 30rpx; font-weight: 600; color: #1a2233; }
 .g-sub { display: block; font-size: 23rpx; color: #9aa6b5; margin-top: 6rpx; }

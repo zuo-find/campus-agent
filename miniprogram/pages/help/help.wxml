@@ -14,7 +14,6 @@
   <view class="grp-t">功能怎么用</view>
   <view class="card g-card" wx:for="{{guides}}" wx:key="id" id="{{item.id}}">
     <view class="g-head" data-id="{{item.id}}" bindtap="toggle">
-      <text class="g-icon">{{item.icon}}</text>
       <view class="g-tt">
         <text class="g-title">{{item.title}}</text>
         <text class="g-sub">{{item.sub}}</text>
