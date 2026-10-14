@@ -34,20 +34,9 @@ function fmtTime(iso) {
   return (d.getMonth() + 1) + '月' + d.getDate() + '日';
 }
 
-// ====== 快递/外卖 跳转配置（按需自行增删条目）======
-// 每个条目两种跳转方式：
-//   mode:'appid'   有对方小程序的 AppID，一键跳转（wx.navigateToMiniProgram）
-//   mode:'qrcode'  没有 AppID，弹出小程序码大图，用户长按识别进入
-// 例如要加"快递代取"，在这里加一条：
-//   express_take: { mode: 'appid', appId: '对方的AppID', name: '快递代取' }
-// 页面会自动为每条生成一个入口卡片，无需改 wxml。
-const JUMP = {
-  takeout: { mode: 'appid', appId: 'wxde8ac0a21135c07d', path: '', name: '外卖(美团)' }
-};
-
 Page({
   data: {
-    tab: 'home',               // home | errand | lost | market
+    tab: 'home',               // home | lost | market
     weather: null, advice: '', wLoading: true,
     // 二手市场
     cats: ['全部', '教材书籍', '数码电子', '生活用品', '服饰鞋包', '运动户外', '其他'],
@@ -61,54 +50,10 @@ Page({
     lfKind: 'lost', lfList: [], lfLoading: false,
     showForm: false, fTitle: '', fLocation: '', fContact: '', fDetail: '',
     // 校历作息
-    schedule: SCHEDULE, calendar: CALENDAR,
-    // 快递/外卖入口（由 JUMP 配置自动生成）
-    jumps: Object.keys(JUMP).map((k, i) => {
-      const c = JUMP[k];
-      return {
-        key: k,
-        name: c.name,
-        sub: c.mode === 'qrcode' ? '长按识别进入' : '点击进入小程序',
-        initial: (c.name || '?').slice(0, 1),
-        tone: i % 4
-      };
-    }),
-    // 小程序码弹层
-    qrShow: false, qrSrc: '', qrName: ''
+    schedule: SCHEDULE, calendar: CALENDAR
   },
 
   onLoad() { this.loadWeather(); },
-
-  // 跳转到快递/外卖小程序
-  jumpTo(e) {
-    const key = e.currentTarget.dataset.key;
-    const cfg = JUMP[key];
-    if (!cfg) return;
-
-    // 备选方案：弹出小程序码大图，用户长按识别进入
-    if (cfg.mode === 'qrcode') {
-      this.setData({ qrShow: true, qrSrc: cfg.qr, qrName: cfg.name });
-      return;
-    }
-
-    // 一键跳转
-    if (!cfg.appId) {
-      wx.showModal({ title: cfg.name, showCancel: false, content: '尚未配置 AppID。' });
-      return;
-    }
-    wx.navigateToMiniProgram({
-      appId: cfg.appId,
-      path: cfg.path || '',
-      fail: (err) => {
-        wx.showToast({ title: '跳转失败，检查 AppID 与关联', icon: 'none' });
-        console.error('navigateToMiniProgram fail:', err);
-      }
-    });
-  },
-
-  closeQr() { this.setData({ qrShow: false }); },
-  // 点大图可全屏预览（也可长按识别）
-  previewQr() { if (this.data.qrSrc) wx.previewImage({ urls: [this.data.qrSrc] }); },
 
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab;

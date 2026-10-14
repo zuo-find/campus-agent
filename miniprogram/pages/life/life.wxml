@@ -2,7 +2,6 @@
   <!-- 顶部功能切换 -->
   <view class="seg">
     <view class="seg-item {{tab=='home'?'on':''}}" data-tab="home" bindtap="switchTab">天气·校历</view>
-    <view class="seg-item {{tab=='errand'?'on':''}}" data-tab="errand" bindtap="switchTab">快递外卖</view>
     <view class="seg-item {{tab=='lost'?'on':''}}" data-tab="lost" bindtap="switchTab">失物招领</view>
     <view class="seg-item {{tab=='market'?'on':''}}" data-tab="market" bindtap="switchTab">二手市场</view>
   </view>
@@ -38,33 +37,6 @@
       </view>
     </view>
   </block>
-
-  <!-- ============ 快递外卖（跳转第三方小程序） ============ -->
-  <block wx:if="{{tab=='errand'}}">
-    <view class="jump-card" wx:for="{{jumps}}" wx:key="key" data-key="{{item.key}}" bindtap="jumpTo">
-      <view class="jump-badge tone{{item.tone}}">{{item.initial}}</view>
-      <view class="jump-main"><text class="jump-title">{{item.name}}</text><text class="jump-sub">{{item.sub}}</text></view>
-      <text class="jump-arrow">›</text>
-    </view>
-
-    <!-- 未接入的快递入口（可由管理员在 life.js 的 JUMP 中配置后自动出现） -->
-    <view class="jump-card ghost">
-      <view class="jump-badge ghost-mark">＋</view>
-      <view class="jump-main"><text class="jump-title">快递代取 / 收寄</text><text class="jump-sub">暂未接入，可由管理员配置</text></view>
-    </view>
-
-    <view class="tip">点击卡片跳转到对应小程序。</view>
-  </block>
-
-  <!-- 小程序码弹层（备选跳转方案：长按识别） -->
-  <view wx:if="{{qrShow}}" class="qr-mask" bindtap="closeQr">
-    <view class="qr-box" catchtap="previewQr">
-      <text class="qr-name">{{qrName}}</text>
-      <image class="qr-img" src="{{qrSrc}}" mode="widthFix" show-menu-by-longpress />
-      <text class="qr-hint">长按图片「识别小程序码」进入<br/>（点图可放大）</text>
-      <text class="qr-close" catchtap="closeQr">关闭</text>
-    </view>
-  </view>
 
   <!-- ============ 二手市场 ============ -->
   <block wx:if="{{tab=='market'}}">
