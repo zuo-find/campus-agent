@@ -1,0 +1,38 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 启动页动画「播放完成态」1:1 还原(1rpx=0.5px) */
+html,body{margin:0;padding:0}
+.phone{width:375px;height:812px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#1f6fe8 0%,#1a73e8 45%,#3f93ff 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:"Microsoft YaHei",sans-serif}
+.glow{position:absolute;border-radius:50%;filter:blur(30px)}
+.glow-1{width:260px;height:260px;background:rgba(255,255,255,.22);top:-60px;right:-60px}
+.glow-2{width:230px;height:230px;background:rgba(120,180,255,.35);bottom:-50px;left:-70px}
+.center{display:flex;flex-direction:column;align-items:center;z-index:2}
+.logo{width:80px;height:80px;border-radius:22px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.cap{position:relative;width:46px;height:35px}
+.cap-top{position:absolute;top:0;left:50%;transform:translateX(-50%) rotate(45deg);width:32px;height:32px;background:#fff;border-radius:5px}
+.cap-base{position:absolute;top:17px;left:50%;transform:translateX(-50%);width:26px;height:15px;background:#fff;border-radius:0 0 5px 5px;opacity:.92}
+.cap-tassel{position:absolute;top:15px;right:1px;width:2px;height:16px;background:#ffd36e;border-radius:1px}
+.cap-tassel::after{content:'';position:absolute;bottom:-3px;left:-2px;width:6px;height:6px;border-radius:50%;background:#ffd36e}
+.title{color:#fff;font-size:26px;font-weight:700;letter-spacing:3px;margin-top:20px}
+.slogan{color:rgba(255,255,255,.85);font-size:13px;letter-spacing:1px;margin-top:9px}
+.dots{display:flex;margin-top:24px}
+.dot{width:8px;height:8px;border-radius:50%;margin:0 5px;background:rgba(255,255,255,.9)}
+.foot{position:absolute;bottom:35px;z-index:2}
+.foot-t{color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.5px}
+.skip-hint{position:absolute;top:45px;right:22px;z-index:2;color:rgba(255,255,255,.55);font-size:11px}
+</style></head><body>
+<div class="phone">
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="center">
+    <div class="logo"><div class="cap"><div class="cap-top"></div><div class="cap-base"></div><div class="cap-tassel"></div></div></div>
+    <div class="title">校园助手</div>
+    <div class="slogan">你的校园 AI 伙伴</div>
+    <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+  </div>
+  <div class="foot"><span class="foot-t">校园服务智能体 · 参赛作品</span></div>
+  <div class="skip-hint">轻触跳过</div>
+</div></body></html>
