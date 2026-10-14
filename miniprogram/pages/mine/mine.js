@@ -1,5 +1,5 @@
 const app = getApp();
-const API = app.globalData.apiBase;
+let API = app.globalData.apiBase;   // 在 onShow 里刷新，改地址后无需重启
 
 Page({
   data: {
@@ -13,18 +13,23 @@ Page({
     // 数据概览
     stat: { courses: 0, market: 0, lost: 0, doc: 0 },
     // 我生成的材料
-    docShow: false, docs: []
+    docShow: false, docs: [],
+    // 服务器地址（真机 / 体验版用）
+    srvShow: false, srvUrl: '', srvMsg: '', srvOk: false, srvTesting: false,
+    apiShort: ''
   },
 
   onUnload() { if (this._okTimer) clearTimeout(this._okTimer); },
 
   onShow() {
+    API = app.globalData.apiBase;
     const u = app.getUser();
     const courses = app.getCourses();
     this.setData({
       user: u,
       logged: app.isLoggedIn(),
       shortId: u && u.openid ? u.openid.slice(0, 12) + '…' : '',
+      apiShort: (app.globalData.apiBase || '').replace(/^https?:\/\//, ''),
       stat: {
         courses: courses.length,
         market: app.getMine('market').length,
@@ -140,6 +145,53 @@ Page({
 
   // ---- 设置 ----
   goModel() { wx.navigateTo({ url: '/pages/model/model' }); },
+
+  // 服务器地址：开发者工具用 127.0.0.1，真机/体验版要改成电脑的局域网 IP
+  openServer() {
+    const cur = app.globalData.apiBase || '';
+    this.setData({ srvShow: true, srvUrl: cur, srvMsg: '', srvOk: false });
+  },
+  closeServer() { this.setData({ srvShow: false }); },
+  onSrvUrl(e) { this.setData({ srvUrl: e.detail.value, srvMsg: '', srvOk: false }); },
+
+  testServer() {
+    const url = (this.data.srvUrl || '').trim().replace(/\/+$/, '');
+    if (!/^https?:\/\//i.test(url)) {
+      this.setData({ srvMsg: '要填 http:// 或 https:// 开头的完整地址', srvOk: false });
+      return;
+    }
+    this.setData({ srvTesting: true, srvMsg: '' });
+    wx.request({
+      url: url + '/health', timeout: 8000,
+      success: r => {
+        const d = r.data || {};
+        this.setData({
+          srvTesting: false, srvOk: !!d.ok,
+          srvMsg: d.ok ? '连上了 · 知识库 ' + (d.docs_indexed || 0) + ' 个片段'
+                       : '连上了，但返回的内容不对，确认这是后端地址'
+        });
+      },
+      fail: () => this.setData({
+        srvTesting: false, srvOk: false,
+        srvMsg: '连不上。确认后端已启动、手机和电脑在同一个 WiFi，地址里的 IP 没写错'
+      })
+    });
+  },
+
+  saveServer() {
+    const url = (this.data.srvUrl || '').trim();
+    if (url && !/^https?:\/\//i.test(url)) {
+      wx.showToast({ title: '地址要以 http:// 开头', icon: 'none' });
+      return;
+    }
+    app.setApiBase(url);
+    this.setData({
+      srvShow: false,
+      apiShort: app.globalData.apiBase.replace(/^https?:\/\//, '')
+    });
+    wx.showToast({ title: url ? '已保存' : '已恢复默认地址', icon: 'none' });
+    // 各页面在下次 onShow 时会读到新地址，不用重启小程序
+  },
   clearLocal() {
     wx.showModal({
       title: '清除本地数据',

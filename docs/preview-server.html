@@ -1,0 +1,75 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 服务器地址设置 1:1 还原(1rpx=0.5px) */
+*{box-sizing:border-box}
+body{margin:0;background:#e9ecf1;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.screen{width:375px;background:#f5f6f8;margin-bottom:24px}
+.cap{font-size:11px;color:#8c98ab;padding:8px 14px 4px}
+.grp-t{font-size:13px;color:#8c98ab;margin:10px 20px 0}
+.card{background:#fff;border-radius:8px;margin:8px 12px;padding:0 14px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.menu-item{display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid #f2f4f8}
+.menu-item:last-child{border-bottom:none}
+.mi-dot{width:7px;height:7px;border-radius:50%;margin-right:11px;flex-shrink:0}
+.mi-dot.d0{background:#1a73e8}.mi-dot.d1{background:#ff8a00}.mi-dot.d4{background:#e5484d}
+.mi-txt{flex:1;font-size:14.5px;color:#1a2233}
+.mi-badge{font-size:11px;color:#1a73e8;background:#eaf1fe;border-radius:10px;padding:1px 8px;margin-right:6px}
+.mi-badge.srv{color:#5a6684;background:#f0f3f8;font-size:10.5px;max-width:160px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.arrow{color:#c6d0de;font-size:15px}
+.mask{background:rgba(16,24,40,.5);padding-top:150px}
+.sheet{background:#fff;border-radius:14px 14px 0 0;padding:14px 16px 20px}
+.sheet-h{position:relative;text-align:center;font-size:16px;font-weight:600;color:#1a2233;padding-bottom:10px}
+.sheet-x{position:absolute;right:0;top:0;color:#a6b0c0;font-size:15px}
+.srv-tip{font-size:11.5px;color:#8c98ab;line-height:1.75;margin-bottom:9px}
+.f-input{width:100%;background:#f2f5fa;border-radius:5px;padding:10px 11px;font-size:13.5px;color:#1a2233}
+.srv-btns{display:flex;margin-top:8px}
+.srv-test{font-size:12.5px;color:#1a73e8;border:.5px solid #cfe0fb;border-radius:15px;padding:5px 14px}
+.srv-msg{font-size:11.5px;color:#b42318;background:#fff2f2;border-radius:5px;padding:7px 9px;margin-top:8px;line-height:1.6}
+.srv-msg.ok{color:#0f5132;background:#e7f7ef}
+.primary{background:#1a73e8;color:#fff;border-radius:6px;font-size:15px;padding:10px 0;text-align:center;margin-top:10px}
+.srv-note{font-size:11px;color:#b6c0cf;text-align:center;margin-top:8px}
+</style></head><body>
+
+<!-- ① 「我的」设置组 -->
+<div class="screen">
+  <div class="cap">「我的 → 设置」多了一行，右边直接显示当前地址</div>
+  <div class="grp-t">设置</div>
+  <div class="card">
+    <div class="menu-item"><div class="mi-dot d0"></div><span class="mi-txt">大模型设置</span><span class="arrow">›</span></div>
+    <div class="menu-item"><div class="mi-dot d1"></div><span class="mi-txt">服务器地址</span><span class="mi-badge srv">10.128.17.2:8000</span><span class="arrow">›</span></div>
+    <div class="menu-item"><div class="mi-dot d4"></div><span class="mi-txt">清除本地数据</span><span class="arrow">›</span></div>
+  </div>
+</div>
+
+<!-- ② 弹层：连通 -->
+<div class="screen">
+  <div class="cap">点进去可以改地址，并且能先「测试连接」再保存</div>
+  <div class="mask">
+    <div class="sheet">
+      <div class="sheet-h">服务器地址<span class="sheet-x">✕</span></div>
+      <div class="srv-tip">开发者工具里用默认的 127.0.0.1 就行。手机 / 体验版要填电脑的局域网 IP，例如 http://192.168.1.5:8000（启动后端时会打印这个地址），并且手机要和电脑连同一个 WiFi。</div>
+      <div class="f-input">http://10.128.17.2:8000</div>
+      <div class="srv-btns"><div class="srv-test">测试连接</div></div>
+      <div class="srv-msg ok">连上了 · 知识库 27 个片段</div>
+      <div class="primary">保存</div>
+      <div class="srv-note">留空保存 = 恢复默认的 127.0.0.1:8000</div>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 弹层：连不上 -->
+<div class="screen">
+  <div class="cap">连不上时直接说清楚要查什么，不用猜</div>
+  <div class="mask">
+    <div class="sheet">
+      <div class="sheet-h">服务器地址<span class="sheet-x">✕</span></div>
+      <div class="srv-tip">开发者工具里用默认的 127.0.0.1 就行。手机 / 体验版要填电脑的局域网 IP……</div>
+      <div class="f-input">http://192.168.1.5:8000</div>
+      <div class="srv-btns"><div class="srv-test">测试连接</div></div>
+      <div class="srv-msg">连不上。确认后端已启动、手机和电脑在同一个 WiFi，地址里的 IP 没写错</div>
+      <div class="primary">保存</div>
+      <div class="srv-note">留空保存 = 恢复默认的 127.0.0.1:8000</div>
+    </div>
+  </div>
+</div>
+
+</body></html>

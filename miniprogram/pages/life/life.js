@@ -1,5 +1,5 @@
 const app = getApp();
-const API = app.globalData.apiBase;
+let API = app.globalData.apiBase;   // 在 onShow 里刷新，改地址后无需重启
 
 // 校历/作息为静态数据，可按学校实际修改
 const SCHEDULE = [
@@ -67,6 +67,7 @@ Page({
 
   // 从「我的」页跳过来时，按全局变量打开指定栏
   onShow() {
+    API = app.globalData.apiBase;
     const want = app.globalData.lifeTab;
     if (want) {
       app.globalData.lifeTab = '';

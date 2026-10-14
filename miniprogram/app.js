@@ -1,10 +1,29 @@
+// 后端地址：默认本机。
+// 开发者工具里用它即可；真机 / 体验版要改成电脑的局域网 IP（形如 http://192.168.1.5:8000），
+// 在「我的 → 服务器地址」里改，改完存本地，换 WiFi 也不用重新传代码。
+const DEFAULT_API = 'http://127.0.0.1:8000';
+
 // 全局：后端地址 + 本地存储的成绩/ddl + 登录态
 App({
   globalData: {
-    // 本地调试：微信开发者工具里关闭「校验合法域名」。上线需换 https 域名并在后台配置。
-    apiBase: 'http://127.0.0.1:8000',
+    apiBase: DEFAULT_API,
     userName: '同学'
   },
+
+  onLaunch() {
+    const saved = wx.getStorageSync('apiBase');
+    if (saved) this.globalData.apiBase = saved;
+  },
+
+  // 后端地址随时可改；各页面在 onShow 里重新读取，所以不用重启小程序
+  setApiBase(url) {
+    const u = (url || '').trim().replace(/\/+$/, '');
+    this.globalData.apiBase = u || DEFAULT_API;
+    if (u) wx.setStorageSync('apiBase', u);
+    else wx.removeStorageSync('apiBase');
+    return this.globalData.apiBase;
+  },
+
   getCourses() {
     return wx.getStorageSync('courses') || [];
   },

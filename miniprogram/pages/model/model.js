@@ -1,5 +1,5 @@
 const app = getApp();
-const API = app.globalData.apiBase;
+let API = app.globalData.apiBase;   // 在 onShow 里刷新，改地址后无需重启
 
 Page({
   data: {
@@ -15,6 +15,7 @@ Page({
   },
 
   onLoad() {
+    API = app.globalData.apiBase;
     const saved = wx.getStorageSync('llm') || null;
     const savedV = wx.getStorageSync('visionLlm') || null;
 

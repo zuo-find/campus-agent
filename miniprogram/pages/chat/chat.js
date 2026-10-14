@@ -1,5 +1,5 @@
 const app = getApp();
-const API = app.globalData.apiBase;
+let API = app.globalData.apiBase;   // 在 onShow 里刷新，改地址后无需重启
 
 // 判定哪些字段应该用多行输入（长文本）
 const MULTI_KEYS = ['理由', '流程', '目的', '宗旨', '成员', '计划', '预算', '预案', '说明', '描述', '内容'];
@@ -115,6 +115,7 @@ Page({
   onUnload() { this.stopThink(); },
 
   onShow() {
+    API = app.globalData.apiBase;
     // 从「选择大模型」页返回时刷新当前模型显示
     const llm = wx.getStorageSync('llm');
     const label = llm && llm.apiKey
@@ -345,7 +346,11 @@ Page({
           this.appendAssistant('出错了：' + (d.error || '未知错误'));
         }
       },
-      fail: () => this.appendAssistant('连接后端失败，请确认后端已启动、域名已配置。'),
+      fail: () => this.appendAssistant(
+        '连不上后端。检查三件事：\n' +
+        '1. 电脑上的后端还在运行（那个黑窗口别关）\n' +
+        '2. 手机和电脑连的是同一个 WiFi\n' +
+        '3. 「我的 → 服务器地址」填的是电脑的局域网 IP（启动后端时会打印）'),
       complete: () => { this.stopThink(); this.setData({ loading: false }, this.scrollToBottom); }
     });
   },

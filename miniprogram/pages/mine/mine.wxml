@@ -93,6 +93,10 @@
       <view class="menu-item" bindtap="goModel">
         <view class="mi-dot d0"></view><text class="mi-txt">大模型设置</text><text class="arrow">›</text>
       </view>
+      <view class="menu-item" bindtap="openServer">
+        <view class="mi-dot d1"></view><text class="mi-txt">服务器地址</text>
+        <text class="mi-badge srv">{{apiShort}}</text><text class="arrow">›</text>
+      </view>
       <view class="menu-item" bindtap="clearLocal">
         <view class="mi-dot d4"></view><text class="mi-txt">清除本地数据</text><text class="arrow">›</text>
       </view>
@@ -127,6 +131,21 @@
     <text class="link-item" bindtap="goAgreement" data-type="privacy">隐私政策</text>
   </view>
   <view class="foot">校园服务智能体 · 参赛作品</view>
+
+  <!-- 服务器地址 -->
+  <view wx:if="{{srvShow}}" class="mask" bindtap="closeServer">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-h">服务器地址<text class="sheet-x" catchtap="closeServer">✕</text></view>
+      <view class="srv-tip">开发者工具里用默认的 127.0.0.1 就行。手机 / 体验版要填电脑的局域网 IP，例如 http://192.168.1.5:8000（启动后端时会打印这个地址），并且手机要和电脑连同一个 WiFi。</view>
+      <input class="f-input full" placeholder="http://192.168.1.5:8000" value="{{srvUrl}}" bindinput="onSrvUrl" />
+      <view class="srv-btns">
+        <view class="srv-test" bindtap="testServer">{{srvTesting ? '测试中…' : '测试连接'}}</view>
+      </view>
+      <view wx:if="{{srvMsg}}" class="srv-msg {{srvOk ? 'ok' : ''}}">{{srvMsg}}</view>
+      <button class="btn-primary" bindtap="saveServer">保存</button>
+      <view class="srv-note">留空保存 = 恢复默认的 127.0.0.1:8000</view>
+    </view>
+  </view>
 
   <!-- 我生成的材料 -->
   <view wx:if="{{docShow}}" class="mask" bindtap="closeDocs">

@@ -171,3 +171,18 @@
 .d-copy { font-size: 24rpx; color: #1a73e8; border: 1rpx solid #cfe0fb; border-radius: 26rpx; padding: 8rpx 22rpx; }
 .d-tip { font-size: 22rpx; color: #a6b0c0; margin-top: 22rpx; line-height: 1.6; }
 .d-empty { font-size: 25rpx; color: #9aa6b5; line-height: 1.7; padding: 20rpx 0; }
+
+/* ---------- 服务器地址 ---------- */
+.mi-badge.srv { color: #5a6684; background: #f0f3f8; font-size: 21rpx; max-width: 320rpx;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.srv-tip { font-size: 23rpx; color: #8c98ab; line-height: 1.75; margin-bottom: 18rpx; }
+.f-input.full { width: 100%; box-sizing: border-box; background: #f2f5fa; border-radius: 10rpx;
+  padding: 20rpx 22rpx; font-size: 27rpx; color: #1a2233; }
+.srv-btns { display: flex; margin-top: 16rpx; }
+.srv-test { font-size: 25rpx; color: #1a73e8; border: 1rpx solid #cfe0fb; border-radius: 30rpx;
+  padding: 10rpx 28rpx; }
+.srv-test:active { background: #eaf1fe; }
+.srv-msg { font-size: 23rpx; color: #b42318; background: #fff2f2; border-radius: 10rpx;
+  padding: 14rpx 18rpx; margin-top: 16rpx; line-height: 1.6; }
+.srv-msg.ok { color: #0f5132; background: #e7f7ef; }
+.srv-note { font-size: 22rpx; color: #b6c0cf; text-align: center; margin-top: 16rpx; }

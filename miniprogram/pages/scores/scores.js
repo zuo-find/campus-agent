@@ -1,5 +1,5 @@
 const app = getApp();
-const API = app.globalData.apiBase;
+let API = app.globalData.apiBase;   // 在 onShow 里刷新，改地址后无需重启
 
 // 百分制 → 绩点（与后端 tools/_score_to_gpa 保持一致）
 function scoreToGpa(s) {
@@ -55,6 +55,7 @@ Page({
   },
 
   onShow() {
+    API = app.globalData.apiBase;
     const courses = wx.getStorageSync('courses') || [];
     this.setData({ courses }, this.recalc);
     this.loadRules();
