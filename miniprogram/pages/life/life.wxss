@@ -19,6 +19,30 @@
 .advice { margin-top: 20rpx; background: #eaf1fe; color: #1a2b45; border-radius: 12rpx; padding: 18rpx 22rpx; font-size: 28rpx; line-height: 1.5; }
 
 .sec-title { font-size: 30rpx; font-weight: 600; margin-bottom: 18rpx; color: #222; }
+.sec-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18rpx; }
+.sec-title-row .sec-title { margin-bottom: 0; }
+.sync-btn { font-size: 24rpx; color: #1a73e8; border: 1rpx solid #cfe0fb; border-radius: 30rpx; padding: 6rpx 22rpx; }
+.sync-btn:active { background: #eaf1fe; }
+.sync-note { font-size: 22rpx; color: #a6b0c0; text-align: right; margin-top: 14rpx; }
+
+.noti { padding: 18rpx 0; border-bottom: 1rpx solid #f2f4f8; }
+.noti:last-child { border-bottom: none; }
+.noti-t { font-size: 28rpx; color: #1a2233; line-height: 1.5; }
+.noti-c { font-size: 24rpx; color: #7c8a9e; margin-top: 8rpx; line-height: 1.6; }
+.noti-d { font-size: 22rpx; color: #b6c0cf; margin-top: 8rpx; }
+
+/* 同步设置弹层 */
+.mask { position: fixed; inset: 0; background: rgba(16,24,40,.5); z-index: 60; display: flex; align-items: flex-end; }
+.sheet { width: 100%; background: #fff; border-radius: 28rpx 28rpx 0 0; padding: 28rpx 32rpx 40rpx; box-sizing: border-box; }
+.sheet-h { position: relative; text-align: center; font-size: 32rpx; font-weight: 600; color: #1a2233; padding-bottom: 20rpx; }
+.sheet-x { position: absolute; right: 0; top: 0; font-size: 30rpx; color: #a6b0c0; padding: 0 8rpx; }
+.sheet-body { max-height: 900rpx; }
+.cat-pick { display: flex; }
+.cat-opt { flex: 1; text-align: center; font-size: 27rpx; color: #5a6684; background: #f2f5fa;
+  border-radius: 12rpx; line-height: 76rpx; margin-right: 14rpx; }
+.cat-opt:last-child { margin-right: 0; }
+.cat-opt.on { background: #1a73e8; color: #fff; font-weight: 500; }
+.sync-tip { font-size: 22rpx; color: #9aa6b5; line-height: 1.6; margin: 6rpx 0 22rpx; }
 .row { display: flex; justify-content: space-between; padding: 16rpx 0; border-bottom: 1rpx solid #f2f2f2; font-size: 28rpx; }
 .row:last-child { border-bottom: none; }
 .row-l { color: #333; }

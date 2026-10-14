@@ -50,10 +50,92 @@ Page({
     lfKind: 'lost', lfList: [], lfLoading: false,
     showForm: false, fTitle: '', fLocation: '', fContact: '', fDetail: '',
     // 校历作息
-    schedule: SCHEDULE, calendar: CALENDAR
+    schedule: SCHEDULE, calendar: CALENDAR,
+    // 官网同步
+    school: { 校历: [], 作息: [], 通知公告: [] },
+    schoolTime: {},
+    syncCats: ['校历', '作息', '通知公告'],
+    srcShow: false, srcCat: '校历', srcUrl: '', srcUrls: {}, syncing: false
   },
 
-  onLoad() { this.loadWeather(); },
+  onLoad() {
+    this.loadWeather();
+    this.loadSchool();
+  },
+
+  noop() {},
+
+  // ---------- 学校官网同步 ----------
+  loadSchool() {
+    wx.request({
+      url: API + '/school/items', timeout: 15000,
+      success: res => {
+        const items = (res.data || {}).items || [];
+        const school = { 校历: [], 作息: [], 通知公告: [] };
+        items.forEach(it => {
+          if (!school[it.category]) school[it.category] = [];
+          school[it.category].push(it);
+        });
+        this.setData({ school });
+      }
+    });
+    wx.request({
+      url: API + '/school/sources', timeout: 15000,
+      success: res => {
+        const srcs = (res.data || {}).sources || [];
+        const urls = {}, time = {};
+        srcs.forEach(s => { urls[s.category] = s.url; if (s.synced_at) time[s.category] = s.synced_at; });
+        this.setData({ srcUrls: urls, schoolTime: time });
+      }
+    });
+  },
+
+  openSync(e) {
+    const cat = e.currentTarget.dataset.cat || '校历';
+    this.setData({ srcShow: true, srcCat: cat, srcUrl: this.data.srcUrls[cat] || '' });
+  },
+  closeSync() { this.setData({ srcShow: false }); },
+  pickSyncCat(e) {
+    const cat = e.currentTarget.dataset.cat;
+    this.setData({ srcCat: cat, srcUrl: this.data.srcUrls[cat] || '' });
+  },
+  onSrcUrl(e) { this.setData({ srcUrl: e.detail.value }); },
+
+  doSync() {
+    const { srcCat, srcUrl } = this.data;
+    if (!srcUrl || !/^https?:\/\//i.test(srcUrl.trim())) {
+      wx.showToast({ title: '请填写 http(s):// 开头的网址', icon: 'none' });
+      return;
+    }
+    this.setData({ syncing: true });
+    wx.showLoading({ title: '抓取并抽取中…', mask: true });
+    wx.request({
+      url: API + '/school/source', method: 'POST', timeout: 15000,
+      data: { category: srcCat, url: srcUrl.trim() },
+      success: () => {
+        wx.request({
+          url: API + '/school/sync', method: 'POST', timeout: 120000,
+          data: { category: srcCat },
+          success: r => {
+            wx.hideLoading();
+            this.setData({ syncing: false });
+            const d = r.data || {};
+            const done = (d.synced || [])[0];
+            const bad = (d.failed || [])[0];
+            if (bad) {
+              wx.showModal({ title: '同步失败', content: bad.msg, showCancel: false });
+            } else if (done) {
+              wx.showToast({ title: '已同步 ' + done.count + ' 条' });
+              this.setData({ srcShow: false });
+              this.loadSchool();
+            }
+          },
+          fail: () => { wx.hideLoading(); this.setData({ syncing: false }); wx.showToast({ title: '同步失败，检查后端', icon: 'none' }); }
+        });
+      },
+      fail: () => { wx.hideLoading(); this.setData({ syncing: false }); wx.showToast({ title: '保存失败，检查后端', icon: 'none' }); }
+    });
+  },
 
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab;

@@ -23,20 +23,78 @@
       <view wx:else class="muted">{{advice}}</view>
     </view>
 
+    <!-- 作息时间：优先显示从官网同步的 -->
     <view class="card">
-      <view class="sec-title">作息时间</view>
-      <view class="row" wx:for="{{schedule}}" wx:key="period">
-        <text class="row-l">{{item.period}}</text><text class="row-r">{{item.time}}</text>
+      <view class="sec-title-row">
+        <text class="sec-title">作息时间</text>
+        <text class="sync-btn" data-cat="作息" bindtap="openSync">同步官网</text>
       </view>
+      <block wx:if="{{school['作息'].length}}">
+        <view class="row" wx:for="{{school['作息']}}" wx:key="id">
+          <text class="row-l">{{item.title}}</text><text class="row-r">{{item.content}}</text>
+        </view>
+        <view class="sync-note">来自学校官网 · {{schoolTime['作息']}}</view>
+      </block>
+      <block wx:else>
+        <view class="row" wx:for="{{schedule}}" wx:key="period">
+          <text class="row-l">{{item.period}}</text><text class="row-r">{{item.time}}</text>
+        </view>
+        <view class="sync-note">默认作息（未同步官网）</view>
+      </block>
     </view>
 
+    <!-- 校历速查 -->
     <view class="card">
-      <view class="sec-title">校历速查</view>
-      <view class="row" wx:for="{{calendar}}" wx:key="label">
-        <text class="row-l">{{item.label}}</text><text class="row-r">{{item.date}}</text>
+      <view class="sec-title-row">
+        <text class="sec-title">校历速查</text>
+        <text class="sync-btn" data-cat="校历" bindtap="openSync">同步官网</text>
       </view>
+      <block wx:if="{{school['校历'].length}}">
+        <view class="row" wx:for="{{school['校历']}}" wx:key="id">
+          <text class="row-l">{{item.title}}</text><text class="row-r">{{item.date || item.content}}</text>
+        </view>
+        <view class="sync-note">来自学校官网 · {{schoolTime['校历']}}</view>
+      </block>
+      <block wx:else>
+        <view class="row" wx:for="{{calendar}}" wx:key="label">
+          <text class="row-l">{{item.label}}</text><text class="row-r">{{item.date}}</text>
+        </view>
+        <view class="sync-note">默认校历（未同步官网）</view>
+      </block>
+    </view>
+
+    <!-- 通知公告（同步后才有） -->
+    <view class="card" wx:if="{{school['通知公告'].length}}">
+      <view class="sec-title-row">
+        <text class="sec-title">通知公告</text>
+        <text class="sync-btn" data-cat="通知公告" bindtap="openSync">同步官网</text>
+      </view>
+      <view class="noti" wx:for="{{school['通知公告']}}" wx:key="id">
+        <view class="noti-t">{{item.title}}</view>
+        <view class="noti-c" wx:if="{{item.content}}">{{item.content}}</view>
+        <view class="noti-d" wx:if="{{item.date}}">{{item.date}}</view>
+      </view>
+      <view class="sync-note">来自学校官网 · {{schoolTime['通知公告']}}</view>
     </view>
   </block>
+
+  <!-- 官网同步设置 -->
+  <view wx:if="{{srcShow}}" class="mask" bindtap="closeSync">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-h">同步学校官网<text class="sheet-x" catchtap="closeSync">✕</text></view>
+      <scroll-view class="sheet-body" scroll-y>
+        <view class="sec-title">同步到哪一栏</view>
+        <view class="cat-pick">
+          <view class="cat-opt {{srcCat==item?'on':''}}" wx:for="{{syncCats}}" wx:key="*this"
+                data-cat="{{item}}" bindtap="pickSyncCat">{{item}}</view>
+        </view>
+        <view class="sec-title" style="margin-top:24rpx">学校官网网址</view>
+        <input class="f-input" placeholder="https://www.xxx.edu.cn/xxx" value="{{srcUrl}}" bindinput="onSrcUrl" />
+        <view class="sync-tip">小程序无法直接抓网页，会由后端抓取并交给 AI 抽取成条目；请只同步学校公开发布的信息。</view>
+        <button class="btn-primary" bindtap="doSync" disabled="{{syncing}}">{{syncing ? '同步中…' : '立即同步'}}</button>
+      </scroll-view>
+    </view>
+  </view>
 
   <!-- ============ 二手市场 ============ -->
   <block wx:if="{{tab=='market'}}">

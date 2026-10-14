@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import agent, auth, documents, life, market, providers
+from app import agent, auth, documents, life, market, providers, school_sync
 from app.tools import ToolContext
 from rag import store
 
@@ -19,9 +19,10 @@ app.add_middleware(
     CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
 )
 
-life.init_db()    # 启动即建失物招领表
-auth.init_db()    # 启动即建用户表
-market.init_db()  # 启动即建二手市场表
+life.init_db()        # 启动即建失物招领表
+auth.init_db()        # 启动即建用户表
+market.init_db()      # 启动即建二手市场表
+school_sync.init_db() # 启动即建官网同步表
 os.makedirs(documents.EXPORT_DIR, exist_ok=True)
 # 静态托管：二手市场图片、导出的文档
 app.mount("/uploads", StaticFiles(directory=market.UPLOAD_DIR), name="uploads")
@@ -158,6 +159,44 @@ def life_lf_list(kind: str = ""):
 @app.post("/life/lostfound/{item_id}/close")
 def life_lf_close(item_id: int):
     return life.close_lost_found(item_id)
+
+
+# ------------------------------------------------------------ 官网信息同步
+
+class SchoolSourceReq(BaseModel):
+    category: str
+    url: str
+
+
+@app.get("/school/sources")
+def school_sources():
+    """已配置的同步网址与可用的类别。"""
+    return school_sync.list_sources()
+
+
+@app.post("/school/source")
+def school_set_source(req: SchoolSourceReq):
+    """保存某类别要同步的官网网址。"""
+    return school_sync.set_source(req.category, req.url)
+
+
+class SchoolSyncReq(BaseModel):
+    category: str = ""
+
+
+@app.post("/school/sync")
+def school_do_sync(req: SchoolSyncReq):
+    """抓取并抽取（留空 category 则同步全部已配置的类别）。"""
+    try:
+        return school_sync.sync(req.category)
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:200]}
+
+
+@app.get("/school/items")
+def school_items(category: str = ""):
+    """同步后的结构化条目。"""
+    return school_sync.get_items(category)
 
 
 # ------------------------------------------------------------ 材料生成 / 导出
