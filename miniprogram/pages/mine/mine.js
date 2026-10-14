@@ -89,7 +89,7 @@ Page({
               this.fail('登录失败：' + (d.error || ''));
             }
           },
-          fail: () => this.fail('连接后端失败，请确认后端已启动'),
+          fail: () => this.fail(app.netFailHint()),
           complete: () => this.setData({ logging: false })
         });
       },

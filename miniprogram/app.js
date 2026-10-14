@@ -24,6 +24,16 @@ App({
     return this.globalData.apiBase;
   },
 
+  // 连不上后端时的统一自查清单。体验版最常见的失败原因是没点「打开调试」，
+  // 所以把它排在第一——否则用户会一直以为是自己网络的问题。
+  netFailHint(detail) {
+    return (detail ? detail + '\n' : '') +
+      '连不上服务器，按顺序检查：\n' +
+      '1. 体验版要先点右上角 ⋯ →「打开调试」\n' +
+      '2. 手机能正常上网（WiFi 或流量都行）\n' +
+      '3. 电脑上的后端窗口和 cpolar 都还开着';
+  },
+
   getCourses() {
     return wx.getStorageSync('courses') || [];
   },

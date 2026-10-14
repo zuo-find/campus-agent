@@ -346,11 +346,7 @@ Page({
           this.appendAssistant('出错了：' + (d.error || '未知错误'));
         }
       },
-      fail: () => this.appendAssistant(
-        '连不上后端。检查三件事：\n' +
-        '1. 电脑上的后端还在运行（那个黑窗口别关）\n' +
-        '2. 手机和电脑连的是同一个 WiFi\n' +
-        '3. 「我的 → 服务器地址」填的是电脑的局域网 IP（启动后端时会打印）'),
+      fail: () => this.appendAssistant(app.netFailHint()),
       complete: () => { this.stopThink(); this.setData({ loading: false }, this.scrollToBottom); }
     });
   },
