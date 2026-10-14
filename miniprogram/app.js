@@ -12,6 +12,26 @@ App({
     return wx.getStorageSync('ddls') || [];
   },
 
+  // ---- 「我发布的 / 我生成的」本地记录（后端没有账号绑定，先记在本机）----
+  getMine(type) {
+    return wx.getStorageSync('mine_' + type) || [];
+  },
+  addMine(type, item) {
+    const k = 'mine_' + type;
+    const arr = wx.getStorageSync(k) || [];
+    arr.unshift(Object.assign({ at: Date.now() }, item));
+    wx.setStorageSync(k, arr.slice(0, 50));   // 最多留 50 条
+  },
+  removeMine(type, index) {
+    const k = 'mine_' + type;
+    const arr = wx.getStorageSync(k) || [];
+    arr.splice(index, 1);
+    wx.setStorageSync(k, arr);
+  },
+  clearMine() {
+    ['market', 'lost', 'doc'].forEach(t => wx.removeStorageSync('mine_' + t));
+  },
+
   // ---- 登录态（存本地）----
   getUser() {
     return wx.getStorageSync('user') || null;

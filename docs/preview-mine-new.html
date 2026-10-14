@@ -1,0 +1,84 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 「我的」页新结构 1:1 还原(1rpx=0.5px) */
+body{margin:0;background:#f2f4f8;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.page{min-height:900px;padding-bottom:20px;box-sizing:border-box}
+.hero{height:230px;background:linear-gradient(160deg,#2b7cf0 0%,#1a73e8 45%,#4a9bff 100%);
+  border-radius:0 0 24px 24px;display:flex;align-items:flex-start;justify-content:center;padding-top:48px;box-sizing:border-box}
+.brand{display:flex;flex-direction:column;align-items:center}
+.brand-logo{width:54px;height:54px;border-radius:15px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:11px}
+.brand-name{color:#fff;font-size:20px;font-weight:600}
+.brand-slogan{color:rgba(255,255,255,.8);font-size:12px;margin-top:5px}
+.me-card{background:#fff;border-radius:12px;margin:-40px 20px 10px;padding:22px;position:relative;z-index:2;
+  box-shadow:0 6px 20px rgba(26,115,232,.12);display:flex;flex-direction:column;align-items:center}
+.avatar-ph{position:relative;width:70px;height:70px;border-radius:50%;background:linear-gradient(160deg,#dbe7ff,#c2d6ff);overflow:hidden}
+.avatar-ph::before{content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;background:#8fb3f0}
+.avatar-ph::after{content:'';position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:48px;height:36px;border-radius:24px 24px 0 0;background:#8fb3f0}
+.nick{font-size:18px;font-weight:600;color:#1a2b45;margin-top:13px}
+.uid{font-size:11px;color:#b6c0cf;margin-top:5px}
+.card{background:#fff;border-radius:10px;margin:10px 20px;box-shadow:0 2px 9px rgba(0,0,0,.03)}
+.stat-card{display:flex;padding:12px 4px}
+.st{flex:1;display:flex;flex-direction:column;align-items:center}
+.st-n{font-size:20px;font-weight:700;color:#1a73e8}
+.st-l{font-size:11px;color:#8c98ab;margin-top:4px}
+.grp{margin-top:13px}
+.grp-t{font-size:12px;color:#9aa6b5;margin:0 20px 5px}
+.grp .card{margin-top:0}
+.menu{padding:0 16px}
+.menu-item{display:flex;align-items:center;padding:16px 0;border-bottom:.5px solid #f2f4f8}
+.menu-item:last-child{border-bottom:none}
+.mi-dot{width:7px;height:7px;border-radius:50%;margin-right:11px;flex-shrink:0}
+.d0{background:#1a73e8}.d1{background:#ff8a00}.d2{background:#10b981}.d3{background:#7c3aed}.d4{background:#e5484d}
+.mi-txt{flex:1;font-size:15px;color:#24324a}
+.mi-txt.danger{color:#e5484d}
+.mi-badge{font-size:11px;color:#1a73e8;background:#eaf1fe;border-radius:10px;padding:1px 8px;margin-right:6px}
+.arrow{color:#c6d0de;font-size:20px}
+.links{display:flex;align-items:center;justify-content:center;margin-top:25px}
+.link-item{font-size:12.5px;color:#1a73e8;padding:4px 10px}
+.link-sep{font-size:11px;color:#c6d0de}
+.foot{text-align:center;font-size:11px;color:#b6c0cf;margin-top:9px}
+</style></head><body><div class="page">
+  <div class="hero"><div class="brand"><div class="brand-logo">🎓</div><div class="brand-name">校园助手</div><div class="brand-slogan">你的校园 AI 伙伴</div></div></div>
+
+  <div class="me-card">
+    <div class="avatar-ph"></div>
+    <div class="nick">微信用户</div>
+    <div class="uid">ID demo_3343f2d…</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="st"><span class="st-n">5</span><span class="st-l">已录课程</span></div>
+    <div class="st"><span class="st-n">2</span><span class="st-l">我的闲置</span></div>
+    <div class="st"><span class="st-n">1</span><span class="st-l">我的失物</span></div>
+    <div class="st"><span class="st-n">3</span><span class="st-l">生成材料</span></div>
+  </div>
+
+  <div class="grp"><div class="grp-t">我的内容</div>
+    <div class="card menu">
+      <div class="menu-item"><span class="mi-dot d0"></span><span class="mi-txt">我的成绩</span><span class="arrow">›</span></div>
+      <div class="menu-item"><span class="mi-dot d1"></span><span class="mi-txt">我发布的闲置</span><span class="arrow">›</span></div>
+      <div class="menu-item"><span class="mi-dot d2"></span><span class="mi-txt">我的失物招领</span><span class="arrow">›</span></div>
+      <div class="menu-item"><span class="mi-dot d3"></span><span class="mi-txt">我生成的材料</span><span class="mi-badge">3</span><span class="arrow">›</span></div>
+    </div>
+  </div>
+
+  <div class="grp"><div class="grp-t">设置</div>
+    <div class="card menu">
+      <div class="menu-item"><span class="mi-dot d0"></span><span class="mi-txt">大模型设置</span><span class="arrow">›</span></div>
+      <div class="menu-item"><span class="mi-dot d4"></span><span class="mi-txt">清除本地数据</span><span class="arrow">›</span></div>
+    </div>
+  </div>
+
+  <div class="grp"><div class="grp-t">帮助与关于</div>
+    <div class="card menu">
+      <div class="menu-item"><span class="mi-dot d1"></span><span class="mi-txt">使用帮助</span><span class="arrow">›</span></div>
+      <div class="menu-item"><span class="mi-dot d2"></span><span class="mi-txt">意见反馈</span><span class="arrow">›</span></div>
+      <div class="menu-item"><span class="mi-dot d3"></span><span class="mi-txt">关于本作品</span><span class="arrow">›</span></div>
+    </div>
+  </div>
+
+  <div class="card menu"><div class="menu-item"><span class="mi-txt danger">退出登录</span><span class="arrow">›</span></div></div>
+
+  <div class="links"><span class="link-item">服务协议</span><span class="link-sep">·</span><span class="link-item">隐私政策</span></div>
+  <div class="foot">校园服务智能体 · 参赛作品</div>
+</div></body></html>

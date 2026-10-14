@@ -109,6 +109,8 @@ Page({
           // 若本轮调用了 gen_document，则附带一份可编辑、可导出的材料
           const call = (d.tool_calls || []).find(t => t.name === 'gen_document' && t.result && t.result.ok);
           const todoCall = (d.tool_calls || []).find(t => t.name === 'gen_todos' && t.result && t.result.ok);
+          // 记到本地「我生成的材料」
+          if (call) app.addMine('doc', { title: call.result.title, docType: call.result.doc_type });
           this.appendAssistant(d.reply || '（没有返回内容）', [...new Set(srcs)],
             call ? call.result : null, d.agent || '', d.agent_name || '',
             todoCall ? todoCall.result.todos : null);

@@ -9,17 +9,28 @@ Page({
     agreed: false,          // 是否勾选用户协议
     shortId: '',
     justLogged: false,      // 登录成功横幅
-    pendingAvatar: false    // 登录后提示去设置头像昵称
+    pendingAvatar: false,   // 登录后提示去设置头像昵称
+    // 数据概览
+    stat: { courses: 0, market: 0, lost: 0, doc: 0 },
+    // 我生成的材料
+    docShow: false, docs: []
   },
 
   onUnload() { if (this._okTimer) clearTimeout(this._okTimer); },
 
   onShow() {
     const u = app.getUser();
+    const courses = app.getCourses();
     this.setData({
       user: u,
       logged: app.isLoggedIn(),
-      shortId: u && u.openid ? u.openid.slice(0, 12) + '…' : ''
+      shortId: u && u.openid ? u.openid.slice(0, 12) + '…' : '',
+      stat: {
+        courses: courses.length,
+        market: app.getMine('market').length,
+        lost: app.getMine('lost').length,
+        doc: app.getMine('doc').length
+      }
     });
   },
 
@@ -31,19 +42,16 @@ Page({
     this.wxLogin();
   },
 
-  // 打开协议页（登录卡片里的链接：data-type 传中文标题）
   openDoc(e) {
     const t = e.currentTarget.dataset.type;
-    this.goAgreement({ currentTarget: { dataset: { type: t === '隐私政策' ? 'privacy' : 'service' } } });
+    wx.navigateTo({ url: '/pages/agreement/agreement?type=' + (t === '隐私政策' ? 'privacy' : 'service') });
   },
-
-  // 打开协议页（底部链接：data-type 传 service | privacy）
   goAgreement(e) {
-    const type = e && e.currentTarget && e.currentTarget.dataset.type === 'privacy' ? 'privacy' : 'service';
+    const type = (e && e.currentTarget && e.currentTarget.dataset.type === 'privacy') ? 'privacy' : 'service';
     wx.navigateTo({ url: '/pages/agreement/agreement?type=' + type });
   },
 
-  // ---- 微信登录：wx.login → 后端换 openid → 存 token ----
+  // ---- 微信登录 ----
   wxLogin() {
     if (this.data.logging) return;
     if (!this.data.agreed) {
@@ -70,7 +78,6 @@ Page({
                 user, logged: true, shortId: d.openid.slice(0, 12) + '…',
                 justLogged: true, pendingAvatar: !user.avatar
               });
-              // 横幅自动隐藏
               if (this._okTimer) clearTimeout(this._okTimer);
               this._okTimer = setTimeout(() => this.setData({ justLogged: false }), 2600);
             } else {
@@ -90,29 +97,91 @@ Page({
     wx.showToast({ title: msg, icon: 'none' });
   },
 
-  // ---- 头像/昵称授权（微信新版能力）----
+  // ---- 头像/昵称授权 ----
   onChooseAvatar(e) {
     const avatar = e.detail.avatarUrl;
     const user = { ...app.getUser(), avatar };
     app.setUser(user);
     this.setData({ user, pendingAvatar: false });
-    this.saveProfile({ avatar });
+    this.saveProfile();
   },
-
   onNickBlur(e) {
     const nickname = e.detail.value.trim() || '微信用户';
     const user = { ...app.getUser(), nickname };
     app.setUser(user);
     this.setData({ user });
-    this.saveProfile({ nickname });
+    this.saveProfile();
   },
-
-  saveProfile(patch) {
+  saveProfile() {
     if (!app.isLoggedIn()) return;
     const u = app.getUser();
     wx.request({
       url: API + '/auth/profile', method: 'POST',
       data: { token: u.token, nickname: u.nickname || '', avatar: u.avatar || '' }
+    });
+  },
+
+  // ---- 我的内容 ----
+  goScores() { wx.switchTab({ url: '/pages/scores/scores' }); },
+  goLife(e) {
+    // switchTab 不能带参数，用全局变量告诉生活页打开哪一栏
+    app.globalData.lifeTab = e.currentTarget.dataset.tab || '';
+    wx.switchTab({ url: '/pages/life/life' });
+  },
+  openDocs() {
+    this.setData({ docs: app.getMine('doc'), docShow: true });
+  },
+  closeDocs() { this.setData({ docShow: false }); },
+  noop() {},
+  copyDoc(e) {
+    const t = e.currentTarget.dataset.title;
+    wx.setClipboardData({ data: t, success: () => wx.showToast({ title: '标题已复制', icon: 'none' }) });
+  },
+
+  // ---- 设置 ----
+  goModel() { wx.navigateTo({ url: '/pages/model/model' }); },
+  clearLocal() {
+    wx.showModal({
+      title: '清除本地数据',
+      content: '会清空本机保存的成绩、DDL 记录与「我发布的」记录，不影响已同步的官网信息。确定吗？',
+      confirmColor: '#e5484d',
+      success: r => {
+        if (!r.confirm) return;
+        wx.removeStorageSync('courses');
+        wx.removeStorageSync('ddls');
+        app.clearMine();
+        this.onShow();
+        wx.showToast({ title: '已清除', icon: 'none' });
+      }
+    });
+  },
+
+  // ---- 帮助与关于 ----
+  openHelp() {
+    wx.showModal({
+      title: '使用帮助', showCancel: false, confirmText: '知道了',
+      content: '· 问制度：直接问校园制度、办事流程\n' +
+        '· 写材料：输入「帮我写一份请假条：感冒发烧请2天」，生成后可改字段、导出 Word\n' +
+        '· 查日程：问比赛报名/截止时间，会把关键时间点整理成带倒计时的待办\n' +
+        '· 成绩：录入学分和分数即可算绩点、看分布、测算提分目标\n' +
+        '· 官网同步：在生活页(校历/作息)和成绩页(成绩规则)填官网网址即可同步\n' +
+        '· 数据说明：成绩等仅保存在你手机本地'
+    });
+  },
+  openFeedback() {
+    wx.showModal({
+      title: '意见反馈', showCancel: false, confirmText: '复制联系方式',
+      content: '使用中遇到问题或有建议，欢迎反馈：\n\n邮箱：campus-agent@example.com\n（示例地址，请替换为本团队联系邮箱）',
+      success: () => wx.setClipboardData({ data: 'campus-agent@example.com' })
+    });
+  },
+  openAbout() {
+    wx.showModal({
+      title: '关于本作品', showCancel: false, confirmText: '知道了',
+      content: '校园服务智能体 · 微信小程序\n\n' +
+        '西安思源学院电子信息工程学院\n第二届计算机综合实践挑战赛 · T4 赛道\n\n' +
+        '由「校园问答 / 刷题陪练 / 材料撰写 / 日程提醒」四个智能体协同，' +
+        '以 RAG 知识库检索 + 大模型 function-calling 实现。\n\n版本 1.0.0'
     });
   },
 
@@ -126,7 +195,5 @@ Page({
         }
       }
     });
-  },
-
-  goScores() { wx.switchTab({ url: '/pages/scores/scores' }); }
+  }
 });

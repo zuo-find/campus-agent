@@ -65,6 +65,17 @@ Page({
     this.loadSchool();
   },
 
+  // 从「我的」页跳过来时，按全局变量打开指定栏
+  onShow() {
+    const want = app.globalData.lifeTab;
+    if (want) {
+      app.globalData.lifeTab = '';
+      this.setData({ tab: want });
+      if (want === 'lost') this.loadLost();
+      if (want === 'market') this.loadMarket();
+    }
+  },
+
   onUnload() { if (this._logoTimer) clearTimeout(this._logoTimer); },
 
   noop() {},
@@ -286,6 +297,8 @@ Page({
           success: r => {
             if ((r.data || {}).ok) {
               wx.hideLoading();
+              // 记到本地「我发布的」
+              app.addMine('market', { title: gTitle.trim(), price: Number(gPrice) });
               wx.showToast({ title: '发布成功' });
               this.setData({
                 sellShow: false, uploading: false,
@@ -349,6 +362,7 @@ Page({
       data: { kind: this.data.lfKind, title: this.data.fTitle, location: this.data.fLocation, contact: this.data.fContact, detail: this.data.fDetail },
       success: res => {
         if ((res.data||{}).ok) {
+          app.addMine('lost', { title: this.data.fTitle, kind: this.data.lfKind });
           wx.showToast({ title:'发布成功' });
           this.setData({ showForm:false, fTitle:'', fLocation:'', fContact:'', fDetail:'' }, this.loadLost);
         } else wx.showToast({ title:'发布失败', icon:'none' });

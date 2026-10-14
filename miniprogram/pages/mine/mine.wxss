@@ -135,3 +135,39 @@
 .link-sep { font-size: 22rpx; color: #c6d0de; }
 
 .foot { text-align: center; font-size: 22rpx; color: #b6c0cf; margin-top: 18rpx; }
+
+/* ---------- 数据概览 ---------- */
+.stat-card { display: flex; padding: 24rpx 8rpx; }
+.st { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.st:active { opacity: .6; }
+.st-n { font-size: 40rpx; font-weight: 700; color: #1a73e8; }
+.st-l { font-size: 22rpx; color: #8c98ab; margin-top: 8rpx; }
+
+/* ---------- 分组 ---------- */
+.grp { margin-top: 26rpx; }
+.grp-t { font-size: 24rpx; color: #9aa6b5; margin: 0 40rpx 10rpx; }
+.grp .card { margin-top: 0; }
+.mi-dot { width: 14rpx; height: 14rpx; border-radius: 50%; margin-right: 22rpx; flex-shrink: 0; }
+.mi-dot.d0 { background: #1a73e8; }
+.mi-dot.d1 { background: #ff8a00; }
+.mi-dot.d2 { background: #10b981; }
+.mi-dot.d3 { background: #7c3aed; }
+.mi-dot.d4 { background: #e5484d; }
+.mi-badge {
+  font-size: 22rpx; color: #1a73e8; background: #eaf1fe; border-radius: 20rpx;
+  padding: 2rpx 16rpx; margin-right: 12rpx;
+}
+
+/* ---------- 我生成的材料 ---------- */
+.mask { position: fixed; inset: 0; background: rgba(16,24,40,.5); z-index: 60; display: flex; align-items: flex-end; }
+.sheet { width: 100%; background: #fff; border-radius: 28rpx 28rpx 0 0; padding: 28rpx 32rpx 40rpx; box-sizing: border-box; }
+.sheet-h { position: relative; text-align: center; font-size: 32rpx; font-weight: 600; color: #1a2233; padding-bottom: 20rpx; }
+.sheet-x { position: absolute; right: 0; top: 0; font-size: 30rpx; color: #a6b0c0; padding: 0 8rpx; }
+.sheet-body { max-height: 820rpx; }
+.d-item { display: flex; align-items: center; padding: 22rpx 0; border-bottom: 1rpx solid #f2f4f8; }
+.d-main { flex: 1; min-width: 0; }
+.d-t { display: block; font-size: 29rpx; color: #1a2233; }
+.d-s { display: block; font-size: 22rpx; color: #9aa6b5; margin-top: 6rpx; }
+.d-copy { font-size: 24rpx; color: #1a73e8; border: 1rpx solid #cfe0fb; border-radius: 26rpx; padding: 8rpx 22rpx; }
+.d-tip { font-size: 22rpx; color: #a6b0c0; margin-top: 22rpx; line-height: 1.6; }
+.d-empty { font-size: 25rpx; color: #9aa6b5; line-height: 1.7; padding: 20rpx 0; }

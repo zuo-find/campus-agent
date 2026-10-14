@@ -8,7 +8,7 @@
     </view>
   </view>
 
-  <!-- 未登录：登录卡片（点头像即可登录） -->
+  <!-- 未登录：登录卡片 -->
   <view wx:if="{{!logged}}" class="login-card">
     <view class="avatar-tap" bindtap="tapAvatar">
       <view class="avatar-ph"></view>
@@ -39,40 +39,112 @@
   <block wx:else>
     <view class="me-card">
       <view class="ok-banner {{justLogged ? 'show' : ''}}">✓ 登录成功</view>
-
       <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
         <image wx:if="{{user.avatar}}" class="avatar" src="{{user.avatar}}" mode="aspectFill" />
         <view wx:else class="avatar-ph small"></view>
       </button>
       <view class="avatar-hint" wx:if="{{pendingAvatar}}">点头像可使用微信头像</view>
-
       <input class="nick" type="nickname" value="{{user.nickname}}" placeholder="点击设置昵称"
              bindblur="onNickBlur" />
       <view class="uid">ID {{shortId}}</view>
     </view>
-
-    <view class="card menu">
-      <view class="menu-item" bindtap="goScores"><text class="mi-ico">📊</text><text class="mi-txt">我的成绩</text><text class="arrow">›</text></view>
-    </view>
-
-    <view class="card menu">
-      <view class="menu-item danger" bindtap="logout"><text class="mi-ico">🚪</text><text class="mi-txt">退出登录</text><text class="arrow">›</text></view>
-    </view>
   </block>
 
-  <!-- 未登录：功能说明 -->
-  <view wx:if="{{!logged}}" class="card feats">
-    <view class="feat"><view class="feat-dot d0"></view><view><text class="feat-t">成绩同步</text><text class="feat-d">换手机也不丢数据</text></view></view>
-    <view class="feat"><view class="feat-dot d1"></view><view><text class="feat-t">AI 更懂你</text><text class="feat-d">记住你的偏好与课表</text></view></view>
-    <view class="feat"><view class="feat-dot d2"></view><view><text class="feat-t">失物招领归属</text><text class="feat-d">发布记录绑定到你的账号</text></view></view>
+  <!-- 数据概览 -->
+  <view class="card stat-card">
+    <view class="st" bindtap="goScores">
+      <text class="st-n">{{stat.courses}}</text><text class="st-l">已录课程</text>
+    </view>
+    <view class="st" data-tab="market" bindtap="goLife">
+      <text class="st-n">{{stat.market}}</text><text class="st-l">我的闲置</text>
+    </view>
+    <view class="st" data-tab="lost" bindtap="goLife">
+      <text class="st-n">{{stat.lost}}</text><text class="st-l">我的失物</text>
+    </view>
+    <view class="st" bindtap="openDocs">
+      <text class="st-n">{{stat.doc}}</text><text class="st-l">生成材料</text>
+    </view>
   </view>
 
-  <!-- 协议入口（登录前/后都可见） -->
+  <!-- 我的内容 -->
+  <view class="grp">
+    <view class="grp-t">我的内容</view>
+    <view class="card menu">
+      <view class="menu-item" bindtap="goScores">
+        <view class="mi-dot d0"></view><text class="mi-txt">我的成绩</text><text class="arrow">›</text>
+      </view>
+      <view class="menu-item" data-tab="market" bindtap="goLife">
+        <view class="mi-dot d1"></view><text class="mi-txt">我发布的闲置</text><text class="arrow">›</text>
+      </view>
+      <view class="menu-item" data-tab="lost" bindtap="goLife">
+        <view class="mi-dot d2"></view><text class="mi-txt">我的失物招领</text><text class="arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="openDocs">
+        <view class="mi-dot d3"></view><text class="mi-txt">我生成的材料</text>
+        <text class="mi-badge">{{stat.doc}}</text><text class="arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 设置 -->
+  <view class="grp">
+    <view class="grp-t">设置</view>
+    <view class="card menu">
+      <view class="menu-item" bindtap="goModel">
+        <view class="mi-dot d0"></view><text class="mi-txt">大模型设置</text><text class="arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="clearLocal">
+        <view class="mi-dot d4"></view><text class="mi-txt">清除本地数据</text><text class="arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 帮助与关于 -->
+  <view class="grp">
+    <view class="grp-t">帮助与关于</view>
+    <view class="card menu">
+      <view class="menu-item" bindtap="openHelp">
+        <view class="mi-dot d1"></view><text class="mi-txt">使用帮助</text><text class="arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="openFeedback">
+        <view class="mi-dot d2"></view><text class="mi-txt">意见反馈</text><text class="arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="openAbout">
+        <view class="mi-dot d3"></view><text class="mi-txt">关于本作品</text><text class="arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="card menu" wx:if="{{logged}}">
+    <view class="menu-item danger" bindtap="logout"><text class="mi-txt">退出登录</text><text class="arrow">›</text></view>
+  </view>
+
+  <!-- 协议入口 -->
   <view class="links">
     <text class="link-item" bindtap="goAgreement" data-type="service">服务协议</text>
     <text class="link-sep">·</text>
     <text class="link-item" bindtap="goAgreement" data-type="privacy">隐私政策</text>
   </view>
-
   <view class="foot">校园服务智能体 · 参赛作品</view>
+
+  <!-- 我生成的材料 -->
+  <view wx:if="{{docShow}}" class="mask" bindtap="closeDocs">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-h">我生成的材料<text class="sheet-x" catchtap="closeDocs">✕</text></view>
+      <scroll-view class="sheet-body" scroll-y>
+        <block wx:if="{{docs.length}}">
+          <view class="d-item" wx:for="{{docs}}" wx:key="at">
+            <view class="d-main">
+              <text class="d-t">{{item.title}}</text>
+              <text class="d-s">{{item.docType}}</text>
+            </view>
+            <text class="d-copy" data-title="{{item.title}}" catchtap="copyDoc">复制标题</text>
+          </view>
+          <view class="d-tip">材料正文可在问答页重新生成；这里只记录你生成过哪些。</view>
+        </block>
+        <view wx:else class="d-empty">还没有生成过材料。去问答页试试「帮我写一份请假条：感冒发烧请2天」。</view>
+      </scroll-view>
+    </view>
+  </view>
 </view>
