@@ -1,32 +1,80 @@
 <view class="container">
-  <view class="hint">选择大模型厂商，填入你自己的 API Key 即可调用。Key 只保存在你的手机本地，服务端不存储。</view>
+  <!-- 对话模型 / 识图模型 -->
+  <view class="tabs">
+    <view class="tab {{tab=='chat'?'on':''}}" data-tab="chat" bindtap="switchTab">对话模型</view>
+    <view class="tab {{tab=='vision'?'on':''}}" data-tab="vision" bindtap="switchTab">识图模型</view>
+  </view>
 
-  <view class="card">
-    <view class="sec-title">选择厂商</view>
-    <view class="prov {{provider==item.id?'on':''}}" wx:for="{{providers}}" wx:key="id" data-id="{{item.id}}" bindtap="chooseProvider">
-      <view class="prov-main">
-        <text class="prov-name">{{item.name}}</text>
-        <text class="prov-note">{{item.note}}</text>
+  <!-- ============ 对话模型 ============ -->
+  <block wx:if="{{tab=='chat'}}">
+    <view class="hint">回答问题时用哪个模型。填入你自己的 API Key 即可调用，Key 只保存在你的手机本地，服务端不存储。</view>
+
+    <view class="card">
+      <view class="sec-title">选择厂商</view>
+      <view class="prov {{provider==item.id?'on':''}}" wx:for="{{providers}}" wx:key="id" data-id="{{item.id}}" bindtap="chooseProvider">
+        <view class="prov-main">
+          <text class="prov-name">{{item.name}}</text>
+          <text class="prov-note">{{item.note}}</text>
+        </view>
+        <view class="radio {{provider==item.id?'checked':''}}">{{provider==item.id?'✓':''}}</view>
       </view>
-      <view class="radio {{provider==item.id?'checked':''}}">{{provider==item.id?'✓':''}}</view>
     </view>
-  </view>
 
-  <view class="card" wx:if="{{provider}}">
-    <view class="sec-title">模型</view>
-    <picker range="{{models}}" value="{{modelIndex}}" bindchange="onModel">
-      <view class="picker">{{models[modelIndex]}}</view>
-    </picker>
+    <view class="card" wx:if="{{provider}}">
+      <view class="sec-title">模型</view>
+      <picker range="{{models}}" value="{{modelIndex}}" bindchange="onModel">
+        <view class="picker">{{models[modelIndex]}}</view>
+      </picker>
 
-    <view class="sec-title" style="margin-top:28rpx">API Key</view>
-    <input class="f-input" password placeholder="粘贴你的 API Key" value="{{apiKey}}" bindinput="onKey" />
-    <view class="key-url" wx:if="{{keyUrl}}" bindtap="copyKeyUrl">获取 Key：{{keyUrl}}（点击复制）</view>
-  </view>
+      <view class="sec-title" style="margin-top:28rpx">API Key</view>
+      <input class="f-input" password placeholder="粘贴你的 API Key" value="{{apiKey}}" bindinput="onKey" />
+      <view class="key-url" wx:if="{{keyUrl}}" bindtap="copyKeyUrl">获取 Key：{{keyUrl}}（点击复制）</view>
+    </view>
 
-  <view class="btns">
-    <button class="btn-primary" bindtap="save">保存并使用</button>
-    <button class="btn-ghost" bindtap="useDefault">使用默认模型</button>
-  </view>
+    <view class="btns">
+      <button class="btn-primary" bindtap="save">保存并使用</button>
+      <button class="btn-ghost" bindtap="useDefault">使用默认模型</button>
+    </view>
 
-  <view class="foot">支持 DeepSeek、通义千问、智谱、Kimi、文心、星火、混元、豆包</view>
+    <view class="foot">支持 DeepSeek、通义千问、智谱、Kimi、文心、星火、混元、豆包</view>
+  </block>
+
+  <!-- ============ 识图模型 ============ -->
+  <block wx:else>
+    <view class="hint">拍照识别（拍题、拍通知、拍成绩单）要用多模态模型——普通对话模型看不了图，所以这里单独配一个。</view>
+    <view class="tip-card">
+      <text class="tip-t">推荐智谱 glm-4v-flash</text>
+      <text class="tip-d">注册智谱开放平台即可拿到 API Key，glm-4v-flash 有免费额度，够日常用。</text>
+      <text class="tip-a" bindtap="copyVKeyUrl">{{vKeyUrl || 'https://open.bigmodel.cn/usercenter/apikeys'}}</text>
+    </view>
+
+    <view class="card">
+      <view class="sec-title">选择厂商</view>
+      <view class="prov {{vProvider==item.id?'on':''}}" wx:for="{{vProviders}}" wx:key="id" data-id="{{item.id}}" bindtap="chooseVProvider">
+        <view class="prov-main">
+          <text class="prov-name">{{item.name}}</text>
+          <text class="prov-note">{{item.note}}</text>
+        </view>
+        <view class="radio {{vProvider==item.id?'checked':''}}">{{vProvider==item.id?'✓':''}}</view>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{vProvider}}">
+      <view class="sec-title">多模态模型</view>
+      <picker range="{{vModels}}" value="{{vModelIndex}}" bindchange="onVModel">
+        <view class="picker">{{vModels[vModelIndex]}}</view>
+      </picker>
+
+      <view class="sec-title" style="margin-top:28rpx">API Key</view>
+      <input class="f-input" password placeholder="粘贴该厂商的 API Key" value="{{vKey}}" bindinput="onVKey" />
+      <view class="key-url" wx:if="{{vKeyUrl}}" bindtap="copyVKeyUrl">获取 Key：{{vKeyUrl}}（点击复制）</view>
+    </view>
+
+    <view class="btns">
+      <button class="btn-primary" bindtap="save">保存识图模型</button>
+      <button class="btn-ghost" bindtap="useDefault">清除识图配置</button>
+    </view>
+
+    <view class="foot">支持智谱 GLM-4V、通义 qwen-vl、Kimi vision、混元 vision、豆包 vision</view>
+  </block>
 </view>

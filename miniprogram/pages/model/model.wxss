@@ -22,3 +22,17 @@
 .btn-primary { background: #1a73e8; color: #fff; border-radius: 48rpx; font-size: 31rpx; line-height: 92rpx; }
 .btn-ghost { background: #fff; color: #5a6b82; border: 1rpx solid #d7dee9; border-radius: 48rpx; font-size: 29rpx; line-height: 88rpx; margin-top: 20rpx; }
 .foot { text-align: center; font-size: 22rpx; color: #b6c0cf; margin-top: 20rpx; }
+
+/* 顶部分段切换：对话模型 / 识图模型 */
+.tabs { display: flex; margin: 24rpx 24rpx 0; background: #eaeef5; border-radius: 14rpx; padding: 6rpx; }
+.tab {
+  flex: 1; text-align: center; font-size: 27rpx; color: #5a6684;
+  line-height: 64rpx; border-radius: 10rpx;
+}
+.tab.on { background: #fff; color: #1a73e8; font-weight: 600; box-shadow: 0 2rpx 8rpx rgba(24,39,75,.06); }
+
+/* 识图推荐卡 */
+.tip-card { background: #eef4ff; border-radius: 16rpx; margin: 16rpx 24rpx 0; padding: 22rpx 26rpx; }
+.tip-t { display: block; font-size: 26rpx; font-weight: 600; color: #1a4fbf; }
+.tip-d { display: block; font-size: 23rpx; color: #5a7bb5; line-height: 1.7; margin-top: 8rpx; }
+.tip-a { display: block; font-size: 22rpx; color: #1a73e8; margin-top: 12rpx; word-break: break-all; }

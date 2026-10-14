@@ -73,11 +73,13 @@ def route(user_message: str, llm: dict | None = None) -> tuple[str, list[str]]:
 
 
 def chat(user_message: str, history: list[dict], ctx: ToolContext,
-         llm: dict | None = None, agent_key: str | None = None) -> dict:
+         llm: dict | None = None, agent_key: str | None = None,
+         skip_rag: bool = False) -> dict:
     """处理一条用户消息，返回 {reply, sources, tool_calls, agent, agent_name}。
 
     llm:       用户自选的模型配置 {provider, api_key, model}，为空则用服务端默认。
     agent_key: 指定用哪个智能体；为空则先路由判断。
+    skip_rag:  不检索知识库。用于图片识别等「内容本身即资料」的场景。
     """
     if agent_key in AGENTS:
         key, extra_q = agent_key, []
@@ -86,7 +88,7 @@ def chat(user_message: str, history: list[dict], ctx: ToolContext,
     adef = AGENTS.get(key) or AGENTS[DEFAULT_AGENT]
 
     # 1) RAG 检索（多查询：原句 + 路由产出的关键词），把命中片段注入上下文
-    hits = store.retrieve(user_message, extra_queries=extra_q)
+    hits = store.retrieve(user_message, extra_queries=extra_q) if not skip_rag else []
     rag_block = ""
     if hits:
         rag_block = "\n\n【校园资料】\n" + "\n---\n".join(

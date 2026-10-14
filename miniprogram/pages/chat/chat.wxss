@@ -84,6 +84,23 @@
   padding: 4rpx 14rpx; border-radius: 20rpx; margin: 6rpx 8rpx 0 0;
 }
 
+/* ---------- 图片气泡 & 识别文字 ---------- */
+.bubble.img-bubble { background: transparent; padding: 0; }
+.bubble-img { width: 380rpx; border-radius: 14rpx; display: block; }
+.bubble.img-bubble .bubble-text { font-size: 24rpx; color: #8c98ab; margin-top: 10rpx; text-align: right; }
+
+.ocr-card { margin: 8rpx 24rpx 20rpx; background: #fff; border-radius: 18rpx; overflow: hidden;
+  border: 1rpx solid #e6ebf3; box-shadow: 0 8rpx 24rpx rgba(24,39,75,.06); }
+.ocr-head { display: flex; align-items: center; padding: 20rpx 24rpx; }
+.ocr-badge { font-size: 20rpx; color: #5a6684; background: #f0f3f8; border-radius: 6rpx; padding: 4rpx 12rpx; margin-right: 14rpx; }
+.ocr-hint { flex: 1; font-size: 24rpx; color: #9aa6b5; }
+.ocr-arrow { font-size: 30rpx; color: #c6d0de; line-height: 1; transition: transform .2s; }
+.ocr-arrow.up { transform: rotate(180deg); }
+.ocr-text { display: block; font-size: 25rpx; color: #5a6684; line-height: 1.75; white-space: pre-wrap;
+  padding: 0 24rpx 22rpx; border-top: 1rpx solid #f2f4f8; padding-top: 18rpx; margin-top: -1rpx; }
+.ocr-text.clip { max-height: 132rpx; overflow: hidden; }
+.ocr-scroll { max-height: 620rpx; padding: 0 0 12rpx; }
+
 /* ---------- 材料卡片 ---------- */
 .doc-card { margin: 8rpx 24rpx 20rpx; background: #fff; border-radius: 18rpx; overflow: hidden;
   border: 1rpx solid #e6ebf3; box-shadow: 0 8rpx 24rpx rgba(24,39,75,.06); }
@@ -178,6 +195,47 @@
   background: #fff; border-top: 1rpx solid #eee;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
 }
+
+/* 拍照按钮：纯 CSS 画的相机，不依赖任何图标资源 */
+.cam-btn { position: relative; width: 68rpx; height: 68rpx; margin-right: 16rpx; flex-shrink: 0; }
+.cam-body {
+  position: absolute; left: 4rpx; bottom: 6rpx; width: 60rpx; height: 46rpx;
+  border: 3rpx solid #1a73e8; border-radius: 10rpx; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+}
+.cam-lens { width: 22rpx; height: 22rpx; border: 3rpx solid #1a73e8; border-radius: 50%; box-sizing: border-box; }
+.cam-top {
+  position: absolute; left: 20rpx; top: 6rpx; width: 26rpx; height: 12rpx;
+  border: 3rpx solid #1a73e8; border-bottom: none; border-radius: 6rpx 6rpx 0 0; box-sizing: border-box;
+}
+.cam-hover .cam-body, .cam-hover .cam-lens, .cam-hover .cam-top { border-color: #1558b0; }
+
+/* 拍摄用途选择 */
+.vm-list { padding: 6rpx 0 4rpx; }
+.vm-item { display: flex; align-items: center; padding: 22rpx 0; border-bottom: 1rpx solid #f2f4f8; }
+.vm-item:last-child { border-bottom: none; }
+.vm-hover { background: #f7f9fd; }
+.vm-main { flex: 1; min-width: 0; }
+.vm-t { display: block; font-size: 29rpx; color: #1a2233; }
+.vm-d { display: block; font-size: 23rpx; color: #9aa6b5; margin-top: 6rpx; }
+.vm-a { color: #c6d0de; font-size: 34rpx; margin-left: 12rpx; }
+.vm-tip { font-size: 22rpx; color: #a6b0c0; line-height: 1.6; margin-top: 18rpx; }
+
+/* 成绩单识别结果确认 */
+.sc-tip { font-size: 23rpx; color: #9aa6b5; line-height: 1.7; margin-bottom: 12rpx; }
+.sc-body { max-height: 640rpx; }
+.sc-item { display: flex; align-items: center; padding: 20rpx 0; border-bottom: 1rpx solid #f2f4f8; }
+.cb {
+  width: 34rpx; height: 34rpx; border-radius: 50%; border: 2rpx solid #c6d0de;
+  margin-right: 18rpx; flex-shrink: 0; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21rpx; color: #fff; transition: all .15s;
+}
+.cb.on { background: #1a73e8; border-color: #1a73e8; }
+.sc-main { flex: 1; min-width: 0; }
+.sc-n { display: block; font-size: 28rpx; color: #1a2233; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.sc-s { display: block; font-size: 22rpx; color: #9aa6b5; margin-top: 4rpx; }
+.sc-score { font-size: 32rpx; font-weight: 700; color: #1a73e8; }
 .input {
   flex: 1; background: #f0f1f3; border-radius: 36rpx;
   padding: 18rpx 28rpx; font-size: 30rpx;

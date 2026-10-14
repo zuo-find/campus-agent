@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import agent, auth, documents, life, market, providers, school_sync
+from app import agent, auth, documents, life, market, providers, school_sync, vision
 from app.tools import ToolContext
 from rag import store
 
@@ -57,6 +57,19 @@ class ChatReq(BaseModel):
     agent_key: str = ""     # 指定智能体；留空则由路由自动判断
 
 
+class VisionReq(BaseModel):
+    """拍照识别请求：图 + 用途 +（可选）要问的话。"""
+    image: str              # data:image/jpeg;base64,... 形式
+    mode: str = "ask"       # ask 图片问答 / solve 拍题 / notice 拍通知 / scores 拍成绩单
+    message: str = ""
+    history: list[dict] = []
+    courses: list[Course] = []
+    ddls: list[Ddl] = []
+    user_name: str = "同学"
+    llm: LLMConfig | None = None          # 文本模型（讲解/生成待办用）
+    vision_llm: LLMConfig | None = None   # 识图模型（多模态）
+
+
 @app.get("/health")
 def health():
     return {"ok": True, "docs_indexed": store._get_collection().count()}
@@ -66,6 +79,12 @@ def health():
 def providers_list():
     """可供选择的大模型厂商列表（不含任何密钥）。"""
     return {"ok": True, "providers": providers.list_providers()}
+
+
+@app.get("/providers/vision")
+def providers_vision():
+    """支持识图的厂商与多模态模型（不含任何密钥）。"""
+    return {"ok": True, "providers": providers.list_vision_providers()}
 
 
 @app.get("/kb/stats")
@@ -87,6 +106,9 @@ def _friendly_llm_error(e: Exception) -> str:
     """把大模型调用异常转成用户看得懂的提示。"""
     s = str(e)
     low = s.lower()
+    # 配置缺失类错误（如识图模型没配）本身就是给用户看的，原样返回
+    if "还没配置" in s or "未配置" in s:
+        return s
     if "401" in s or "authentication" in low or "invalid" in low and "key" in low:
         return "API Key 无效或已过期，请点问答页顶部的「切换模型」检查你填的 Key。"
     if "404" in s or "model" in low and "not found" in low:
@@ -110,6 +132,28 @@ def chat(req: ChatReq):
         return {"ok": True, **agent.chat(req.message, req.history, ctx,
                                          llm=llm, agent_key=req.agent_key or None)}
     except Exception as e:  # 统一错误出口，转成用户看得懂的话
+        return {"ok": False, "error": _friendly_llm_error(e)}
+
+
+@app.post("/chat/vision")
+def chat_vision(req: VisionReq):
+    """拍照识别：按用途走「识图 → 讲解 / 待办 / 结构化成绩」。"""
+    if not req.image.startswith("data:image/"):
+        return {"ok": False, "error": "图片格式不对，请重新选择一张图片。"}
+    if len(req.image) > 8 * 1024 * 1024:
+        return {"ok": False, "error": "图片太大了（超过 8MB），换一张小一点的。"}
+    ctx = ToolContext(
+        courses=[c.model_dump() for c in req.courses],
+        ddls=[d.model_dump() for d in req.ddls],
+        user_name=req.user_name,
+    )
+    try:
+        return {"ok": True, **vision.handle(
+            req.image, req.mode, req.message, req.history, ctx,
+            llm=req.llm.model_dump() if req.llm else None,
+            vision_llm=req.vision_llm.model_dump() if req.vision_llm else None,
+        )}
+    except Exception as e:
         return {"ok": False, "error": _friendly_llm_error(e)}
 
 

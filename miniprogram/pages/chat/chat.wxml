@@ -33,13 +33,27 @@
 
     <block wx:for="{{messages}}" wx:key="index">
       <view class="msg-row {{item.role}}">
-        <view class="bubble {{item.role}}" data-idx="{{index}}" bindlongpress="copyMsg">
+        <view class="bubble {{item.role}} {{item.image ? 'img-bubble' : ''}}" data-idx="{{index}}" bindlongpress="copyMsg">
+          <image wx:if="{{item.image}}" class="bubble-img" src="{{item.image}}" mode="widthFix" />
           <view wx:if="{{item.agentName}}" class="agent-chip ac-{{item.agent}}">{{item.agentName}}</view>
           <text class="bubble-text">{{item.content}}</text>
           <view wx:if="{{item.sources.length}}" class="sources">
             <text class="src-tag" wx:for="{{item.sources}}" wx:for-item="s" wx:key="*this">来源：{{s}}</text>
           </view>
         </view>
+      </view>
+
+      <!-- 识别出的文字：可以展开核对 -->
+      <view wx:if="{{item.ocr}}" class="ocr-card">
+        <view class="ocr-head" data-idx="{{index}}" bindtap="toggleOcr">
+          <text class="ocr-badge">识别文字</text>
+          <text class="ocr-hint">{{item.ocrOpen ? '收起' : '展开核对'}}</text>
+          <text class="ocr-arrow {{item.ocrOpen ? 'up' : ''}}">⌄</text>
+        </view>
+        <scroll-view wx:if="{{item.ocrOpen}}" class="ocr-scroll" scroll-y>
+          <text class="ocr-text">{{item.ocr}}</text>
+        </scroll-view>
+        <text wx:else class="ocr-text clip">{{item.ocr}}</text>
       </view>
 
       <!-- 待办清单卡片 -->
@@ -101,9 +115,51 @@
   </view>
 
   <view class="input-bar">
+    <!-- 拍照识别入口（纯 CSS 画的相机，不用图标字体） -->
+    <view class="cam-btn" hover-class="cam-hover" hover-stay-time="80" bindtap="pickImage">
+      <view class="cam-body"><view class="cam-lens"></view></view>
+      <view class="cam-top"></view>
+    </view>
     <input class="input" value="{{input}}" placeholder="问制度，或「帮我写一份请假条…」"
            confirm-type="send" bindinput="onInput" bindconfirm="send" />
     <button class="send-btn" bindtap="send" disabled="{{loading}}">发送</button>
+  </view>
+
+  <!-- 拍完先选用途：决定这张图走哪条链路 -->
+  <view wx:if="{{imgSheet}}" class="de-mask" bindtap="closeImgSheet">
+    <view class="de-sheet" catchtap="noop">
+      <view class="de-h">这张图要做什么？<text class="de-x" catchtap="closeImgSheet">✕</text></view>
+      <view class="vm-list">
+        <view class="vm-item" wx:for="{{vModes}}" wx:key="key"
+              data-mode="{{item.key}}" hover-class="vm-hover" hover-stay-time="80" bindtap="pickImgMode">
+          <view class="vm-main">
+            <text class="vm-t">{{item.label}}</text>
+            <text class="vm-d">{{item.desc}}</text>
+          </view>
+          <text class="vm-a">›</text>
+        </view>
+      </view>
+      <view class="vm-tip">识别用多模态模型，可在「我的 → 大模型设置 → 识图模型」里更换。</view>
+    </view>
+  </view>
+
+  <!-- 成绩单识别结果：确认后再写进成绩页 -->
+  <view wx:if="{{scoreShow}}" class="de-mask" bindtap="closeScore">
+    <view class="de-sheet" catchtap="noop">
+      <view class="de-h">识别到的课程<text class="de-x" catchtap="closeScore">✕</text></view>
+      <view class="sc-tip">点一下可以取消勾选，确认无误再导入。成绩只写进你手机本地。</view>
+      <scroll-view class="sc-body" scroll-y>
+        <view class="sc-item" wx:for="{{scoreList}}" wx:key="name" data-i="{{index}}" bindtap="toggleScore">
+          <view class="cb {{item.on ? 'on' : ''}}">{{item.on ? '✓' : ''}}</view>
+          <view class="sc-main">
+            <text class="sc-n">{{item.name}}</text>
+            <text class="sc-s">{{item.credit}} 学分</text>
+          </view>
+          <text class="sc-score">{{item.score}}</text>
+        </view>
+      </scroll-view>
+      <button class="btn-primary" bindtap="importScores">导入到成绩页</button>
+    </view>
   </view>
 
   <!-- 知识库收录了哪些资料 -->

@@ -25,6 +25,7 @@ const FOLLOWUPS = {
 
 // 等待回答时展示的处理流程（与后端 route → retrieve → 生成 的实际流程对应）
 const THINK_STEPS = ['正在判断该由哪个智能体来答', '正在检索校园知识库', '正在组织回答'];
+const THINK_VISION = ['正在读取图片', '正在识别图片里的文字', '正在交给智能体处理'];
 
 const HOT_ASKS = ['帮我算一下绩点', '挂科了怎么重修', '奖学金怎么评'];
 
@@ -58,7 +59,17 @@ Page({
     // 知识库概况
     kb: { chunks: 0, docs: 0, sources: [] }, kbShow: false,
     // 等待回答时的流程提示
-    thinkSteps: THINK_STEPS, thinkStep: 0
+    thinkSteps: THINK_STEPS, thinkStep: 0,
+    // 拍照识别
+    imgSheet: false,          // 选用途的弹层
+    vModes: [
+      { key: 'solve', label: '拍题解题', desc: '转写题干，交给刷题智能体讲解' },
+      { key: 'notice', label: '拍通知转待办', desc: '抽出关键时间点，生成带倒计时的待办' },
+      { key: 'scores', label: '拍成绩单导入', desc: '识别课程学分分数，写进成绩页' },
+      { key: 'ask', label: '图片问答', desc: '看图回答问题' }
+    ],
+    // 成绩单识别结果确认
+    scoreShow: false, scoreList: []
   },
 
   onLoad() {
@@ -146,6 +157,146 @@ Page({
     this.setData({ docPick: false, input: '帮我写一份' + t + '：' }, () => this.send());
   },
 
+  // ==================== 拍照识别 ====================
+
+  // 选图 → 选用途 → 发送
+  pickImage() {
+    if (this.data.loading) return;
+    wx.chooseMedia({
+      count: 1, mediaType: ['image'], sizeType: ['compressed'],
+      sourceType: ['camera', 'album'],
+      success: res => {
+        const f = (res.tempFiles || [])[0];
+        if (!f) return;
+        this._rawImg = f.tempFilePath;
+        this.setData({ imgSheet: true });
+      },
+      fail: () => {}   // 用户取消不提示
+    });
+  },
+  closeImgSheet() { this.setData({ imgSheet: false }); },
+  pickImgMode(e) {
+    const mode = e.currentTarget.dataset.mode;
+    this.setData({ imgSheet: false });
+    this.sendImage(mode);
+  },
+
+  sendImage(mode) {
+    const path = this._rawImg;
+    if (!path || this.data.loading) return;
+    const vm = this.data.vModes.find(v => v.key === mode) || { label: '图片' };
+    const typed = (this.data.input || '').trim();
+    const bubbleText = typed || vm.label;
+
+    const messages = this.data.messages.concat([{ role: 'user', content: bubbleText, image: path }]);
+    this.setData({
+      messages, input: '', loading: true,
+      thinkSteps: THINK_VISION, thinkStep: 0
+    }, this.scrollToBottom);
+    this.startThink();
+
+    // 压缩后再转 base64，省流量也省 token
+    wx.compressImage({
+      src: path, quality: 70,
+      success: r => this._sendVision(r.tempFilePath || path, mode, typed),
+      fail: () => this._sendVision(path, mode, typed)
+    });
+  },
+
+  _sendVision(file, mode, typed) {
+    wx.getFileSystemManager().readFile({
+      filePath: file, encoding: 'base64',
+      success: res => {
+        const ext = (file.split('.').pop() || 'jpg').toLowerCase();
+        const mime = ext === 'png' ? 'image/png' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
+        const dataUrl = 'data:' + mime + ';base64,' + res.data;
+        if (dataUrl.length > 7 * 1024 * 1024) {
+          this.stopThink();
+          this.setData({ loading: false });
+          wx.showToast({ title: '图片太大了，换一张', icon: 'none' });
+          return;
+        }
+
+        const history = this.data.messages
+          .filter(m => (m.role === 'user' || m.role === 'assistant') && !m.image)
+          .map(m => ({ role: m.role, content: m.content }));
+
+        const llm = wx.getStorageSync('llm');
+        const vl = wx.getStorageSync('visionLlm');
+
+        wx.request({
+          url: API + '/chat/vision', method: 'POST', timeout: 120000,
+          data: {
+            image: dataUrl, mode, message: typed, history,
+            courses: app.getCourses(), ddls: app.getDdls(),
+            user_name: app.globalData.userName,
+            llm: llm && llm.apiKey ? { provider: llm.provider, api_key: llm.apiKey, model: llm.model } : null,
+            vision_llm: vl && vl.apiKey ? { provider: vl.provider, api_key: vl.apiKey, model: vl.model } : null
+          },
+          success: r => {
+            const d = r.data || {};
+            if (!d.ok) { this.appendAssistant('出错了：' + (d.error || '未知错误')); return; }
+            if (d.mode === 'scores') {
+              this.appendAssistant(d.reply || '');
+              const list = (d.courses || []).map(c => ({ ...c, on: true }));
+              if (list.length) this.setData({ scoreShow: true, scoreList: list });
+              return;
+            }
+            const srcs = [...new Set((d.sources || []).map(s => s.source))];
+            const todoCall = (d.tool_calls || []).find(t => t.name === 'gen_todos' && t.result && t.result.ok);
+            const docCall = (d.tool_calls || []).find(t => t.name === 'gen_document' && t.result && t.result.ok);
+            if (docCall) app.addMine('doc', { title: docCall.result.title, docType: docCall.result.doc_type });
+            this.appendAssistant(d.reply || '（没有返回内容）', srcs,
+              docCall ? docCall.result : null, d.agent || '', d.agent_name || '',
+              todoCall ? todoCall.result.todos : null, d.ocr || '');
+          },
+          fail: () => this.appendAssistant('识别失败：连接后端失败，请确认后端已启动。'),
+          complete: () => { this.stopThink(); this.setData({ loading: false }, this.scrollToBottom); }
+        });
+      },
+      fail: () => {
+        this.stopThink();
+        this.setData({ loading: false });
+        wx.showToast({ title: '读取图片失败，换一张试试', icon: 'none' });
+      }
+    });
+  },
+
+  // 识别出的文字：展开/收起
+  toggleOcr(e) {
+    const i = e.currentTarget.dataset.idx;
+    this.setData({ ['messages[' + i + '].ocrOpen']: !this.data.messages[i].ocrOpen });
+  },
+
+  // ---------- 成绩单导入确认 ----------
+  closeScore() { this.setData({ scoreShow: false }); },
+  toggleScore(e) {
+    const i = e.currentTarget.dataset.i;
+    this.setData({ ['scoreList[' + i + '].on']: !this.data.scoreList[i].on });
+  },
+  importScores() {
+    const picked = this.data.scoreList.filter(c => c.on);
+    if (!picked.length) { wx.showToast({ title: '至少选一门课', icon: 'none' }); return; }
+    const courses = app.getCourses() || [];
+    const have = {};
+    courses.forEach(c => { have[c.name] = 1; });
+    const add = picked.filter(c => !have[c.name]);
+    this.setData({ scoreShow: false });
+    if (!add.length) {
+      wx.showToast({ title: '这几门成绩页里已经有了', icon: 'none' });
+      return;
+    }
+    wx.setStorageSync('courses', courses.concat(add.map(c => ({
+      name: c.name, credit: c.credit, score: c.score
+    }))));
+    wx.showModal({
+      title: '已导入 ' + add.length + ' 门',
+      content: '去成绩页看看重算后的绩点？',
+      confirmText: '去看看', cancelText: '留在这',
+      success: r => { if (r.confirm) wx.switchTab({ url: '/pages/scores/scores' }); }
+    });
+  },
+
   send() {
     const text = (this.data.input || '').trim();
     if (!text || this.data.loading) return;
@@ -161,7 +312,9 @@ Page({
       : null;
 
     const messages = this.data.messages.concat([{ role: 'user', content: text }]);
-    this.setData({ messages, input: '', loading: true }, this.scrollToBottom);
+    this.setData({
+      messages, input: '', loading: true, thinkSteps: THINK_STEPS
+    }, this.scrollToBottom);
     this.startThink();
 
     wx.request({
@@ -197,11 +350,12 @@ Page({
     });
   },
 
-  appendAssistant(content, sources, doc, agent, agentName, todos) {
+  appendAssistant(content, sources, doc, agent, agentName, todos, ocr) {
     const messages = this.data.messages.concat([{
       role: 'assistant', content, sources, doc: doc || null,
       agent: agent || '', agentName: agentName || '',
-      todos: todos || null
+      todos: todos || null,
+      ocr: ocr || '', ocrOpen: false
     }]);
     // 换一批"接着问"，让人能顺着聊下去
     this.setData({

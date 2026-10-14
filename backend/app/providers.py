@@ -16,6 +16,7 @@ PROVIDERS: dict[str, dict] = {
         "name": "通义千问（阿里云）",
         "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "models": ["qwen-plus", "qwen-turbo", "qwen-max", "qwen-long"],
+        "vision": ["qwen-vl-plus", "qwen-vl-max"],
         "key_url": "https://bailian.console.aliyun.com/",
         "note": "需在阿里云百炼开通并创建 API-KEY",
     },
@@ -23,6 +24,7 @@ PROVIDERS: dict[str, dict] = {
         "name": "智谱 GLM",
         "base_url": "https://open.bigmodel.cn/api/paas/v4",
         "models": ["glm-4-flash", "glm-4-air", "glm-4-plus"],
+        "vision": ["glm-4v-flash", "glm-4v-plus"],
         "key_url": "https://open.bigmodel.cn/usercenter/apikeys",
         "note": "glm-4-flash 有免费额度",
     },
@@ -30,6 +32,7 @@ PROVIDERS: dict[str, dict] = {
         "name": "Kimi（月之暗面）",
         "base_url": "https://api.moonshot.cn/v1",
         "models": ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k"],
+        "vision": ["moonshot-v1-8k-vision-preview", "moonshot-v1-32k-vision-preview"],
         "key_url": "https://platform.moonshot.cn/console/api-keys",
         "note": "长文本见长",
     },
@@ -51,6 +54,7 @@ PROVIDERS: dict[str, dict] = {
         "name": "腾讯混元",
         "base_url": "https://api.hunyuan.cloud.tencent.com/v1",
         "models": ["hunyuan-turbo", "hunyuan-pro", "hunyuan-standard"],
+        "vision": ["hunyuan-vision"],
         "key_url": "https://console.cloud.tencent.com/hunyuan/api-key",
         "note": "需在腾讯云开通混元",
     },
@@ -58,10 +62,14 @@ PROVIDERS: dict[str, dict] = {
         "name": "豆包（火山方舟）",
         "base_url": "https://ark.cn-beijing.volces.com/api/v3",
         "models": ["doubao-pro-32k", "doubao-lite-32k"],
+        "vision": ["doubao-1.5-vision-pro-32k"],
         "key_url": "https://console.volcengine.com/ark",
         "note": "注意：模型名需填你的「接入点 ID」(ep-开头)",
     },
 }
+
+# 识图（多模态）推荐顺序：智谱 glm-4v-flash 免费，学生最容易拿到 key
+VISION_ORDER = ["zhipu", "qwen", "moonshot", "hunyuan", "ark"]
 
 
 def list_providers() -> list[dict]:
@@ -73,4 +81,26 @@ def resolve(provider: str, model: str = "") -> tuple[str, str, str]:
     """返回 (base_url, model, display_name)。provider 不在表内则回退 deepseek。"""
     p = PROVIDERS.get(provider) or PROVIDERS["deepseek"]
     use_model = model or p["models"][0]
+    return p["base_url"], use_model, p["name"]
+
+
+def list_vision_providers() -> list[dict]:
+    """支持识图的厂商（本次只列出多模态模型），按易获取程度排序。"""
+    def rank(pid: str) -> int:
+        return VISION_ORDER.index(pid) if pid in VISION_ORDER else len(VISION_ORDER)
+
+    items = [
+        {"id": pid, "name": p["name"], "base_url": p["base_url"], "models": p["vision"],
+         "key_url": p.get("key_url", ""), "note": p.get("note", "")}
+        for pid, p in PROVIDERS.items() if p.get("vision")
+    ]
+    return sorted(items, key=lambda x: rank(x["id"]))
+
+
+def resolve_vision(provider: str, model: str = "") -> tuple[str, str, str]:
+    """识图用的 (base_url, model, display_name)。选了不支持识图的厂商则回退智谱。"""
+    p = PROVIDERS.get(provider)
+    if not p or not p.get("vision"):
+        p = PROVIDERS["zhipu"]
+    use_model = model or p["vision"][0]   # 豆包等需填接入点 ID，所以允许自定义模型名
     return p["base_url"], use_model, p["name"]
