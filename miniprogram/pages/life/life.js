@@ -55,7 +55,9 @@ Page({
     school: { 校历: [], 作息: [], 通知公告: [] },
     schoolTime: {},
     syncCats: ['校历', '作息', '通知公告'],
-    srcShow: false, srcCat: '校历', srcUrl: '', srcUrls: {}, syncing: false
+    srcShow: false, srcCat: '校历', srcUrl: '', srcUrls: {}, syncing: false,
+    // 同步完成后的学校 logo 过场动画
+    logoAnim: { show: false, logo: '', name: '' }
   },
 
   onLoad() {
@@ -63,7 +65,14 @@ Page({
     this.loadSchool();
   },
 
+  onUnload() { if (this._logoTimer) clearTimeout(this._logoTimer); },
+
   noop() {},
+
+  closeLogoAnim() {
+    if (this._logoTimer) clearTimeout(this._logoTimer);
+    this.setData({ 'logoAnim.show': false });
+  },
 
   // ---------- 学校官网同步 ----------
   loadSchool() {
@@ -125,9 +134,18 @@ Page({
             if (bad) {
               wx.showModal({ title: '同步失败', content: bad.msg, showCancel: false });
             } else if (done) {
-              wx.showToast({ title: '已同步 ' + done.count + ' 条' });
-              this.setData({ srcShow: false });
+              // 关掉设置弹层，播学校 logo 过场动画
+              this.setData({
+                srcShow: false,
+                logoAnim: {
+                  show: true,
+                  logo: done.logo ? API + done.logo : '',
+                  name: done.name || '学校官网'
+                }
+              });
               this.loadSchool();
+              if (this._logoTimer) clearTimeout(this._logoTimer);
+              this._logoTimer = setTimeout(() => this.setData({ 'logoAnim.show': false }), 2300);
             }
           },
           fail: () => { wx.hideLoading(); this.setData({ syncing: false }); wx.showToast({ title: '同步失败，检查后端', icon: 'none' }); }

@@ -16,6 +16,7 @@ import re
 import sqlite3
 from datetime import datetime
 from html.parser import HTMLParser
+from urllib.parse import urljoin
 
 import httpx
 
@@ -39,6 +40,13 @@ def _conn() -> sqlite3.Connection:
     return c
 
 
+def _ensure_col(table: str, col: str, typ: str) -> None:
+    with _conn() as c:
+        cols = [r[1] for r in c.execute(f"PRAGMA table_info({table})").fetchall()]
+        if col not in cols:
+            c.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
+
+
 def init_db() -> None:
     with _conn() as c:
         c.execute("""CREATE TABLE IF NOT EXISTS school_sources (
@@ -47,6 +55,8 @@ def init_db() -> None:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             category TEXT, title TEXT, date TEXT, content TEXT,
             source_url TEXT, synced_at TEXT)""")
+    _ensure_col("school_sources", "logo", "TEXT")   # 学校 logo 的本地路径
+    _ensure_col("school_sources", "name", "TEXT")   # 学校名称（取自网页标题）
 
 
 def list_sources() -> dict:
@@ -114,6 +124,75 @@ class _TextExtractor(HTMLParser):
         s = re.sub(r"[ \t\xa0　]+", " ", s)
         s = re.sub(r"\n\s*\n+", "\n", s)
         return s.strip()[:limit]
+
+
+_IMG_RE = re.compile(r"<img[^>]+>", re.I)
+_ATTR_RE = re.compile(r"(src|href|alt|class|id|property|content)\s*=\s*[\"']([^\"']*)[\"']", re.I)
+_LINK_RE = re.compile(r"<link[^>]+>", re.I)
+_TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.I | re.S)
+
+
+def _attrs(tag: str) -> dict:
+    return {k.lower(): v for k, v in _ATTR_RE.findall(tag)}
+
+
+def find_logo(html: str, base: str) -> str:
+    """从网页里找一个像学校 logo 的图片地址（尽量返回绝对地址）。"""
+    # 1) og:image 最像宣传图
+    for tag in _LINK_RE.findall(html) + re.findall(r"<meta[^>]+>", html, re.I):
+        a = _attrs(tag)
+        if a.get("property", "").lower() == "og:image" and a.get("content"):
+            return urljoin(base, a["content"])
+    # 2) <img> 的 src/alt/class/id 里带 logo 的
+    for tag in _IMG_RE.findall(html):
+        a = _attrs(tag)
+        blob = " ".join([a.get("src", ""), a.get("alt", ""), a.get("class", ""), a.get("id", "")]).lower()
+        if "logo" in blob and a.get("src"):
+            return urljoin(base, a["src"])
+    # 3) 站点图标
+    for tag in _LINK_RE.findall(html):
+        a = _attrs(tag)
+        if "icon" in a.get("rel", "").lower() and a.get("href"):
+            return urljoin(base, a["href"])
+    return ""
+
+
+def find_title(html: str) -> str:
+    m = _TITLE_RE.search(html)
+    if not m:
+        return ""
+    t = re.sub(r"\s+", " ", m.group(1)).strip()
+    # 标题常是「XXX大学-首页」这类，去掉后缀
+    return re.split(r"[-_|·—]", t)[0].strip()[:40] or t[:40]
+
+
+def save_logo(url: str, category: str) -> str:
+    """把 logo 图片下载到本地并返回可访问路径（存本地，避免 http 图片在小程序真机加载不了）。"""
+    from app.market import UPLOAD_DIR
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    with httpx.Client(timeout=15, follow_redirects=True, trust_env=False,
+                      headers={"User-Agent": UA}) as cli:
+        r = cli.get(url)
+        r.raise_for_status()
+        data = r.content
+    if not data or len(data) > 3 * 1024 * 1024:
+        return ""
+    ct = (r.headers.get("content-type") or "").lower()
+    low = url.lower()
+    if "png" in ct or low.endswith(".png"):
+        ext = ".png"
+    elif "jpeg" in ct or "jpg" in ct or re.search(r"\.jpe?g$", low):
+        ext = ".jpg"
+    elif "gif" in ct:
+        ext = ".gif"
+    elif "webp" in ct:
+        ext = ".webp"
+    else:
+        ext = ".png"
+    name = f"school_logo_{category}{ext}"
+    with open(os.path.join(UPLOAD_DIR, name), "wb") as f:
+        f.write(data)
+    return "/uploads/" + name
 
 
 def fetch_text(url: str, limit: int = 8000) -> str:
@@ -188,10 +267,30 @@ def sync(category: str = "") -> dict:
         if not url:
             continue
         try:
-            text = fetch_text(url)
+            # 抓原始 HTML：正文给大模型抽取，同时从中找学校 logo 与名称
+            with httpx.Client(timeout=20, follow_redirects=True, trust_env=False,
+                              headers={"User-Agent": UA}) as cli:
+                resp = cli.get(url)
+                resp.raise_for_status()
+                html = resp.text
+
+            p = _TextExtractor()
+            p.feed(html)
+            text = p.text(8000)
             if len(text) < 50:
                 failed.append({"category": cat, "msg": "页面正文为空（可能是 JS 渲染的页面，抓不到内容）"})
                 continue
+
+            # 学校 logo / 名称（失败不影响主流程）
+            name = find_title(html)
+            logo = ""
+            logo_src = find_logo(html, url)
+            if logo_src:
+                try:
+                    logo = save_logo(logo_src, cat)
+                except Exception:
+                    logo = ""
+
             items = _llm_extract(cat, text)
             now = datetime.now().isoformat(timespec="minutes")
             with _conn() as c:
@@ -201,8 +300,10 @@ def sync(category: str = "") -> dict:
                     "VALUES(?,?,?,?,?,?)",
                     [(cat, it["title"], it["date"], it["content"], url, now) for it in items],
                 )
-                c.execute("UPDATE school_sources SET synced_at=? WHERE category=?", (now, cat))
-            done.append({"category": cat, "count": len(items)})
+                c.execute("UPDATE school_sources SET synced_at=?, logo=COALESCE(NULLIF(?,''),logo), "
+                          "name=COALESCE(NULLIF(?,''),name) WHERE category=?",
+                          (now, logo, name, cat))
+            done.append({"category": cat, "count": len(items), "logo": logo, "name": name})
         except Exception as e:
             failed.append({"category": cat, "msg": str(e)[:160]})
 

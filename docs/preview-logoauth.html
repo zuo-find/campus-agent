@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 同步完成的学校 logo 过场动画（定格态）1:1 还原(1rpx=0.5px) */
+html,body{margin:0;padding:0}
+.phone{width:375px;height:812px;position:relative;overflow:hidden;background:#f5f6f8;font-family:"Microsoft YaHei",sans-serif}
+.behind{position:absolute;inset:0;padding:10px 0;opacity:.25}
+.card{background:#fff;border-radius:8px;padding:14px;margin:10px 12px}
+.card .t{font-size:15px;font-weight:600;color:#222;margin-bottom:9px}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:.5px solid #f2f2f2;font-size:14px}
+.row span:last-child{color:#888}
+
+.logo-mask{position:absolute;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.96)}
+.logo-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+.ring{position:absolute;width:95px;height:95px;border-radius:50%;border:1.5px solid rgba(26,115,232,.4);animation:ringOut 1.4s .1s both}
+@keyframes ringOut{0%{opacity:.9;transform:scale(.9)}100%{opacity:0;transform:scale(2.1)}}
+.logo-img{width:88px;height:88px;border-radius:18px;background:#fff;box-shadow:0 9px 25px rgba(24,39,75,.16);
+  display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff;font-weight:600;
+  background-image:linear-gradient(150deg,#4a9bff,#1a73e8)}
+.logo-name{margin-top:20px;font-size:17px;font-weight:600;color:#1a2233;letter-spacing:.5px}
+.logo-ok{margin-top:13px;display:flex;align-items:center}
+.ok-check{width:13px;height:7px;border-left:2px solid #0f9d63;border-bottom:2px solid #0f9d63;transform:rotate(-45deg);margin-right:7px}
+.ok-t{font-size:13px;color:#0f9d63}
+</style></head><body>
+<div class="phone">
+  <div class="behind">
+    <div class="card"><div class="t">作息时间</div>
+      <div class="row"><span>第一大节</span><span>08:00 - 09:40</span></div>
+      <div class="row"><span>第二大节</span><span>10:00 - 11:40</span></div></div>
+    <div class="card"><div class="t">校历速查</div>
+      <div class="row"><span>开学报到</span><span>2026年8月30日—8月31日</span></div>
+      <div class="row"><span>期末考试</span><span>2027年1月4日—1月15日</span></div></div>
+  </div>
+  <div class="logo-mask">
+    <div class="logo-wrap">
+      <div class="ring"></div>
+      <div class="logo-img">校</div>
+    </div>
+    <div class="logo-name">西安思源学院</div>
+    <div class="logo-ok"><span class="ok-check"></span><span class="ok-t">官网信息已同步</span></div>
+  </div>
+</div></body></html>

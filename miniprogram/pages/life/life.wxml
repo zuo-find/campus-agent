@@ -78,6 +78,20 @@
     </view>
   </block>
 
+  <!-- 同步完成：学校 logo 过场动画 -->
+  <view wx:if="{{logoAnim.show}}" class="logo-mask" bindtap="closeLogoAnim">
+    <view class="logo-wrap">
+      <view class="ring"></view>
+      <image wx:if="{{logoAnim.logo}}" class="logo-img" src="{{logoAnim.logo}}" mode="aspectFit" />
+      <view wx:else class="logo-ph">校</view>
+    </view>
+    <text class="logo-name">{{logoAnim.name}}</text>
+    <view class="logo-ok">
+      <view class="ok-check"></view>
+      <text class="ok-t">官网信息已同步</text>
+    </view>
+  </view>
+
   <!-- 官网同步设置 -->
   <view wx:if="{{srcShow}}" class="mask" bindtap="closeSync">
     <view class="sheet" catchtap="noop">
