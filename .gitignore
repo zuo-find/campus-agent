@@ -6,6 +6,11 @@ backend/data/chroma/
 backend/data/*.db
 # 用户上传的图片（运行时生成，不入库）
 backend/data/uploads/
+# 校徽缓存（记的是 uploads/ 下的路径，那也是运行时生成的）
+backend/data/school_logo_cache.json
+backend/data/school_logo_failed.json
+# 整理高校名单时下载的第三方原始数据（scripts/build_university_list.py 可重新生成）
+backend/_data_tmp/
 # 导出的材料文档（运行时生成，不入库）
 backend/data/exports/
 # Python
