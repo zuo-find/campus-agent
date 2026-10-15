@@ -15,6 +15,17 @@
 .radio.checked { background: #1a73e8; border-color: #1a73e8; }
 
 .picker { background: #f0f1f3; border-radius: 10rpx; padding: 20rpx 24rpx; font-size: 28rpx; color: #333; }
+
+/* 拉取最新型号 / 手填型号 */
+.sec-row { display: flex; align-items: center; justify-content: space-between; margin: 28rpx 0 16rpx; }
+.fetch-btn { font-size: 23rpx; color: #1a73e8; border: 1rpx solid #cfe0fb; border-radius: 30rpx; padding: 6rpx 20rpx; }
+.fetch-btn:active { background: #eaf1fe; }
+.fetch-msg {
+  font-size: 22rpx; color: #b42318; background: #fff2f2; border-radius: 10rpx;
+  padding: 12rpx 16rpx; margin-top: 14rpx; line-height: 1.6;
+}
+.fetch-msg.ok { color: #0f5132; background: #e7f7ef; }
+.f-input.custom { margin-top: 14rpx; font-size: 25rpx; }
 .f-input { background: #f0f1f3; border-radius: 10rpx; padding: 20rpx 24rpx; font-size: 28rpx; }
 .key-url { font-size: 22rpx; color: #1a73e8; margin-top: 14rpx; }
 

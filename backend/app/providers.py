@@ -8,33 +8,65 @@ PROVIDERS: dict[str, dict] = {
     "deepseek": {
         "name": "DeepSeek 深度求索",
         "base_url": "https://api.deepseek.com",
-        "models": ["deepseek-chat", "deepseek-reasoner"],
+        "models": ["deepseek-v4-pro", "deepseek-v4-flash",
+                   "deepseek-reasoner", "deepseek-chat"],
         "key_url": "https://platform.deepseek.com/api_keys",
-        "note": "性价比高，中文强，官方直连",
+        "note": "中文强、便宜，官方直连",
     },
     "qwen": {
         "name": "通义千问（阿里云）",
         "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "models": ["qwen-plus", "qwen-turbo", "qwen-max", "qwen-long"],
-        "vision": ["qwen-vl-plus", "qwen-vl-max"],
+        "models": ["qwen3.7-max", "qwen3.7-plus", "qwen3.7-flash",
+                   "qwen3.6-plus", "qwen-max", "qwen-plus", "qwen-turbo", "qwen-long"],
+        "vision": ["qwen-vl-max", "qwen-vl-plus"],
         "key_url": "https://bailian.console.aliyun.com/",
-        "note": "需在阿里云百炼开通并创建 API-KEY",
+        "note": "在阿里云百炼开通并创建 API-KEY",
     },
     "zhipu": {
         "name": "智谱 GLM",
         "base_url": "https://open.bigmodel.cn/api/paas/v4",
-        "models": ["glm-4-flash", "glm-4-air", "glm-4-plus"],
-        "vision": ["glm-4v-flash", "glm-4v-plus"],
+        "models": ["glm-5.3", "glm-5.3-flash", "glm-5.2", "glm-5", "glm-5-turbo",
+                   "glm-4-plus", "glm-4-flash"],
+        "vision": ["glm-5v-turbo", "glm-4v-plus", "glm-4v-flash"],
         "key_url": "https://open.bigmodel.cn/usercenter/apikeys",
-        "note": "glm-4-flash 有免费额度",
+        "note": "glm-4-flash / glm-4v-flash 有免费额度",
     },
     "moonshot": {
         "name": "Kimi（月之暗面）",
         "base_url": "https://api.moonshot.cn/v1",
-        "models": ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k"],
+        "models": ["kimi-k3", "kimi-k2.8-preview", "kimi-k2.6", "kimi-k2.5",
+                   "moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k"],
         "vision": ["moonshot-v1-8k-vision-preview", "moonshot-v1-32k-vision-preview"],
         "key_url": "https://platform.moonshot.cn/console/api-keys",
         "note": "长文本见长",
+    },
+    "ark": {
+        "name": "豆包（火山方舟）",
+        "base_url": "https://ark.cn-beijing.volces.com/api/v3",
+        "models": ["doubao-seed-2.1-pro", "doubao-seed-2.1-turbo",
+                   "doubao-seed-2.0-pro", "doubao-seed-1.8", "doubao-pro-32k"],
+        "vision": ["doubao-1.5-vision-pro-32k"],
+        "key_url": "https://console.volcengine.com/ark",
+        "note": "模型名通常要填你的「接入点 ID」(ep-开头)",
+    },
+    "hunyuan": {
+        "name": "腾讯混元",
+        "base_url": "https://api.hunyuan.cloud.tencent.com/v1",
+        "models": ["hy4-preview", "hy3",
+                   "hunyuan-turbo", "hunyuan-pro", "hunyuan-standard"],
+        "vision": ["hunyuan-vision"],
+        "key_url": "https://console.cloud.tencent.com/hunyuan/api-key",
+        "note": "需在腾讯云开通混元",
+    },
+    "siliconflow": {
+        "name": "硅基流动 SiliconFlow",
+        "base_url": "https://api.siliconflow.cn/v1",
+        "models": ["deepseek-ai/DeepSeek-V3.1", "deepseek-ai/DeepSeek-V3",
+                   "deepseek-ai/DeepSeek-R1", "Qwen/Qwen3-8B",
+                   "Qwen/Qwen3-Max", "THUDM/glm-4-9b-chat"],
+        "vision": ["Qwen/Qwen2.5-VL-72B-Instruct", "deepseek-ai/DeepSeek-OCR"],
+        "key_url": "https://cloud.siliconflow.cn/account/ak",
+        "note": "一个 Key 用上百个模型，注册送额度，有免费模型",
     },
     "qianfan": {
         "name": "文心一言（百度千帆）",
@@ -50,22 +82,6 @@ PROVIDERS: dict[str, dict] = {
         "key_url": "https://console.xfyun.cn/",
         "note": "用 APIKey:APISecret 形式的密钥",
     },
-    "hunyuan": {
-        "name": "腾讯混元",
-        "base_url": "https://api.hunyuan.cloud.tencent.com/v1",
-        "models": ["hunyuan-turbo", "hunyuan-pro", "hunyuan-standard"],
-        "vision": ["hunyuan-vision"],
-        "key_url": "https://console.cloud.tencent.com/hunyuan/api-key",
-        "note": "需在腾讯云开通混元",
-    },
-    "ark": {
-        "name": "豆包（火山方舟）",
-        "base_url": "https://ark.cn-beijing.volces.com/api/v3",
-        "models": ["doubao-pro-32k", "doubao-lite-32k"],
-        "vision": ["doubao-1.5-vision-pro-32k"],
-        "key_url": "https://console.volcengine.com/ark",
-        "note": "注意：模型名需填你的「接入点 ID」(ep-开头)",
-    },
 }
 
 # 识图（多模态）推荐顺序：智谱 glm-4v-flash 免费，学生最容易拿到 key
@@ -75,6 +91,25 @@ VISION_ORDER = ["zhipu", "qwen", "moonshot", "hunyuan", "ark"]
 def list_providers() -> list[dict]:
     """给前端的可选列表（不含任何密钥）。"""
     return [{"id": pid, **{k: v for k, v in p.items()}} for pid, p in PROVIDERS.items()]
+
+
+def fetch_models(provider: str, api_key: str) -> list[str]:
+    """拿用户的 Key 去厂商拉一次真实可用的模型列表。
+
+    各家的型号一年就换一代，内置列表只能当起点。这个函数让小程序里能
+    随时拉到当前真正可用的型号，用户不用等我们更新版本。
+    """
+    import httpx
+
+    base, _, _ = resolve(provider, "")
+    url = base.rstrip("/") + "/models"
+    # 这些地址都是国内厂商，直连即可；走系统代理反而容易失败
+    with httpx.Client(timeout=15, trust_env=False) as client:
+        r = client.get(url, headers={"Authorization": "Bearer " + (api_key or "")})
+        r.raise_for_status()
+        data = r.json()
+    ids = [str(m.get("id", "")).strip() for m in (data.get("data") or []) if m.get("id")]
+    return sorted(set(ids))
 
 
 def resolve(provider: str, model: str = "") -> tuple[str, str, str]:

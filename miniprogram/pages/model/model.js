@@ -12,7 +12,10 @@ Page({
     // ---- 识图模型（拍照识别用）----
     vProviders: [], vMap: {},
     vProvider: '', vProviderName: '', vModels: [],
-    vModelIndex: 0, vKey: '', vKeyUrl: '', vNote: ''
+    vModelIndex: 0, vKey: '', vKeyUrl: '', vNote: '',
+    // 拉取厂商实时模型列表 / 手动填模型名
+    fetching: false, fetchMsg: '', fetchOk: false,
+    customModel: '', vCustomModel: ''
   },
 
   onLoad() {
@@ -32,6 +35,10 @@ Page({
         this.setData({ providers: list, map });
         if (saved && map[saved.provider]) {
           this.bindGroup(list, map, saved.provider, saved.model, saved.apiKey, '');
+          // 存过的模型名不在内置列表里（比如上次拉的最新款），放进手填框，别让它悄悄丢了
+          if (saved.model && (map[saved.provider].models || []).indexOf(saved.model) < 0) {
+            this.setData({ customModel: saved.model });
+          }
         } else if (list.length) {
           this.bindGroup(list, map, list[0].id, '', '', '');
         }
@@ -48,6 +55,9 @@ Page({
         this.setData({ vProviders: list, vMap: map });
         if (savedV && map[savedV.provider]) {
           this.bindGroup(list, map, savedV.provider, savedV.model, savedV.apiKey, 'v');
+          if (savedV.model && (map[savedV.provider].models || []).indexOf(savedV.model) < 0) {
+            this.setData({ vCustomModel: savedV.model });
+          }
         } else if (list.length) {
           this.bindGroup(list, map, list[0].id, '', '', 'v');
         }
@@ -88,30 +98,73 @@ Page({
 
   onKey(e) { this.setData({ apiKey: e.detail.value }); },
   onVKey(e) { this.setData({ vKey: e.detail.value }); },
-  onModel(e) { this.setData({ modelIndex: Number(e.detail.value) }); },
-  onVModel(e) { this.setData({ vModelIndex: Number(e.detail.value) }); },
+  onModel(e) { this.setData({ modelIndex: Number(e.detail.value), customModel: '' }); },
+  onVModel(e) { this.setData({ vModelIndex: Number(e.detail.value), vCustomModel: '' }); },
+  onCustomModel(e) { this.setData({ customModel: e.detail.value }); },
+  onVCustomModel(e) { this.setData({ vCustomModel: e.detail.value }); },
+
+  // 用你自己的 Key 去厂商拉一份当前真正可用的型号（内置列表更新不及厂商快）
+  fetchModels(e) {
+    const isV = e.currentTarget.dataset.v === 'v';
+    const provider = isV ? this.data.vProvider : this.data.provider;
+    const apiKey = (isV ? this.data.vKey : this.data.apiKey) || '';
+    if (!provider) return;
+    if (!apiKey.trim()) {
+      this.setData({ fetchMsg: '先在下面填上 API Key，再拉取', fetchOk: false });
+      return;
+    }
+    this.setData({ fetching: true, fetchMsg: '', fetchOk: false });
+    wx.request({
+      url: API + '/providers/models', method: 'POST', timeout: 25000,
+      data: { provider, api_key: apiKey.trim() },
+      success: r => {
+        const d = r.data || {};
+        this.setData({ fetching: false });
+        if (!d.ok) {
+          this.setData({ fetchMsg: d.error || '拉取失败', fetchOk: false });
+          return;
+        }
+        // 把当前选中的型号尽量保留住
+        const cur = isV ? this.data.vCustomModel || this.data.vModels[this.data.vModelIndex]
+                        : this.data.customModel || this.data.models[this.data.modelIndex];
+        const idx = Math.max(0, (d.models || []).indexOf(cur));
+        this.setData(isV
+          ? { vModels: d.models, vModelIndex: idx, vCustomModel: '', fetchOk: true,
+              fetchMsg: '拉到 ' + d.count + ' 个型号，在列表里挑' }
+          : { models: d.models, modelIndex: idx, customModel: '', fetchOk: true,
+              fetchMsg: '拉到 ' + d.count + ' 个型号，在列表里挑' });
+      },
+      fail: () => this.setData({
+        fetching: false, fetchOk: false,
+        fetchMsg: '连不上后端，确认后端在运行'
+      })
+    });
+  },
 
   copyKeyUrl() { if (this.data.keyUrl) wx.setClipboardData({ data: this.data.keyUrl }); },
   copyVKeyUrl() { if (this.data.vKeyUrl) wx.setClipboardData({ data: this.data.vKeyUrl }); },
 
   save() {
     if (this.data.tab === 'vision') {
-      const { vProvider, vProviderName, vModels, vModelIndex, vKey } = this.data;
+      const { vProvider, vProviderName, vModels, vModelIndex, vKey, vCustomModel } = this.data;
       if (!vProvider) return;
+      // 手填的优先，方便用列表里没有的型号
+      const model = (vCustomModel || '').trim() || vModels[vModelIndex] || '';
+      if (!model) { wx.showToast({ title: '请选择或填写模型名', icon: 'none' }); return; }
       wx.setStorageSync('visionLlm', {
         provider: vProvider, name: vProviderName,
-        model: vModels[vModelIndex] || '', apiKey: (vKey || '').trim()
+        model, apiKey: (vKey || '').trim()
       });
       wx.showToast({ title: '识图模型已保存', icon: 'success' });
       setTimeout(() => wx.navigateBack(), 700);
       return;
     }
-    const { provider, providerName, models, modelIndex, apiKey } = this.data;
+    const { provider, providerName, models, modelIndex, apiKey, customModel } = this.data;
     if (!provider) return;
+    const model = (customModel || '').trim() || models[modelIndex] || '';
+    if (!model) { wx.showToast({ title: '请选择或填写模型名', icon: 'none' }); return; }
     wx.setStorageSync('llm', {
-      provider, name: providerName,
-      model: models[modelIndex] || '',
-      apiKey: (apiKey || '').trim()
+      provider, name: providerName, model, apiKey: (apiKey || '').trim()
     });
     wx.showToast({ title: '已保存', icon: 'success' });
     setTimeout(() => wx.navigateBack(), 600);

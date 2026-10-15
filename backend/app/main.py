@@ -88,6 +88,36 @@ def providers_list():
     return {"ok": True, "providers": providers.list_providers()}
 
 
+class ModelListReq(BaseModel):
+    provider: str = ""
+    api_key: str = ""
+
+
+@app.post("/providers/models")
+def providers_models(req: ModelListReq):
+    """用用户自己的 Key 去厂商拉当前可用的模型列表。
+
+    内置列表更新不及时（各家一年换一代），这个接口让用户随时能拿到真实型号。
+    """
+    key = (req.api_key or "").strip()
+    if not key:
+        return {"ok": False, "error": "先填上 API Key 再拉取"}
+    try:
+        models = providers.fetch_models(req.provider, key)
+    except Exception as e:
+        s = str(e)
+        if "401" in s or "403" in s or "auth" in s.lower():
+            return {"ok": False, "error": "Key 不对或没权限，检查一下是不是复制全了"}
+        if "404" in s:
+            return {"ok": False, "error": "这家没提供模型列表接口，直接在下面手填模型名"}
+        if "connect" in s.lower() or "timeout" in s.lower():
+            return {"ok": False, "error": "连不上这家的服务器，检查网络后重试"}
+        return {"ok": False, "error": "拉取失败：" + s[:120]}
+    if not models:
+        return {"ok": False, "error": "这家返回的列表是空的，直接在下面手填模型名"}
+    return {"ok": True, "models": models, "count": len(models)}
+
+
 @app.get("/providers/vision")
 def providers_vision():
     """支持识图的厂商与多模态模型（不含任何密钥）。"""
