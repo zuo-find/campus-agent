@@ -12,6 +12,7 @@ import json
 from openai import OpenAI
 
 from app import providers
+from app import files as files_mod
 from app.agent_defs import AGENTS, DEFAULT_AGENT, ROUTE_MAP, ROUTER_PROMPT
 from app.config import settings
 from app.tools import ToolContext, run_tool, tool_schemas
@@ -74,12 +75,13 @@ def route(user_message: str, llm: dict | None = None) -> tuple[str, list[str]]:
 
 def chat(user_message: str, history: list[dict], ctx: ToolContext,
          llm: dict | None = None, agent_key: str | None = None,
-         skip_rag: bool = False) -> dict:
+         skip_rag: bool = False, files: list[dict] | None = None) -> dict:
     """处理一条用户消息，返回 {reply, sources, tool_calls, agent, agent_name}。
 
     llm:       用户自选的模型配置 {provider, api_key, model}，为空则用服务端默认。
     agent_key: 指定用哪个智能体；为空则先路由判断。
     skip_rag:  不检索知识库。用于图片识别等「内容本身即资料」的场景。
+    files:     用户上传并已解析的文件 [{name, text}]，拼成上下文块喂给模型。
     """
     if agent_key in AGENTS:
         key, extra_q = agent_key, []
@@ -95,7 +97,10 @@ def chat(user_message: str, history: list[dict], ctx: ToolContext,
             f"[来源：{h['source']}]\n{h['text']}" for h in hits
         )
 
-    messages = [{"role": "system", "content": adef["system"] + rag_block}]
+    # 2) 用户上传的文件（已在前端解析成文本），作为一等资料来源注入
+    file_block, file_sources = files_mod.pack_for_prompt(files or [])
+
+    messages = [{"role": "system", "content": adef["system"] + rag_block + file_block}]
     messages.extend(history[-6:])  # 只带最近几轮，控制 token
     messages.append({"role": "user", "content": user_message})
 
@@ -106,7 +111,7 @@ def chat(user_message: str, history: list[dict], ctx: ToolContext,
     def _result(reply: str) -> dict:
         return {
             "reply": reply,
-            "sources": [{"source": h["source"], "score": h["score"]} for h in hits],
+            "sources": file_sources + [{"source": h["source"], "score": h["score"]} for h in hits],
             "tool_calls": used_tools,
             "agent": key,
             "agent_name": adef["name"],

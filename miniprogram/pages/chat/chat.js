@@ -26,6 +26,7 @@ const FOLLOWUPS = {
 // 等待回答时展示的处理流程（与后端 route → retrieve → 生成 的实际流程对应）
 const THINK_STEPS = ['正在判断该由哪个智能体来答', '正在检索校园知识库', '正在组织回答'];
 const THINK_VISION = ['正在读取图片', '正在识别图片里的文字', '正在交给智能体处理'];
+const THINK_FILES = ['正在读你上传的文件', '正在理解里面的内容', '正在组织回答'];
 
 const HOT_ASKS = ['帮我算一下绩点', '挂科了怎么重修', '奖学金怎么评'];
 
@@ -69,7 +70,9 @@ Page({
       { key: 'ask', label: '图片问答', desc: '看图回答问题' }
     ],
     // 成绩单识别结果确认
-    scoreShow: false, scoreList: []
+    scoreShow: false, scoreList: [],
+    // 上传的文件（已解析成文本，解析结果留在输入区上方，追问时继续带着）
+    atts: [], uploading: false
   },
 
   onLoad() {
@@ -298,9 +301,72 @@ Page({
     });
   },
 
+  // ==================== 上传文件（批量选，小程序不支持选文件夹）====================
+
+  pickFiles() {
+    if (this.data.loading || this.data.uploading) return;
+    wx.chooseMessageFile({
+      count: 10, type: 'file',
+      success: res => {
+        const list = (res.tempFiles || []).filter(f => f && f.path);
+        if (list.length) this._uploadSeq(list, 0, []);
+      },
+      fail: () => {}     // 用户取消不提示
+    });
+  },
+
+  // 逐个上传解析（wx.uploadFile 一次只能传一个）
+  _uploadSeq(list, i, fails) {
+    if (i >= list.length) {
+      wx.hideLoading();
+      this.setData({ uploading: false });
+      if (fails.length) {
+        wx.showModal({
+          title: '有文件没读成功', content: fails.join('\n'),
+          showCancel: false, confirmText: '知道了'
+        });
+      }
+      return;
+    }
+    const f = list[i];
+    this.setData({ uploading: true });
+    wx.showLoading({ title: '读取 ' + (i + 1) + '/' + list.length, mask: true });
+    wx.uploadFile({
+      url: API + '/file/parse', filePath: f.path, name: 'file', timeout: 60000,
+      success: r => {
+        let d = {};
+        try { d = JSON.parse(r.data || '{}'); } catch (e) { d = {}; }
+        if (d.ok) {
+          const atts = this.data.atts.concat([{
+            id: 'f' + Date.now() + i,        // 同名文件可能选两次，用 id 做 key
+            name: d.name, text: d.text, chars: d.chars, size: f.size || 0
+          }]);
+          this.setData({ atts });
+        } else {
+          fails.push((d.name || f.name || '文件') + '：' + (d.msg || '读取失败'));
+        }
+      },
+      fail: () => fails.push((f.name || '文件') + '：上传失败，检查后端是否在运行'),
+      complete: () => this._uploadSeq(list, i + 1, fails)
+    });
+  },
+
+  removeAtt(e) {
+    const atts = this.data.atts.slice();
+    atts.splice(e.currentTarget.dataset.i, 1);
+    this.setData({ atts });
+  },
+  clearAtts() {
+    if (!this.data.atts.length) return;
+    this.setData({ atts: [] });
+    wx.showToast({ title: '已移除附件', icon: 'none' });
+  },
+
   send() {
-    const text = (this.data.input || '').trim();
-    if (!text || this.data.loading) return;
+    let text = (this.data.input || '').trim();
+    const atts = this.data.atts;
+    if ((!text && !atts.length) || this.data.loading) return;
+    if (!text) text = '帮我看看这几个文件';
 
     const history = this.data.messages
       .filter(m => m.role === 'user' || m.role === 'assistant')
@@ -312,9 +378,13 @@ Page({
       ? { provider: llm.provider, api_key: llm.apiKey, model: llm.model }
       : null;
 
-    const messages = this.data.messages.concat([{ role: 'user', content: text }]);
+    const files = atts.map(a => ({ name: a.name, text: a.text }));
+    const messages = this.data.messages.concat([{
+      role: 'user', content: text, files: atts.map(a => a.name)
+    }]);
     this.setData({
-      messages, input: '', loading: true, thinkSteps: THINK_STEPS
+      messages, input: '', loading: true,
+      thinkSteps: files.length ? THINK_FILES : THINK_STEPS
     }, this.scrollToBottom);
     this.startThink();
 
@@ -327,9 +397,10 @@ Page({
         courses: app.getCourses(),
         ddls: app.getDdls(),
         user_name: app.globalData.userName,
-        llm: llmPayload
+        llm: llmPayload,
+        files: files
       },
-      timeout: 60000,
+      timeout: files.length ? 120000 : 60000,
       success: (res) => {
         const d = res.data || {};
         if (d.ok) {
@@ -352,8 +423,14 @@ Page({
   },
 
   appendAssistant(content, sources, doc, agent, agentName, todos, ocr) {
+    // 来源分两组：用户自己传上来的文件 / 校园知识库。混在一起看会很乱——
+    // 上传文件时知识库照样会检索，但回答未必用到那些条目。
+    const all = sources || [];
+    const mine = all.filter(s => s.indexOf('上传：') === 0).map(s => s.slice(3));
+    const campus = all.filter(s => s.indexOf('上传：') !== 0);
+
     const messages = this.data.messages.concat([{
-      role: 'assistant', content, sources, doc: doc || null,
+      role: 'assistant', content, sources: campus, myFiles: mine, doc: doc || null,
       agent: agent || '', agentName: agentName || '',
       todos: todos || null,
       ocr: ocr || '', ocrOpen: false

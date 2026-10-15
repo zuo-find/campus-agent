@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import agent, auth, documents, life, market, providers, school_sync, vision
+from app import agent, auth, documents, files, life, market, providers, school_sync, vision
 from app.tools import ToolContext
 from rag import store
 
@@ -47,6 +47,12 @@ class LLMConfig(BaseModel):
     model: str = ""
 
 
+class ChatFile(BaseModel):
+    """前端已解析好的文件：只要文件名和正文，原文件不必再传一遍。"""
+    name: str = ""
+    text: str = ""
+
+
 class ChatReq(BaseModel):
     message: str
     history: list[dict] = []
@@ -55,6 +61,7 @@ class ChatReq(BaseModel):
     user_name: str = "同学"
     llm: LLMConfig | None = None
     agent_key: str = ""     # 指定智能体；留空则由路由自动判断
+    files: list[ChatFile] = []
 
 
 class VisionReq(BaseModel):
@@ -131,8 +138,9 @@ def chat(req: ChatReq):
     )
     llm = req.llm.model_dump() if req.llm else None
     try:
-        return {"ok": True, **agent.chat(req.message, req.history, ctx,
-                                         llm=llm, agent_key=req.agent_key or None)}
+        return {"ok": True, **agent.chat(req.message, req.history, ctx, llm=llm,
+                                         agent_key=req.agent_key or None,
+                                         files=[f.model_dump() for f in req.files])}
     except Exception as e:  # 统一错误出口，转成用户看得懂的话
         return {"ok": False, "error": _friendly_llm_error(e)}
 
@@ -157,6 +165,16 @@ def chat_vision(req: VisionReq):
         )}
     except Exception as e:
         return {"ok": False, "error": _friendly_llm_error(e)}
+
+
+@app.post("/file/parse")
+async def file_parse(file: UploadFile = File(...)):
+    """解析一个上传的文件（PDF / Word / 文本），返回正文给前端。
+
+    只解析、不落库：文件正文由前端随提问一起发回，用完即弃。
+    """
+    raw = await file.read()
+    return files.parse(file.filename or "未命名文件", raw)
 
 
 @app.post("/rag/upload")

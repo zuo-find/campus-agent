@@ -83,6 +83,8 @@
   font-size: 22rpx; color: #1a73e8; background: #eaf1fe;
   padding: 4rpx 14rpx; border-radius: 20rpx; margin: 6rpx 8rpx 0 0;
 }
+/* 用户自己上传的文件：用绿色跟校园知识库区分开 */
+.src-tag.mine { color: #0f7a4d; background: #e6f8f0; }
 
 /* ---------- 图片气泡 & 识别文字 ---------- */
 .bubble.img-bubble { background: transparent; padding: 0; }
@@ -209,6 +211,44 @@
   border: 3rpx solid #1a73e8; border-bottom: none; border-radius: 6rpx 6rpx 0 0; box-sizing: border-box;
 }
 .cam-hover .cam-body, .cam-hover .cam-lens, .cam-hover .cam-top { border-color: #1558b0; }
+
+/* 上传文件按钮（纯 CSS 画的文档） */
+.file-btn { position: relative; width: 68rpx; height: 68rpx; margin-right: 12rpx; flex-shrink: 0; }
+.file-body {
+  position: absolute; left: 12rpx; top: 8rpx; width: 42rpx; height: 52rpx;
+  border: 3rpx solid #1a73e8; border-radius: 8rpx; box-sizing: border-box;
+}
+.file-line { position: absolute; left: 22rpx; height: 3rpx; background: #1a73e8; border-radius: 2rpx; }
+.file-line.l1 { top: 22rpx; width: 22rpx; }
+.file-line.l2 { top: 32rpx; width: 22rpx; }
+.file-line.l3 { top: 42rpx; width: 14rpx; }
+.file-hover .file-body { border-color: #1558b0; }
+.file-hover .file-line { background: #1558b0; }
+
+/* 已选文件栏 */
+.att-bar { padding: 14rpx 24rpx 12rpx; background: #f5f6f8; border-top: 1rpx solid #eef1f5; }
+.att-head { display: flex; align-items: center; margin-bottom: 10rpx; }
+.att-tip { flex: 1; font-size: 22rpx; color: #8c98ab; }
+.att-clear { font-size: 22rpx; color: #1a73e8; }
+.att-scroll { white-space: nowrap; }
+.att-chip {
+  display: inline-flex; align-items: center; background: #fff; border: 1rpx solid #d4e2fc;
+  border-radius: 30rpx; padding: 10rpx 12rpx 10rpx 20rpx; margin-right: 14rpx; max-width: 460rpx;
+}
+.att-n {
+  font-size: 24rpx; color: #1a2233; max-width: 260rpx;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.att-c { font-size: 20rpx; color: #9aa6b5; margin-left: 10rpx; }
+.att-x { font-size: 22rpx; color: #a6b0c0; padding: 0 8rpx 0 12rpx; }
+
+/* 气泡里显示这轮带了哪些文件 */
+.bubble-files { margin-bottom: 10rpx; }
+.bf-item {
+  display: inline-block; font-size: 21rpx; color: #1a73e8; background: #eaf1fe;
+  border-radius: 6rpx; padding: 4rpx 12rpx; margin: 0 8rpx 6rpx 0;
+}
+.bubble.user .bf-item { color: #fff; background: rgba(255,255,255,.22); }
 
 /* 拍摄用途选择 */
 .vm-list { padding: 6rpx 0 4rpx; }

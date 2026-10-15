@@ -35,8 +35,15 @@
       <view class="msg-row {{item.role}}">
         <view class="bubble {{item.role}} {{item.image ? 'img-bubble' : ''}}" data-idx="{{index}}" bindlongpress="copyMsg">
           <image wx:if="{{item.image}}" class="bubble-img" src="{{item.image}}" mode="widthFix" />
+          <!-- 这一轮带上了哪些文件 -->
+          <view wx:if="{{item.files.length}}" class="bubble-files">
+            <text class="bf-item" wx:for="{{item.files}}" wx:for-item="fn" wx:key="*this">{{fn}}</text>
+          </view>
           <view wx:if="{{item.agentName}}" class="agent-chip ac-{{item.agent}}">{{item.agentName}}</view>
           <text class="bubble-text">{{item.content}}</text>
+          <view wx:if="{{item.myFiles.length}}" class="sources">
+            <text class="src-tag mine" wx:for="{{item.myFiles}}" wx:for-item="s" wx:key="*this">你的文件 · {{s}}</text>
+          </view>
           <view wx:if="{{item.sources.length}}" class="sources">
             <text class="src-tag" wx:for="{{item.sources}}" wx:for-item="s" wx:key="*this">来源：{{s}}</text>
           </view>
@@ -114,7 +121,29 @@
     </scroll-view>
   </view>
 
+  <!-- 已选的文件：解析结果留在这一栏，后面追问会一起带上 -->
+  <view wx:if="{{atts.length}}" class="att-bar">
+    <view class="att-head">
+      <text class="att-tip">{{atts.length}} 个文件 · 之后每次提问都会带上</text>
+      <text class="att-clear" bindtap="clearAtts">全部移除</text>
+    </view>
+    <scroll-view class="att-scroll" scroll-x>
+      <view class="att-chip" wx:for="{{atts}}" wx:key="id">
+        <text class="att-n">{{item.name}}</text>
+        <text class="att-c">{{item.chars}} 字</text>
+        <text class="att-x" data-i="{{index}}" catchtap="removeAtt">✕</text>
+      </view>
+    </scroll-view>
+  </view>
+
   <view class="input-bar">
+    <!-- 上传文件（小程序不能选文件夹，只能一次批量选文件） -->
+    <view class="file-btn" hover-class="file-hover" hover-stay-time="80" bindtap="pickFiles">
+      <view class="file-body"></view>
+      <view class="file-line l1"></view>
+      <view class="file-line l2"></view>
+      <view class="file-line l3"></view>
+    </view>
     <!-- 拍照识别入口（纯 CSS 画的相机，不用图标字体） -->
     <view class="cam-btn" hover-class="cam-hover" hover-stay-time="80" bindtap="pickImage">
       <view class="cam-body"><view class="cam-lens"></view></view>
