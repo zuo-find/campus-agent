@@ -1,0 +1,57 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 「我的」头像+昵称引导 1:1 还原(1rpx=0.5px) */
+*{box-sizing:border-box}
+body{margin:0;background:#e9ecf1;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.screen{width:375px;background:#f5f6f8;padding-bottom:18px}
+.cap{font-size:11px;color:#8c98ab;padding:9px 14px 3px}
+.hero{background:linear-gradient(160deg,#2b7cf0 0%,#1a73e8 55%,#4a9bff 100%);padding:34px 0 60px}
+.me-card{background:#fff;border-radius:12px;margin:-40px 20px 10px;padding:22px;
+  position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+.avatar-ph{position:relative;width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(160deg,#dbe7ff,#c2d6ff);overflow:hidden}
+.avatar-ph::before{content:'';position:absolute;top:15px;left:50%;transform:translateX(-50%);
+  width:25px;height:25px;border-radius:50%;background:#8fb3f0}
+.avatar-ph::after{content:'';position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);
+  width:52px;height:38px;border-radius:26px 26px 0 0;background:#8fb3f0}
+.avatar-hint{font-size:11px;color:#1a73e8;margin-top:8px;text-align:center}
+.nick{font-size:18px;font-weight:600;color:#1a2b45;text-align:center;margin-top:13px;width:70%;
+  border:none;background:transparent;font-family:inherit;padding:4px 0}
+.nick.focus{background:#eef4fe;border-radius:6px;box-shadow:0 0 0 2px rgba(26,115,232,.35)}
+.nick.ph{color:#b6c0cf;font-weight:400}
+.uid{font-size:11px;color:#b6c0cf;margin-top:5px}
+</style></head><body>
+
+<div class="cap">① 刚登录：提示先用头像</div>
+<div class="screen">
+  <div class="hero"></div>
+  <div class="me-card">
+    <div class="avatar-ph"></div>
+    <div class="avatar-hint">点上面的头像，一次把微信头像和昵称都用上</div>
+    <div class="nick ph">点击设置昵称</div>
+    <div class="uid">ID oxAbC1234567…</div>
+  </div>
+</div>
+
+<div class="cap">② 选完头像：昵称框自动获得焦点，点键盘上方的微信昵称即可</div>
+<div class="screen">
+  <div class="hero"></div>
+  <div class="me-card">
+    <div class="avatar-ph"></div>
+    <div class="avatar-hint">头像好了，点下面的昵称，把微信昵称也用上</div>
+    <div class="nick focus ph">点击设置昵称</div>
+    <div class="uid">ID oxAbC1234567…</div>
+  </div>
+</div>
+
+<div class="cap">③ 都填好：提示消失，不再打扰</div>
+<div class="screen">
+  <div class="hero"></div>
+  <div class="me-card">
+    <div class="avatar-ph"></div>
+    <div class="nick">小明</div>
+    <div class="uid">ID oxAbC1234567…</div>
+  </div>
+</div>
+
+</body></html>

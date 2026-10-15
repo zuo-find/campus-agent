@@ -1,6 +1,11 @@
 const app = getApp();
 let API = app.globalData.apiBase;   // 在 onShow 里刷新，改地址后无需重启
 
+// 昵称还是微信的默认值 = 没设过
+function needsNick(u) {
+  return !u || !u.nickname || u.nickname === '微信用户';
+}
+
 Page({
   data: {
     user: null,             // { token, openid, nickname, avatar }
@@ -9,7 +14,8 @@ Page({
     agreed: false,          // 是否勾选用户协议
     shortId: '',
     justLogged: false,      // 登录成功横幅
-    pendingAvatar: false,   // 登录后提示去设置头像昵称
+    profileHint: '',        // 头像/昵称的引导文案（没填完才显示）
+    nickFocus: false,       // 选完头像后自动聚焦昵称输入框
     // 数据概览
     stat: { courses: 0, market: 0, lost: 0, doc: 0 },
     // 我生成的材料
@@ -29,6 +35,7 @@ Page({
       user: u,
       logged: app.isLoggedIn(),
       shortId: u && u.openid ? u.openid.slice(0, 12) + '…' : '',
+      profileHint: this.hintFor(u),
       apiShort: (app.globalData.apiBase || '').replace(/^https?:\/\//, ''),
       stat: {
         courses: courses.length,
@@ -81,7 +88,7 @@ Page({
               app.setUser(user);
               this.setData({
                 user, logged: true, shortId: d.openid.slice(0, 12) + '…',
-                justLogged: true, pendingAvatar: !user.avatar
+                justLogged: true, profileHint: this.hintFor(user)
               });
               if (this._okTimer) clearTimeout(this._okTimer);
               this._okTimer = setTimeout(() => this.setData({ justLogged: false }), 2600);
@@ -103,19 +110,32 @@ Page({
   },
 
   // ---- 头像/昵称授权 ----
+  // 微信不允许静默拿头像昵称（2022 年 10 月起），只能用这两个控件。
+  // 所以这里做成"一次点击接着一次点击"：点头像 → 选完头像后自动把焦点交给昵称输入框，
+  // 键盘上方的「微信昵称」会跟着弹出来，用户点一下就完事，不用自己去找输入框。
   onChooseAvatar(e) {
-    const avatar = e.detail.avatarUrl;
-    const user = { ...app.getUser(), avatar };
+    const user = { ...app.getUser(), avatar: e.detail.avatarUrl };
     app.setUser(user);
-    this.setData({ user, pendingAvatar: false });
+    this.setData({ user, profileHint: this.hintFor(user) });
     this.saveProfile();
+    if (needsNick(user)) {
+      // 等选择器收起、卡片渲染完再聚焦，太快会被吞掉
+      setTimeout(() => this.setData({ nickFocus: true }), 350);
+    }
   },
   onNickBlur(e) {
-    const nickname = e.detail.value.trim() || '微信用户';
+    const nickname = ((e.detail && e.detail.value) || '').trim() || '微信用户';
     const user = { ...app.getUser(), nickname };
     app.setUser(user);
-    this.setData({ user });
+    this.setData({ user, nickFocus: false, profileHint: this.hintFor(user) });
     this.saveProfile();
+  },
+
+  // 没填完时给一句话指路，填完就不显示了
+  hintFor(u) {
+    if (!u || !u.avatar) return '点上面的头像，一次把微信头像和昵称都用上';
+    if (needsNick(u)) return '头像好了，点下面的昵称，把微信昵称也用上';
+    return '';
   },
   saveProfile() {
     if (!app.isLoggedIn()) return;
