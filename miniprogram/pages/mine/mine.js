@@ -279,16 +279,7 @@ Page({
       success: () => wx.setClipboardData({ data: 'campus-agent@example.com' })
     });
   },
-  openAbout() {
-    wx.showModal({
-      title: '关于本作品', showCancel: false, confirmText: '知道了',
-      content: '校园服务智能体 · 微信小程序\n\n' +
-        '西安思源学院电子信息工程学院\n第二届计算机综合实践挑战赛 · T4 赛道\n\n' +
-        '由「校园问答 / 刷题陪练 / 材料撰写 / 日程提醒」四个智能体协同，' +
-        '以 RAG 知识库检索 + 大模型 function-calling 实现；' +
-        '并支持拍照识别（多模态），可拍题解题、拍通知转待办、拍成绩单导入。\n\n版本 1.0.0'
-    });
-  },
+  openAbout() { wx.navigateTo({ url: '/pages/about/about' }); },
 
   logout() {
     wx.showModal({

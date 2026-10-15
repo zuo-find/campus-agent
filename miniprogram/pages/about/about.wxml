@@ -1,0 +1,77 @@
+<view class="container">
+  <!-- 头部 -->
+  <view class="hero">
+    <view class="hero-logo">
+      <image class="hero-logo-img" src="/images/logo.png" mode="aspectFit" />
+    </view>
+    <text class="hero-name">校园助手</text>
+    <text class="hero-tag">{{tagline}}</text>
+    <view class="hero-ver" bindtap="copyVersion">v{{version}}</view>
+  </view>
+
+  <!-- 这是什么 -->
+  <view class="card" style="margin-top:-40rpx">
+    <view class="sec-title">这是什么</view>
+    <text class="para" wx:for="{{what}}" wx:key="*this">{{item}}</text>
+  </view>
+
+  <!-- 想解决的问题 -->
+  <view class="grp-t">它想解决的问题</view>
+  <view class="card">
+    <view class="pain" wx:for="{{pain}}" wx:key="t">
+      <text class="pain-t">{{item.t}}</text>
+      <text class="pain-d">{{item.d}}</text>
+    </view>
+  </view>
+
+  <!-- 能做什么 -->
+  <view class="grp-t">能做到什么</view>
+  <view class="card" wx:for="{{features}}" wx:key="g">
+    <text class="f-g">{{item.g}}</text>
+    <view class="f-item" wx:for="{{item.items}}" wx:for-item="it" wx:key="*this">
+      <view class="f-dot"></view>
+      <text class="f-t">{{it}}</text>
+    </view>
+  </view>
+
+  <!-- 怎么做的 -->
+  <view class="grp-t">怎么实现的</view>
+  <view class="card">
+    <view class="layer" wx:for="{{stack}}" wx:key="layer">
+      <text class="layer-n">{{item.layer}}</text>
+      <text class="layer-d">{{item.desc}}</text>
+    </view>
+  </view>
+
+  <!-- 技术亮点 -->
+  <view class="grp-t">几个值得说的点</view>
+  <view class="card">
+    <view class="hl" wx:for="{{highlights}}" wx:key="t">
+      <view class="hl-no">{{index + 1}}</view>
+      <view class="hl-c">
+        <text class="hl-t">{{item.t}}</text>
+        <text class="hl-d">{{item.d}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 参赛信息 -->
+  <view class="grp-t">参赛信息</view>
+  <view class="card">
+    <view class="kv" wx:for="{{team}}" wx:key="k">
+      <text class="kv-k">{{item.k}}</text>
+      <text class="kv-v {{item.v == '待填' ? 'todo' : ''}}">{{item.v}}</text>
+    </view>
+  </view>
+
+  <!-- 合规与声明 -->
+  <view class="grp-t">说明</view>
+  <view class="card">
+    <view class="cmp" wx:for="{{compliance}}" wx:key="t">
+      <text class="cmp-t">{{item.t}}</text>
+      <text class="cmp-d">{{item.d}}</text>
+    </view>
+  </view>
+
+  <view class="foot">校园服务智能体 · 参赛作品 · v{{version}}</view>
+</view>

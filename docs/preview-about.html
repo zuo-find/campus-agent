@@ -1,0 +1,82 @@
+<!DOCTYPE html><html><head><meta charset=utf-8><style>*{box-sizing:border-box}
+body{margin:0;background:#e9ecf1;font-family:'Microsoft YaHei',sans-serif;width:375px}
+.screen{width:375px;background:#f5f6f8;padding-bottom:14px}
+.cap{font-size:11px;color:#8c98ab;padding:9px 14px 3px}
+.hero{background:linear-gradient(160deg,#2b7cf0 0%,#1a73e8 55%,#4a9bff 100%);padding:28px 20px 46px;display:flex;flex-direction:column;align-items:center}
+.hero-logo{width:64px;height:64px;border-radius:18px;background:#fff;padding:7px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(12,46,110,.2)}
+.hero-logo img{width:100%;height:100%;border-radius:12px;display:block}
+.hero-name{font-size:21px;font-weight:700;color:#fff;letter-spacing:1.5px}
+.hero-tag{font-size:12.5px;color:rgba(255,255,255,.86);line-height:1.6;margin-top:7px;text-align:center}
+.hero-ver{font-size:11px;color:#fff;background:rgba(255,255,255,.22);border-radius:12px;padding:3px 12px;margin-top:12px}
+.card{background:#fff;border-radius:8px;margin:10px 12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.card.first{margin-top:-20px}
+.grp-t{font-size:13px;color:#8c98ab;margin:15px 20px 0}
+.sec-title{font-size:15px;font-weight:600;color:#1a2233;margin-bottom:8px}
+.para{font-size:13.5px;color:#5a6684;line-height:1.8;margin-top:7px;text-align:justify}
+.pain{padding:10px 0;border-bottom:.5px solid #f2f4f8}
+.pain:last-child{border-bottom:none;padding-bottom:0}
+.pain-t{display:block;font-size:14px;font-weight:600;color:#1a2233}
+.pain-d{display:block;font-size:12.5px;color:#6a7689;line-height:1.75;margin-top:4px}
+.f-g{display:block;font-size:14px;font-weight:600;color:#1a73e8;margin-bottom:6px}
+.f-item{display:flex;padding:4px 0}
+.f-dot{width:5px;height:5px;border-radius:50%;background:#c6d0de;margin:7px 8px 0 0;flex-shrink:0}
+.f-t{flex:1;font-size:12.5px;color:#5a6684;line-height:1.7}
+.layer{padding:9px 0;border-bottom:.5px solid #f2f4f8}
+.layer:first-child{padding-top:0}.layer:last-child{border-bottom:none;padding-bottom:0}
+.layer-n{display:inline-block;font-size:11.5px;color:#1a73e8;background:#eaf1fe;border-radius:3px;padding:2px 7px}
+.layer-d{display:block;font-size:12.5px;color:#5a6684;line-height:1.75;margin-top:5px}
+.hl{display:flex;margin-bottom:12px}
+.hl:last-child{margin-bottom:0}
+.hl-no{width:18px;height:18px;flex-shrink:0;margin-right:8px;margin-top:1px;font-size:11px;color:#fff;background:#1a73e8;border-radius:50%;text-align:center;line-height:18px}
+.hl-c{flex:1}
+.hl-t{display:block;font-size:13.5px;font-weight:600;color:#1a2233}
+.hl-d{display:block;font-size:12px;color:#6a7689;line-height:1.75;margin-top:3px}
+.kv{display:flex;padding:8px 0;border-bottom:.5px solid #f2f4f8}
+.kv:last-child{border-bottom:none}
+.kv-k{width:80px;flex-shrink:0;font-size:13px;color:#8c98ab}
+.kv-v{flex:1;font-size:13px;color:#1a2233}
+.kv-v.todo{color:#d97706}
+.cmp{padding:9px 0;border-bottom:.5px solid #f2f4f8}
+.cmp:first-child{padding-top:0}.cmp:last-child{border-bottom:none;padding-bottom:0}
+.cmp-t{display:block;font-size:13.5px;font-weight:600;color:#1a2233}
+.cmp-d{display:block;font-size:12px;color:#6a7689;line-height:1.75;margin-top:3px}
+.more{font-size:11px;color:#b6c0cf;text-align:center;margin-top:10px}
+.foot{text-align:center;font-size:11px;color:#b6c0cf;margin:28px 0 10px}</style></head><body>
+<div class='cap'>① 头部 + 这是什么</div>
+<div class='screen'>
+  <div class='hero'>
+    <div class='hero-logo'><img src='../miniprogram/images/logo.png'></div>
+    <div class='hero-name'>校园助手</div>
+    <div class='hero-tag'>一个会查制度、会写材料、会算成绩的校园智能体</div>
+    <div class='hero-ver'>v1.0.0</div>
+  </div>
+  <div class='card first'>
+    <div class='sec-title'>这是什么</div>
+    <div class='para'>「校园助手」是一个微信小程序。它不是把大模型套个聊天框——你问一句话，系统会先判断该由哪个专职智能体处理，再带着对应的资料和工具去回答。</div><div class='para'>比如问「奖学金怎么评」走校园问答，说「帮我写一份请假条」走材料撰写，问「比赛什么时候截止」走日程提醒，拍一道题走刷题陪练。回答末尾会标出依据来自哪份文件。</div>
+  </div>
+</div>
+<div class='cap'>② 它想解决的问题</div>
+<div class='screen'><div class='grp-t'>它想解决的问题</div><div class='card'>
+<div class='pain'><span class='pain-t'>校园信息散、找不到</span><span class='pain-d'>学籍规定、重修办法、比赛通知散在官网各处，需要时翻半天。系统把学校公开发布的文件收进知识库，问一句就能答，并指出来源。</span></div><div class='pain'><span class='pain-t'>重复劳动多</span><span class='pain-d'>请假条、实训申请、活动策划这类材料格式固定却要反复写。系统按模板生成初稿，在线改字段，直接导出 Word。</span></div><div class='pain'><span class='pain-t'>信息要自己算</span><span class='pain-d'>绩点、剩余学分、距离报名截止还有几天，这些都要自己翻表格算。系统把时间点整理成带倒计时的待办，把成绩直接算成绩点和等级分布。</span></div>
+</div></div>
+<div class='cap'>③ 能做到什么（节选两组）</div>
+<div class='screen'><div class='grp-t'>能做到什么</div>
+<div class='card'><div class='f-g'>智能问答</div><div class='f-item'><div class='f-dot'></div><span class='f-t'>校园制度、办事流程问答，答案标注来源</span></div><div class='f-item'><div class='f-dot'></div><span class='f-t'>支持追问，理解上下文</span></div></div><div class='card'><div class='f-g'>多智能体协同</div><div class='f-item'><div class='f-dot'></div><span class='f-t'>问制度 / 写材料 / 查日程 / 刷题 四个专职智能体</span></div><div class='f-item'><div class='f-dot'></div><span class='f-t'>按问题自动分流，也可手动指定</span></div></div>
+<div class='more'>…… 一共 8 组，下面是节选</div>
+</div>
+<div class='cap'>④ 怎么实现的 + 技术亮点</div>
+<div class='screen'><div class='grp-t'>怎么实现的</div><div class='card'>
+<div class='layer'><span class='layer-n'>小程序端</span><span class='layer-d'>微信小程序原生开发（WXML / WXSS / JS）。成绩、发布记录等个人数据只存本机，不上传服务器。</span></div><div class='layer'><span class='layer-n'>服务层</span><span class='layer-d'>FastAPI 提供服务。负责意图路由、知识库检索、工具执行、多模态调度与网页抽取。</span></div><div class='layer'><span class='layer-n'>模型层</span><span class='layer-d'>统一走 OpenAI 兼容接口，内置 9 家国内大模型厂商可选，用户可填自己的 API Key；识图单独配多模态模型。</span></div>
+</div>
+<div class='grp-t'>几个值得说的点</div><div class='card'>
+<div class='hl'><div class='hl-no'>1</div><div class='hl-c'><span class='hl-t'>多智能体路由，而非单一大模型</span><span class='hl-d'>用户的问题先经过一次轻量路由，判断归哪个智能体，再用该智能体的系统提示词与工具子集执行。回答里会显示「哪个智能体在应答」。</span></div></div><div class='hl'><div class='hl-no'>2</div><div class='hl-c'><span class='hl-t'>知识库检索做了工程细节</span><span class='hl-d'>按中文小标题切块而不是按固定字数硬切，避免把一节内容截断；检索时用原句加关键词多路召回；问题涉及时间时，含具体日期的片段会加权。</span></div></div><div class='hl'><div class='hl-no'>3</div><div class='hl-c'><span class='hl-t'>回答可溯源</span><span class='hl-d'>每条制度类回答都标注依据的文件名，知识库里没有的会明说「资料里没找到」，不编造。这一点在答辩现场可以直接验证。</span></div></div>
+<div class='more'>…… 共 6 条</div>
+</div></div>
+<div class='cap'>⑤ 参赛信息 + 说明</div>
+<div class='screen'><div class='grp-t'>参赛信息</div><div class='card'>
+<div class='kv'><span class='kv-k'>参赛赛道</span><span class='kv-v '>T4 · AI 应用与软件开发赛</span></div><div class='kv'><span class='kv-k'>作品名称</span><span class='kv-v '>校园服务智能体（校园助手）</span></div><div class='kv'><span class='kv-k'>选送单位</span><span class='kv-v '>西安思源学院 电子信息工程学院</span></div><div class='kv'><span class='kv-k'>团队名称</span><span class='kv-v todo'>待填</span></div><div class='kv'><span class='kv-k'>队长</span><span class='kv-v todo'>待填</span></div><div class='kv'><span class='kv-k'>指导老师</span><span class='kv-v todo'>待填</span></div>
+</div>
+<div class='grp-t'>说明</div><div class='card'>
+<div class='cmp'><span class='cmp-t'>数据来源</span><span class='cmp-d'>校园制度类内容取自学校公开发布的文件；用户上传的文件由用户本人提供，仅用于当次回答。</span></div><div class='cmp'><span class='cmp-t'>个人数据</span><span class='cmp-d'>成绩、待办、发布记录只保存在用户手机本地，后端不存储；大模型 API Key 同样只存本地，随请求转发，服务端不落库。</span></div><div class='cmp'><span class='cmp-t'>AI 生成内容</span><span class='cmp-d'>问答与材料初稿由大模型生成，可能不准确。制度类内容请以学校正式文件为准；材料生成后请自行核对修改再提交。</span></div><div class='cmp'><span class='cmp-t'>开发过程</span><span class='cmp-d'>开发中使用了 AI 辅助编码，所用工具、用途与人工再创作情况另见随作品提交的《AI 工具使用声明》。</span></div>
+</div>
+<div class='foot'>校园服务智能体 · 参赛作品 · v1.0.0</div></div></body></html>
