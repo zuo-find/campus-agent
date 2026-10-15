@@ -2,7 +2,9 @@
   <!-- 渐变头部 -->
   <view class="hero">
     <view class="brand">
-      <view class="brand-logo">🎓</view>
+      <view class="brand-logo">
+        <image class="brand-logo-img" src="/images/logo.png" mode="aspectFit" />
+      </view>
       <text class="brand-name">校园助手</text>
       <text class="brand-slogan">你的校园 AI 伙伴</text>
     </view>

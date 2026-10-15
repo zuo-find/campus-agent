@@ -4,13 +4,9 @@
   <view class="glow glow-2"></view>
 
   <view class="center">
-    <!-- logo：圆角方块 + 学士帽 -->
+    <!-- logo：白色圆角底座 + 应用图标 -->
     <view class="logo">
-      <view class="cap">
-        <view class="cap-top"></view>
-        <view class="cap-base"></view>
-        <view class="cap-tassel"></view>
-      </view>
+      <image class="logo-img" src="/images/logo.png" mode="aspectFit" />
     </view>
 
     <text class="title">校园助手</text>
