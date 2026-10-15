@@ -125,7 +125,15 @@ Page({
         const d = r.data || {};
         this.setData({ fetching: false });
         if (!d.ok) {
-          this.setData({ fetchMsg: d.error || '拉取失败', fetchOk: false });
+          // 后端还是旧版时这个接口根本不存在，会返回 404，
+          // 而 404 的响应体里没有 error 字段——别退化成一句没用的"拉取失败"
+          let msg = d.error;
+          if (!msg) {
+            msg = r.statusCode === 404
+              ? '后端还没更新，没有这个接口——把后端的黑窗口关掉重新双击「启动后端.bat」'
+              : '拉取失败（HTTP ' + r.statusCode + '）';
+          }
+          this.setData({ fetchMsg: msg, fetchOk: false });
           return;
         }
         // 把当前选中的型号尽量保留住
