@@ -6,6 +6,13 @@ function needsNick(u) {
   return !u || !u.nickname || u.nickname === '微信用户';
 }
 
+// 开发者工具里 input 是 web 组件模拟的，拿不到微信昵称候选（官方文档明说），
+// 检测到在工具里就换一句提示，免得每次都白点
+const IN_DEVTOOLS = (() => {
+  try { return (wx.getSystemInfoSync() || {}).platform === 'devtools'; }
+  catch (e) { return false; }
+})();
+
 Page({
   data: {
     user: null,             // { token, openid, nickname, avatar }
@@ -165,7 +172,11 @@ Page({
   // 没填完时给一句话指路，填完就不显示了
   hintFor(u) {
     if (!u || !u.avatar) return '点上面的头像，一次把微信头像和昵称都用上';
-    if (needsNick(u)) return '头像好了，点下面的昵称，把微信昵称也用上';
+    if (needsNick(u)) {
+      return IN_DEVTOOLS
+        ? '头像好了。微信昵称要在真机上看（模拟器不支持），这里手动打字也行'
+        : '头像好了，点下面的昵称，把微信昵称也用上';
+    }
     return '';
   },
   saveProfile() {
