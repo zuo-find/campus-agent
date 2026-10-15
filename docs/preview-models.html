@@ -1,0 +1,55 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 模型设置页新增部分 1:1 还原(1rpx=0.5px) */
+*{box-sizing:border-box}
+body{margin:0;background:#e9ecf1;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.screen{width:375px;background:#f5f6f8;padding-bottom:16px}
+.cap{font-size:11px;color:#8c98ab;padding:9px 14px 3px}
+.tabs{display:flex;margin:12px 12px 0;background:#eaeef5;border-radius:7px;padding:3px}
+.tab{flex:1;text-align:center;font-size:13.5px;color:#5a6684;line-height:32px;border-radius:5px}
+.tab.on{background:#fff;color:#1a73e8;font-weight:600;box-shadow:0 1px 4px rgba(24,39,75,.06)}
+.card{background:#fff;border-radius:10px;margin:10px 12px;padding:14px 16px;box-shadow:0 2px 9px rgba(0,0,0,.03)}
+.sec-title{font-size:14px;font-weight:600;color:#222;margin-bottom:8px}
+.sec-row{display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px}
+.sec-row .sec-title{margin-bottom:0}
+.fetch-btn{font-size:11.5px;color:#1a73e8;border:.5px solid #cfe0fb;border-radius:15px;padding:3px 10px}
+.f-input{width:100%;background:#f0f1f3;border-radius:5px;padding:10px 12px;font-size:14px;color:#333;margin-bottom:0}
+.picker{background:#f0f1f3;border-radius:5px;padding:10px 12px;font-size:14px;color:#333}
+.fetch-msg{font-size:11px;color:#b42318;background:#fff2f2;border-radius:5px;padding:6px 8px;margin-top:7px;line-height:1.6}
+.fetch-msg.ok{color:#0f5132;background:#e7f7ef}
+.f-input.custom{margin-top:7px;font-size:12.5px;color:#8c98ab}
+.prov{display:flex;align-items:center;padding:11px 0;border-bottom:.5px solid #f2f4f8}
+.prov:last-child{border-bottom:none}
+.prov-main{flex:1}
+.prov-name{display:block;font-size:15px;color:#24324a}
+.prov-note{display:block;font-size:11px;color:#9aa6b5;margin-top:3px}
+.radio{width:18px;height:18px;border-radius:50%;border:1px solid #c6d0de;
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff}
+.radio.checked{background:#1a73e8;border-color:#1a73e8}
+</style></head><body>
+
+<div class="cap">① 厂商从 8 家加到 9 家（多了硅基流动，一个 Key 用上百个模型）</div>
+<div class="screen"><div class="tabs"><div class="tab on">对话模型</div><div class="tab">识图模型</div></div>
+  <div class="card">
+    <div class="sec-title">选择厂商</div>
+    <div class="prov"><div class="prov-main"><span class="prov-name">DeepSeek 深度求索</span><span class="prov-note">中文强、便宜，官方直连</span></div><div class="radio checked">✓</div></div>
+    <div class="prov"><div class="prov-main"><span class="prov-name">通义千问（阿里云）</span><span class="prov-note">在阿里云百炼开通并创建 API-KEY</span></div><div class="radio"></div></div>
+    <div class="prov"><div class="prov-main"><span class="prov-name">硅基流动 SiliconFlow</span><span class="prov-note">一个 Key 用上百个模型，注册送额度，有免费模型</span></div><div class="radio"></div></div>
+  </div>
+</div>
+
+<div class="cap">② 型号区：先把 Key 填上，「拉取最新列表」才能用你的 Key 去实时拉</div>
+<div class="screen">
+  <div class="card">
+    <div class="sec-title">API Key</div>
+    <div class="f-input">••••••••••••••••••••••••</div>
+    <div style="font-size:11px;color:#1a73e8;margin-top:7px">获取 Key：https://platform.deepseek.com/api_keys（点击复制）</div>
+
+    <div class="sec-row"><span class="sec-title">模型</span><span class="fetch-btn">拉取最新列表</span></div>
+    <div class="picker">deepseek-v4-pro</div>
+    <div class="fetch-msg ok">拉到 12 个型号，在列表里挑</div>
+    <div class="f-input custom">列表里没有你要的？把模型名粘这里</div>
+  </div>
+</div>
+
+</body></html>
