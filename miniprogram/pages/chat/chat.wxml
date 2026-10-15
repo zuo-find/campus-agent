@@ -137,21 +137,32 @@
   </view>
 
   <view class="input-bar">
-    <!-- 上传文件（小程序不能选文件夹，只能一次批量选文件） -->
-    <view class="file-btn" hover-class="file-hover" hover-stay-time="80" bindtap="pickFiles">
-      <view class="file-body"></view>
-      <view class="file-line l1"></view>
-      <view class="file-line l2"></view>
-      <view class="file-line l3"></view>
-    </view>
-    <!-- 拍照识别入口（纯 CSS 画的相机，不用图标字体） -->
-    <view class="cam-btn" hover-class="cam-hover" hover-stay-time="80" bindtap="pickImage">
-      <view class="cam-body"><view class="cam-lens"></view></view>
-      <view class="cam-top"></view>
+    <!-- 一个「+」收口：拍图 / 文件都在里面选 -->
+    <view class="plus-btn" hover-class="plus-hover" hover-stay-time="80" catchtap="openAdd">
+      <view class="plus-bar h"></view>
+      <view class="plus-bar v"></view>
     </view>
     <input class="input" value="{{input}}" placeholder="问制度，或「帮我写一份请假条…」"
            confirm-type="send" bindinput="onInput" bindconfirm="send" />
     <button class="send-btn" bindtap="send" disabled="{{loading}}">发送</button>
+  </view>
+
+  <!-- 添加：拍图 / 文件 -->
+  <view wx:if="{{addSheet}}" class="de-mask" bindtap="closeAdd">
+    <view class="de-sheet" catchtap="noop">
+      <view class="de-h">添加什么？<text class="de-x" catchtap="closeAdd">✕</text></view>
+      <view class="vm-list">
+        <view class="vm-item" wx:for="{{addItems}}" wx:key="key"
+              data-key="{{item.key}}" hover-class="vm-hover" hover-stay-time="80" bindtap="onAddItem">
+          <view class="vm-main">
+            <text class="vm-t">{{item.label}}</text>
+            <text class="vm-d">{{item.desc}}</text>
+          </view>
+          <text class="vm-a">›</text>
+        </view>
+      </view>
+      <view class="vm-tip">上传的文件会一直跟着之后的提问，不需要时点附件栏的「全部移除」。</view>
+    </view>
   </view>
 
   <!-- 拍完先选用途：决定这张图走哪条链路 -->

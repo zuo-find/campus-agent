@@ -72,7 +72,13 @@ Page({
     // 成绩单识别结果确认
     scoreShow: false, scoreList: [],
     // 上传的文件（已解析成文本，解析结果留在输入区上方，追问时继续带着）
-    atts: [], uploading: false
+    atts: [], uploading: false,
+    // 「+」里能加什么
+    addSheet: false,
+    addItems: [
+      { key: 'image', label: '拍照或从相册选图', desc: '拍题、拍通知、拍成绩单，让 AI 看图' },
+      { key: 'file', label: '上传文件', desc: 'PDF、Word、文本，让 AI 读内容' }
+    ]
   },
 
   onLoad() {
@@ -299,6 +305,20 @@ Page({
       confirmText: '去看看', cancelText: '留在这',
       success: r => { if (r.confirm) wx.switchTab({ url: '/pages/scores/scores' }); }
     });
+  },
+
+  // ==================== 「+」：拍图 / 文件 ====================
+
+  openAdd() {
+    if (this.data.loading || this.data.uploading) return;
+    this.setData({ addSheet: true });
+  },
+  closeAdd() { this.setData({ addSheet: false }); },
+  onAddItem(e) {
+    const key = e.currentTarget.dataset.key;
+    this.setData({ addSheet: false });
+    if (key === 'image') this.pickImage();
+    else if (key === 'file') this.pickFiles();
   },
 
   // ==================== 上传文件（批量选，小程序不支持选文件夹）====================

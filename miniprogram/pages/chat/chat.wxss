@@ -198,32 +198,12 @@
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
 }
 
-/* 拍照按钮：纯 CSS 画的相机，不依赖任何图标资源 */
-.cam-btn { position: relative; width: 68rpx; height: 68rpx; margin-right: 16rpx; flex-shrink: 0; }
-.cam-body {
-  position: absolute; left: 4rpx; bottom: 6rpx; width: 60rpx; height: 46rpx;
-  border: 3rpx solid #1a73e8; border-radius: 10rpx; box-sizing: border-box;
-  display: flex; align-items: center; justify-content: center;
-}
-.cam-lens { width: 22rpx; height: 22rpx; border: 3rpx solid #1a73e8; border-radius: 50%; box-sizing: border-box; }
-.cam-top {
-  position: absolute; left: 20rpx; top: 6rpx; width: 26rpx; height: 12rpx;
-  border: 3rpx solid #1a73e8; border-bottom: none; border-radius: 6rpx 6rpx 0 0; box-sizing: border-box;
-}
-.cam-hover .cam-body, .cam-hover .cam-lens, .cam-hover .cam-top { border-color: #1558b0; }
-
-/* 上传文件按钮（纯 CSS 画的文档） */
-.file-btn { position: relative; width: 68rpx; height: 68rpx; margin-right: 12rpx; flex-shrink: 0; }
-.file-body {
-  position: absolute; left: 12rpx; top: 8rpx; width: 42rpx; height: 52rpx;
-  border: 3rpx solid #1a73e8; border-radius: 8rpx; box-sizing: border-box;
-}
-.file-line { position: absolute; left: 22rpx; height: 3rpx; background: #1a73e8; border-radius: 2rpx; }
-.file-line.l1 { top: 22rpx; width: 22rpx; }
-.file-line.l2 { top: 32rpx; width: 22rpx; }
-.file-line.l3 { top: 42rpx; width: 14rpx; }
-.file-hover .file-body { border-color: #1558b0; }
-.file-hover .file-line { background: #1558b0; }
+/* 「+」：两笔细线，不用图标资源。拍图和文件都收在这一个入口里 */
+.plus-btn { position: relative; width: 68rpx; height: 68rpx; margin-right: 14rpx; flex-shrink: 0; }
+.plus-bar { position: absolute; background: #5a6684; border-radius: 2rpx; }
+.plus-bar.h { left: 15rpx; top: 32rpx; width: 38rpx; height: 4rpx; }
+.plus-bar.v { left: 32rpx; top: 15rpx; width: 4rpx; height: 38rpx; }
+.plus-hover .plus-bar { background: #1a73e8; }
 
 /* 已选文件栏 */
 .att-bar { padding: 14rpx 24rpx 12rpx; background: #f5f6f8; border-top: 1rpx solid #eef1f5; }
