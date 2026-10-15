@@ -331,6 +331,9 @@ def _raster_ext(data: bytes) -> str:
     return ""
 
 
+# 带内容指纹的校徽路径（新命名）。不带指纹的旧路径一律不认，触发重新下载。
+_HASHED_LOGO = re.compile(r"^/uploads/school_logo_.+_[0-9a-f]{8}\.(png|jpe?g|gif|webp)$")
+
 # SVG 里内嵌的位图：<image xlink:href="data:image/png;base64,....">
 _EMBEDDED_RASTER = re.compile(
     rb"data:image/(?:png|jpe?g|gif|webp);base64,([A-Za-z0-9+/=\s]+)", re.I)
@@ -353,6 +356,21 @@ def _unwrap_svg(data: bytes) -> bytes:
     return raw if _raster_ext(raw) else b""
 
 
+def _drop_old_logos(slug: str, keep: str) -> None:
+    """同一个 slug 只保留最新那张，清掉历史文件（都是本模块自己生成的缓存图）。"""
+    from app.market import UPLOAD_DIR
+    prefix = "school_logo_" + slug
+    try:
+        for f in os.listdir(UPLOAD_DIR):
+            if f == keep or not f.startswith(prefix):
+                continue
+            # 前缀之后必须是 _ 或 . —— 否则 slug「xiaoli」会误删「xiaoli2」的文件
+            if f[len(prefix):][:1] in ("_", "."):
+                os.remove(os.path.join(UPLOAD_DIR, f))
+    except Exception:
+        pass      # 清理失败不影响本次保存
+
+
 def save_logo(url: str, category: str) -> tuple[str, bool]:
     """把 logo 图片下载到本地并返回可访问路径（存本地，避免 http 图片在小程序真机加载不了）。"""
     from app.market import UPLOAD_DIR
@@ -373,9 +391,13 @@ def save_logo(url: str, category: str) -> tuple[str, bool]:
     if not ext:
         return "", False      # 小程序显示不了的格式，宁可不存，让前端退回首字
 
-    # 文件名必须是纯 ASCII：URL 里出现中文会让 <image> 取不到图（服务端 404）
+    # 文件名必须是纯 ASCII：URL 里出现中文会让 <image> 取不到图（服务端 404）。
+    # 末尾带 8 位内容指纹：图片内容一变，文件名跟着变 —— 小程序的图片缓存是按
+    # URL 命中的，固定文件名会让它一直显示旧图（换学校后校徽和校名对不上就是这原因）。
     slug = _SLUG.get(category) or ("c" + hashlib.md5(category.encode("utf-8")).hexdigest()[:8])
-    name = f"school_logo_{slug}{ext}"
+    digest = hashlib.md5(data).hexdigest()[:8]
+    name = f"school_logo_{slug}_{digest}{ext}"
+    _drop_old_logos(slug, name)
     with open(os.path.join(UPLOAD_DIR, name), "wb") as f:
         f.write(data)
 
@@ -476,10 +498,12 @@ def sync(category: str = "") -> dict:
             # 学校 logo / 名称（失败不影响主流程）
             name = find_title(html)
             logo, logo_light = "", 0
-            # 先查预热缓存：同一个域名抓过一次就不再抓（预热脚本提前跑过就直接命中）
+            # 先查预热缓存：同一个域名抓过一次就不再抓（预热脚本提前跑过就直接命中）。
+            # 只认带内容指纹的路径 —— 早期缓存存的是不带指纹的固定文件名，
+            # 那种路径内容变了 URL 却没变，客户端的图片缓存会一直显示旧图
             host = urlparse(url).netloc.lower()
             cached = _logo_cache().get(host)
-            if cached and cached.get("path"):
+            if cached and _HASHED_LOGO.match(cached.get("path") or ""):
                 logo = cached["path"]
                 logo_light = int(cached.get("light") or 0)
             else:
