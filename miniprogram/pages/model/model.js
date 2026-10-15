@@ -4,6 +4,7 @@ let API = app.globalData.apiBase;   // 在 onShow 里刷新，改地址后无需
 Page({
   data: {
     tab: 'chat',            // chat 对话模型 | vision 识图模型
+    guideOpen: true,        // 使用说明：第一次进来展开，看过了就收起
     // ---- 对话模型 ----
     providers: [], map: {},
     provider: '', providerName: '', models: [],
@@ -16,6 +17,9 @@ Page({
 
   onLoad() {
     API = app.globalData.apiBase;
+    // 说明默认展开；看过一次就记下来，以后进来自动收起，不挡着设置
+    this.setData({ guideOpen: !wx.getStorageSync('modelGuideSeen') });
+
     const saved = wx.getStorageSync('llm') || null;
     const savedV = wx.getStorageSync('visionLlm') || null;
 
@@ -52,6 +56,12 @@ Page({
   },
 
   switchTab(e) { this.setData({ tab: e.currentTarget.dataset.tab }); },
+
+  toggleGuide() {
+    const guideOpen = !this.data.guideOpen;
+    this.setData({ guideOpen });
+    if (!guideOpen) wx.setStorageSync('modelGuideSeen', 1);   // 收起过就算看过了
+  },
 
   // 把某个厂商的配置填进对应那一组（tag='v' 为识图组）
   bindGroup(list, map, pid, model, apiKey, tag) {

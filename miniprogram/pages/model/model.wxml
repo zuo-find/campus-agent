@@ -1,4 +1,86 @@
 <view class="container">
+  <!-- 使用说明：第一次进来展开，看过了自动收起 -->
+  <view class="guide">
+    <view class="guide-head" bindtap="toggleGuide">
+      <text class="guide-t">怎么用？先花 30 秒看这个</text>
+      <text class="guide-arrow {{guideOpen ? 'up' : ''}}">⌄</text>
+    </view>
+
+    <view class="guide-body" wx:if="{{guideOpen}}">
+      <view class="gq">这个小程序默认就能用。下面这些设置，是给「想换成别的模型」的人准备的——填一个你自己的 Key，回答就会换成你选的那家模型。</view>
+
+      <view class="gs">
+        <view class="gs-no">1</view>
+        <view class="gs-c">
+          <text class="gs-t">选一家厂商</text>
+          <text class="gs-d">在下面的列表里点一家。不知道该选哪家，看最后「怎么挑」那一节。</text>
+        </view>
+      </view>
+      <view class="gs">
+        <view class="gs-no">2</view>
+        <view class="gs-c">
+          <text class="gs-t">去那家网站拿一个 Key</text>
+          <text class="gs-d">点蓝色的「获取 Key」那行会复制网址，粘到浏览器打开。在网站上注册（一般手机号就行），找到「API Key / 密钥」，复制出来。</text>
+        </view>
+      </view>
+      <view class="gs">
+        <view class="gs-no">3</view>
+        <view class="gs-c">
+          <text class="gs-t">粘回来，点保存</text>
+          <text class="gs-d">粘到「API Key」框里，点最下面的「保存并使用」。回到问答页就能用了。</text>
+        </view>
+      </view>
+
+      <view class="gnote">API Key 相当于你的账号凭证，厂商按你的用量扣钱，所以别发给别人。它只存在你手机本地，不会上传到服务器。</view>
+
+      <view class="gsub">两个标签页有什么区别</view>
+      <view class="gli">
+        <text class="gli-t">对话模型</text>
+        <text class="gli-d">回答问题用的，就是问答页聊天时的那个模型。</text>
+      </view>
+      <view class="gli">
+        <text class="gli-t">识图模型</text>
+        <text class="gli-d">拍照识别用的（拍题、拍通知、拍成绩单）。看图必须用「多模态」模型，普通对话模型看不了图，所以要单独配一个。</text>
+      </view>
+
+      <view class="gsub">怎么挑</view>
+      <view class="gli">
+        <text class="gli-t">先不花钱</text>
+        <text class="gli-d">选智谱。glm-4-flash（对话）和 glm-4v-flash（识图）都有免费额度。</text>
+      </view>
+      <view class="gli">
+        <text class="gli-t">中文好、够便宜</text>
+        <text class="gli-d">选 DeepSeek。</text>
+      </view>
+      <view class="gli">
+        <text class="gli-t">不想折腾</text>
+        <text class="gli-d">什么都别填，直接翻到底下点「使用默认模型」，照样能用。</text>
+      </view>
+
+      <view class="gsub">常见问题</view>
+      <view class="gfaq">
+        <text class="gfaq-q">不填 Key 能用吗？</text>
+        <text class="gfaq-a">能。不填就用小程序内置的默认模型，只是不能自己挑。</text>
+      </view>
+      <view class="gfaq">
+        <text class="gfaq-q">Key 填错了会怎样？</text>
+        <text class="gfaq-a">提问时会提示「API Key 无效或已过期」，回来改对就行，不会有别的损失。</text>
+      </view>
+      <view class="gfaq">
+        <text class="gfaq-q">想换回默认的？</text>
+        <text class="gfaq-a">对话模型那页点「使用默认模型」；识图那页点「清除识图配置」。</text>
+      </view>
+      <view class="gfaq">
+        <text class="gfaq-q">两页的厂商列表为什么不一样？</text>
+        <text class="gfaq-a">识图那页只列能看图的厂商和模型，能聊天的模型不一定能看图。</text>
+      </view>
+      <view class="gfaq">
+        <text class="gfaq-q">保存了，但看起来没变化？</text>
+        <text class="gfaq-a">模型名显示在问答页最顶上那条横条里。识图模型只在拍照时生效，平时看不出来。</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 对话模型 / 识图模型 -->
   <view class="tabs">
     <view class="tab {{tab=='chat'?'on':''}}" data-tab="chat" bindtap="switchTab">对话模型</view>

@@ -1,0 +1,86 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 模型设置页的使用说明 1:1 还原(1rpx=0.5px) */
+*{box-sizing:border-box}
+body{margin:0;background:#e9ecf1;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.screen{width:375px;background:#f5f6f8;padding-bottom:16px}
+.cap{font-size:11px;color:#8c98ab;padding:9px 14px 3px}
+
+.tabs{display:flex;margin:12px 12px 0;background:#eaeef5;border-radius:7px;padding:3px}
+.tab{flex:1;text-align:center;font-size:13.5px;color:#5a6684;line-height:32px;border-radius:5px}
+.tab.on{background:#fff;color:#1a73e8;font-weight:600;box-shadow:0 1px 4px rgba(24,39,75,.06)}
+
+.guide{background:#fff;border-radius:10px;margin:12px 12px 0;box-shadow:0 2px 9px rgba(0,0,0,.03);overflow:hidden}
+.guide-head{display:flex;align-items:center;padding:13px 14px}
+.guide-t{flex:1;font-size:14px;font-weight:600;color:#1a2233}
+.guide-arrow{font-size:16px;color:#c6d0de;line-height:1}
+.guide-arrow.up{display:inline-block;transform:rotate(180deg)}
+.guide-body{padding:0 14px 14px;border-top:.5px solid #f2f4f8}
+.gq{font-size:12.5px;color:#5a6684;line-height:1.75;margin-top:11px}
+.gs{display:flex;margin-top:12px}
+.gs-no{width:18px;height:18px;flex-shrink:0;margin-right:8px;margin-top:1px;font-size:11px;color:#fff;
+  background:#1a73e8;border-radius:50%;text-align:center;line-height:18px}
+.gs-c{flex:1;min-width:0}
+.gs-t{display:block;font-size:13.5px;font-weight:600;color:#1a2233}
+.gs-d{display:block;font-size:12px;color:#6a7689;line-height:1.75;margin-top:3px}
+.gnote{font-size:11.5px;color:#6b5b1f;background:#fff8e6;border-radius:6px;padding:8px 10px;line-height:1.75;margin-top:13px}
+.gsub{font-size:12.5px;font-weight:600;color:#1a2233;margin:15px 0 2px}
+.gli{padding:8px 0;border-bottom:.5px solid #f2f4f8}
+.gli:last-child{border-bottom:none}
+.gli-t{display:block;font-size:13px;color:#1a2233}
+.gli-d{display:block;font-size:11.5px;color:#7c8a9e;line-height:1.7;margin-top:3px}
+.gfaq{padding:8px 0;border-bottom:.5px solid #f2f4f8}
+.gfaq:last-child{border-bottom:none}
+.gfaq-q{display:block;font-size:13px;color:#1a2233}
+.gfaq-a{display:block;font-size:11.5px;color:#7c8a9e;line-height:1.7;margin-top:3px}
+</style></head><body>
+
+<div class="cap">第一次进来：说明自动展开</div>
+<div class="screen">
+  <div class="tabs"><div class="tab on">对话模型</div><div class="tab">识图模型</div></div>
+
+  <div class="guide">
+    <div class="guide-head"><span class="guide-t">怎么用？先花 30 秒看这个</span><span class="guide-arrow up">⌄</span></div>
+    <div class="guide-body">
+      <div class="gq">这个小程序默认就能用。下面这些设置，是给「想换成别的模型」的人准备的——填一个你自己的 Key，回答就会换成你选的那家模型。</div>
+
+      <div class="gs"><div class="gs-no">1</div><div class="gs-c">
+        <span class="gs-t">选一家厂商</span>
+        <span class="gs-d">在下面的列表里点一家。不知道该选哪家，看最后「怎么挑」那一节。</span></div></div>
+      <div class="gs"><div class="gs-no">2</div><div class="gs-c">
+        <span class="gs-t">去那家网站拿一个 Key</span>
+        <span class="gs-d">点蓝色的「获取 Key」那行会复制网址，粘到浏览器打开。在网站上注册（一般手机号就行），找到「API Key / 密钥」，复制出来。</span></div></div>
+      <div class="gs"><div class="gs-no">3</div><div class="gs-c">
+        <span class="gs-t">粘回来，点保存</span>
+        <span class="gs-d">粘到「API Key」框里，点最下面的「保存并使用」。回到问答页就能用了。</span></div></div>
+
+      <div class="gnote">API Key 相当于你的账号凭证，厂商按你的用量扣钱，所以别发给别人。它只存在你手机本地，不会上传到服务器。</div>
+
+      <div class="gsub">两个标签页有什么区别</div>
+      <div class="gli"><span class="gli-t">对话模型</span><span class="gli-d">回答问题用的，就是问答页聊天时的那个模型。</span></div>
+      <div class="gli"><span class="gli-t">识图模型</span><span class="gli-d">拍照识别用的（拍题、拍通知、拍成绩单）。看图必须用「多模态」模型，普通对话模型看不了图，所以要单独配一个。</span></div>
+
+      <div class="gsub">怎么挑</div>
+      <div class="gli"><span class="gli-t">先不花钱</span><span class="gli-d">选智谱。glm-4-flash（对话）和 glm-4v-flash（识图）都有免费额度。</span></div>
+      <div class="gli"><span class="gli-t">中文好、够便宜</span><span class="gli-d">选 DeepSeek。</span></div>
+      <div class="gli"><span class="gli-t">不想折腾</span><span class="gli-d">什么都别填，直接翻到底下点「使用默认模型」，照样能用。</span></div>
+
+      <div class="gsub">常见问题</div>
+      <div class="gfaq"><span class="gfaq-q">不填 Key 能用吗？</span><span class="gfaq-a">能。不填就用小程序内置的默认模型，只是不能自己挑。</span></div>
+      <div class="gfaq"><span class="gfaq-q">Key 填错了会怎样？</span><span class="gfaq-a">提问时会提示「API Key 无效或已过期」，回来改对就行，不会有别的损失。</span></div>
+      <div class="gfaq"><span class="gfaq-q">想换回默认的？</span><span class="gfaq-a">对话模型那页点「使用默认模型」；识图那页点「清除识图配置」。</span></div>
+      <div class="gfaq"><span class="gfaq-q">两页的厂商列表为什么不一样？</span><span class="gfaq-a">识图那页只列能看图的厂商和模型，能聊天的模型不一定能看图。</span></div>
+      <div class="gfaq"><span class="gfaq-q">保存了，但看起来没变化？</span><span class="gfaq-a">模型名显示在问答页最顶上那条横条里。识图模型只在拍照时生效，平时看不出来。</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="cap">看过一次之后：自动收起，不挡着设置</div>
+<div class="screen">
+  <div class="tabs"><div class="tab on">对话模型</div><div class="tab">识图模型</div></div>
+  <div class="guide">
+    <div class="guide-head"><span class="guide-t">怎么用？先花 30 秒看这个</span><span class="guide-arrow">⌄</span></div>
+  </div>
+</div>
+
+</body></html>
