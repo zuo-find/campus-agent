@@ -1,0 +1,58 @@
+<!DOCTYPE html><html><head><meta charset=utf-8><style>*{box-sizing:border-box}
+body{margin:0;background:#e9ecf1;font-family:'Microsoft YaHei',sans-serif;width:375px}
+.screen{width:375px;background:#f5f6f8}
+.cap{font-size:11px;color:#8c98ab;padding:9px 14px 3px}
+.sheet{background:#fff;border-radius:14px 14px 0 0;padding:14px 16px 20px}
+.sheet-h{position:relative;text-align:center;font-size:16px;font-weight:600;color:#1a2233;padding-bottom:10px}
+.sheet-x{position:absolute;right:0;top:0;color:#a6b0c0;font-size:15px}
+.sec-title{font-size:14px;font-weight:600;color:#222;margin:12px 0 8px}
+.cat-pick{display:flex}
+.cat-opt{flex:1;text-align:center;font-size:13.5px;color:#5a6684;background:#f2f5fa;border-radius:5px;line-height:40px;margin-right:6px}
+.cat-opt:last-child{margin-right:0}
+.cat-opt.on{background:#1a73e8;color:#fff;font-weight:500}
+.f-input{width:100%;background:#f0f1f3;border-radius:5px;padding:9px 10px;font-size:14px;color:#333;margin-bottom:8px}
+.uni-list{background:#f7f9fd;border-radius:6px;margin-bottom:2px;overflow:hidden}
+.uni-item{display:flex;align-items:center;padding:9px 10px;border-bottom:.5px solid #eef2f8}
+.uni-item:last-child{border-bottom:none}
+.uni-main{flex:1;min-width:0}
+.uni-n{font-size:13px;color:#1a2233}
+.uni-p{font-size:11px;color:#9aa6b5;margin-left:6px}
+.uni-u{font-size:11px;color:#1a73e8;flex-shrink:0;margin-left:6px}
+.sync-tip{font-size:11px;color:#9aa6b5;line-height:1.6;margin:3px 0 11px}
+.primary{background:#1a73e8;color:#fff;border-radius:6px;font-size:15px;padding:10px 0;text-align:center}</style></head><body>
+<div class='cap'>① 同步弹层里多了一行「输入学校名」</div>
+<div class='screen'><div class='sheet'>
+  <div class='sheet-h'>同步学校官网<span class='sheet-x'>✕</span></div>
+  <div class='sec-title'>同步到哪一栏</div>
+  <div class='cat-pick'><div class='cat-opt on'>校历</div><div class='cat-opt'>作息</div><div class='cat-opt'>通知公告</div></div>
+  <div class='sec-title'>学校官网网址</div>
+  <div class='f-input' style='color:#bbb'>输入学校名可自动填网址，如：清华大学</div>
+  
+  <div class='f-input' style='color:#bbb'>https://www.xxx.edu.cn/xxx</div>
+  <div class='sync-tip'>小程序无法直接抓网页，由后端抓取后交给 AI 抽取成条目；请只同步学校公开发布的信息。选学校填的是官网首页，若同步不到内容，按下面的建议往下点一层。</div>
+  <div class='primary'>立即同步</div>
+</div></div>
+<div class='cap'>② 输入校名 → 列表 → 点一条自动填网址</div>
+<div class='screen'><div class='sheet'>
+  <div class='sheet-h'>同步学校官网<span class='sheet-x'>✕</span></div>
+  <div class='sec-title'>同步到哪一栏</div>
+  <div class='cat-pick'><div class='cat-opt on'>校历</div><div class='cat-opt'>作息</div><div class='cat-opt'>通知公告</div></div>
+  <div class='sec-title'>学校官网网址</div>
+  <div class='f-input' style='color:#333'>西安</div>
+  <div class='uni-list'><div class='uni-item'><div class='uni-main'><span class='uni-n'>西安交通大学</span><span class='uni-p'>陕西</span></div><span class='uni-u'>填入</span></div><div class='uni-item'><div class='uni-main'><span class='uni-n'>西安工业大学</span><span class='uni-p'>陕西</span></div><span class='uni-u'>填入</span></div><div class='uni-item'><div class='uni-main'><span class='uni-n'>西安工程大学</span><span class='uni-p'>陕西</span></div><span class='uni-u'>填入</span></div><div class='uni-item'><div class='uni-main'><span class='uni-n'>西安思源学院</span></div><span class='uni-u'>填入</span></div><div class='uni-item'><div class='uni-main'><span class='uni-n'>西安文理学院</span><span class='uni-p'>陕西</span></div><span class='uni-u'>填入</span></div><div class='uni-item'><div class='uni-main'><span class='uni-n'>西安理工大学</span><span class='uni-p'>陕西</span></div><span class='uni-u'>填入</span></div></div>
+  <div class='f-input' style='color:#bbb'>https://www.xxx.edu.cn/xxx</div>
+  <div class='sync-tip'>小程序无法直接抓网页，由后端抓取后交给 AI 抽取成条目；请只同步学校公开发布的信息。选学校填的是官网首页，若同步不到内容，按下面的建议往下点一层。</div>
+  <div class='primary'>立即同步</div>
+</div></div>
+<div class='cap'>① 同步弹层里多了一行「输入学校名」</div>
+<div class='screen'><div class='sheet'>
+  <div class='sheet-h'>同步学校官网<span class='sheet-x'>✕</span></div>
+  <div class='sec-title'>同步到哪一栏</div>
+  <div class='cat-pick'><div class='cat-opt on'>校历</div><div class='cat-opt'>作息</div><div class='cat-opt'>通知公告</div></div>
+  <div class='sec-title'>学校官网网址</div>
+  <div class='f-input' style='color:#333'>西安思源学院</div>
+  
+  <div class='f-input' style=''>https://www.xasyu.cn/</div>
+  <div class='sync-tip'>小程序无法直接抓网页，由后端抓取后交给 AI 抽取成条目；请只同步学校公开发布的信息。选学校填的是官网首页，若同步不到内容，按下面的建议往下点一层。</div>
+  <div class='primary'>立即同步</div>
+</div></div></body></html>
