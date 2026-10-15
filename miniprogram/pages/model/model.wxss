@@ -27,6 +27,20 @@
 .fetch-msg.ok { color: #0f5132; background: #e7f7ef; }
 .f-input.custom { margin-top: 14rpx; font-size: 25rpx; }
 
+/* 各家 Key 申请地址清单 */
+.krow { display: flex; align-items: center; padding: 20rpx 0; border-bottom: 1rpx solid #f2f4f8; }
+.krow:last-of-type { border-bottom: none; }
+.krow-main { flex: 1; min-width: 0; }
+.krow-n { display: block; font-size: 26rpx; color: #1a2233; }
+.krow-u {
+  display: block; font-size: 21rpx; color: #9aa6b5; margin-top: 6rpx;
+  word-break: break-all; line-height: 1.5;
+}
+.krow-c {
+  font-size: 22rpx; color: #1a73e8; border: 1rpx solid #cfe0fb;
+  border-radius: 26rpx; padding: 6rpx 20rpx; margin-left: 16rpx; flex-shrink: 0;
+}
+
 /* 说明：选模型不需要 Key，只有拉取才需要 */
 .model-hint { font-size: 22rpx; color: #9aa6b5; line-height: 1.7; margin-top: 12rpx; }
 .model-acts { display: flex; margin-top: 14rpx; }

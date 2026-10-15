@@ -5,6 +5,7 @@ Page({
   data: {
     tab: 'chat',            // chat 对话模型 | vision 识图模型
     guideOpen: true,        // 使用说明：第一次进来展开，看过了就收起
+    keysOpen: false,        // 各家 Key 申请地址（折叠，需要时展开）
     // ---- 对话模型 ----
     providers: [], map: {},
     provider: '', providerName: '', models: [],
@@ -71,6 +72,18 @@ Page({
     const guideOpen = !this.data.guideOpen;
     this.setData({ guideOpen });
     if (!guideOpen) wx.setStorageSync('modelGuideSeen', 1);   // 收起过就算看过了
+  },
+
+  toggleKeys() { this.setData({ keysOpen: !this.data.keysOpen }); },
+
+  // 地址清单里点一行就复制那家的网址
+  copyKeyRow(e) {
+    const url = e.currentTarget.dataset.url;
+    if (!url) return;
+    wx.setClipboardData({
+      data: url,
+      success: () => wx.showToast({ title: (e.currentTarget.dataset.name || '') + ' 地址已复制', icon: 'none' })
+    });
   },
 
   // 把某个厂商的配置填进对应那一组（tag='v' 为识图组）

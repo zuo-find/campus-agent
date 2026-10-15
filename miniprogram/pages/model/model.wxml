@@ -93,6 +93,25 @@
     </view>
   </view>
 
+  <!-- 各家 Key 申请地址：直接从后端数据生成，加厂商不用改这里 -->
+  <view class="guide" wx:if="{{providers.length}}">
+    <view class="guide-head" bindtap="toggleKeys">
+      <text class="guide-t">各家的 Key 申请地址</text>
+      <text class="guide-arrow {{keysOpen ? 'up' : ''}}">⌄</text>
+    </view>
+    <view class="guide-body" wx:if="{{keysOpen}}">
+      <view class="krow" wx:for="{{providers}}" wx:key="id"
+            data-url="{{item.key_url}}" data-name="{{item.name}}" bindtap="copyKeyRow">
+        <view class="krow-main">
+          <text class="krow-n">{{item.name}}</text>
+          <text class="krow-u">{{item.key_url}}</text>
+        </view>
+        <text class="krow-c">复制</text>
+      </view>
+      <view class="gnote">点一行就复制网址，粘到浏览器打开。注册一般只要手机号。识图模型用的也是这几家，地址相同。</view>
+    </view>
+  </view>
+
   <!-- 对话模型 / 识图模型 -->
   <view class="tabs">
     <view class="tab {{tab=='chat'?'on':''}}" data-tab="chat" bindtap="switchTab">对话模型</view>
