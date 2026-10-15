@@ -37,7 +37,7 @@ echo     3. 还不行：用管理员身份执行一次下面这行（放行 8000 端口）
 echo        netsh advfirewall firewall add rule name="campus-agent" dir=in action=allow protocol=TCP localport=8000
 echo.
 
-.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 echo.
 echo 后端已停止。
