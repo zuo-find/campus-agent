@@ -8,7 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import agent, auth, documents, files, life, market, providers, school_sync, vision
+from app import (agent, auth, documents, files, life, market, providers, school_sync,
+                 universities, vision)
 from app.tools import ToolContext
 from rag import store
 
@@ -275,6 +276,13 @@ def life_lf_close(item_id: int):
 class SchoolSourceReq(BaseModel):
     category: str
     url: str
+
+
+@app.get("/school/search")
+def school_search(q: str = "", limit: int = 30):
+    """按校名搜学校，用于「选择学校」自动填官网地址。"""
+    return {"ok": True, **universities.count(),
+            "items": universities.search(q, max(1, min(limit, 60)))}
 
 
 @app.get("/school/sources")

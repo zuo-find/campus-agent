@@ -1,0 +1,27 @@
+{
+ "www.ctgu.edu.cn": {
+  "path": "/uploads/school_logo_c49a2e09b.png",
+  "light": 0,
+  "name": "三峡大学"
+ },
+ "www.fjsmu.edu.cn": {
+  "path": "/uploads/school_logo_c9c71facc.png",
+  "light": 0,
+  "name": "三明学院"
+ },
+ "www.sues.edu.cn": {
+  "path": "/uploads/school_logo_c1a65735f.png",
+  "light": 1,
+  "name": "上海工程技术大学"
+ },
+ "www.sit.edu.cn": {
+  "path": "/uploads/school_logo_c502a2516.png",
+  "light": 1,
+  "name": "上海应用技术大学"
+ },
+ "www.shmtu.edu.cn": {
+  "path": "/uploads/school_logo_c6d465078.png",
+  "light": 1,
+  "name": "上海海事大学"
+ }
+}

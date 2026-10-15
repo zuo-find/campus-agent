@@ -35,6 +35,26 @@ _SLUG = {"校历": "xiaoli", "作息": "zuoxi", "通知公告": "notice", "成�
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
 
+# 校徽缓存：按「网站域名」记，而不是按学校——同一个站点的不同栏目共用一张校徽，
+# 而且预热脚本提前抓过的，用户同步时就能直接命中，不用现场再抓一遍。
+_LOGO_CACHE_PATH = os.path.join(_BASE, "data", "school_logo_cache.json")
+
+
+def _logo_cache() -> dict:
+    try:
+        return json.load(open(_LOGO_CACHE_PATH, encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def put_logo_cache(host: str, path: str, light: bool, name: str = "") -> None:
+    if not host or not path:
+        return
+    d = _logo_cache()
+    d[host] = {"path": path, "light": 1 if light else 0, "name": name}
+    os.makedirs(os.path.dirname(_LOGO_CACHE_PATH), exist_ok=True)
+    json.dump(d, open(_LOGO_CACHE_PATH, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+
 
 # ------------------------------------------------------------------ 存储
 
@@ -456,13 +476,22 @@ def sync(category: str = "") -> dict:
             # 学校 logo / 名称（失败不影响主流程）
             name = find_title(html)
             logo, logo_light = "", 0
-            logo_src = find_logo(html, url)
-            if logo_src:
-                try:
-                    logo, is_light = save_logo(logo_src, cat)
-                    logo_light = 1 if is_light else 0
-                except Exception:
-                    logo, logo_light = "", 0
+            # 先查预热缓存：同一个域名抓过一次就不再抓（预热脚本提前跑过就直接命中）
+            host = urlparse(url).netloc.lower()
+            cached = _logo_cache().get(host)
+            if cached and cached.get("path"):
+                logo = cached["path"]
+                logo_light = int(cached.get("light") or 0)
+            else:
+                logo_src = find_logo(html, url)
+                if logo_src:
+                    try:
+                        logo, is_light = save_logo(logo_src, cat)
+                        logo_light = 1 if is_light else 0
+                        if logo:
+                            put_logo_cache(host, logo, is_light, name)
+                    except Exception:
+                        logo, logo_light = "", 0
 
             items = _llm_extract(cat, text)
             now = datetime.now().isoformat(timespec="minutes")
