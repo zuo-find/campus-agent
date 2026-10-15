@@ -131,6 +131,20 @@ Page({
     this.saveProfile();
   },
 
+  // 提示文案本身也能点：有头像时去聚焦昵称框（自动聚焦在某些机型会被吞，
+  // 这里留个手动兜底），还没头像时提醒去点头像
+  onHintTap() {
+    const u = this.data.user;
+    if (!u || !u.avatar) {
+      wx.showToast({ title: '点上面的头像', icon: 'none' });
+      return;
+    }
+    // 先置 false 再置 true，否则值没变化不会重新触发聚焦
+    this.setData({ nickFocus: false }, () => {
+      setTimeout(() => this.setData({ nickFocus: true }), 60);
+    });
+  },
+
   // 没填完时给一句话指路，填完就不显示了
   hintFor(u) {
     if (!u || !u.avatar) return '点上面的头像，一次把微信头像和昵称都用上';

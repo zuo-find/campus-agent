@@ -45,7 +45,7 @@
         <image wx:if="{{user.avatar}}" class="avatar" src="{{user.avatar}}" mode="aspectFill" />
         <view wx:else class="avatar-ph small"></view>
       </button>
-      <view class="avatar-hint" wx:if="{{profileHint}}">{{profileHint}}</view>
+      <view class="avatar-hint" wx:if="{{profileHint}}" bindtap="onHintTap">{{profileHint}} ›</view>
       <input class="nick" type="nickname" value="{{user.nickname}}" placeholder="点击设置昵称"
              focus="{{nickFocus}}" bindblur="onNickBlur" bindconfirm="onNickBlur" />
       <view class="uid">ID {{shortId}}</view>
