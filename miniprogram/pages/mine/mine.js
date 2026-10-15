@@ -25,7 +25,10 @@ Page({
     apiShort: ''
   },
 
-  onUnload() { if (this._okTimer) clearTimeout(this._okTimer); },
+  onUnload() {
+    if (this._okTimer) clearTimeout(this._okTimer);
+    if (this._nickTimer) clearTimeout(this._nickTimer);
+  },
 
   onShow() {
     API = app.globalData.apiBase;
@@ -123,8 +126,22 @@ Page({
       setTimeout(() => this.setData({ nickFocus: true }), 350);
     }
   },
-  onNickBlur(e) {
-    const nickname = ((e.detail && e.detail.value) || '').trim() || '微信用户';
+  // 点「用微信昵称」时是**先失焦、后填充**，立刻读 e.detail.value 拿到的是旧值，
+  // 所以延迟一下再从输入框本身取值（官方文档给的就是这个绕法）
+  onNickBlur() {
+    clearTimeout(this._nickTimer);
+    this._nickTimer = setTimeout(() => {
+      this.createSelectorQuery().select('#nick')
+        .fields({ properties: ['value'] }, res => this.applyNick(res && res.value))
+        .exec();
+    }, 300);
+  },
+  applyNick(v) {
+    const nickname = (v || '').trim() || '微信用户';
+    if (nickname === ((this.data.user || {}).nickname || '')) {
+      this.setData({ nickFocus: false });   // 没变就别白跑一次请求
+      return;
+    }
     const user = { ...app.getUser(), nickname };
     app.setUser(user);
     this.setData({ user, nickFocus: false, profileHint: this.hintFor(user) });
