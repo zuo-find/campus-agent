@@ -59,6 +59,10 @@
 
       <view class="gsub">常见问题</view>
       <view class="gfaq">
+        <text class="gfaq-q">选一个模型，必须填 Key 吗？</text>
+        <text class="gfaq-a">选不需要，填了 Key 才生效。Key 相当于"以你的身份去调用"——没有它，厂商不会给你服务，所以选了型号也还是走小程序内置的默认模型。想用哪个型号，就得有哪家的 Key。</text>
+      </view>
+      <view class="gfaq">
         <text class="gfaq-q">不填 Key 能用吗？</text>
         <text class="gfaq-a">能。不填就用小程序内置的默认模型，只是不能自己挑。</text>
       </view>
@@ -111,20 +115,21 @@
     </view>
 
     <view class="card" wx:if="{{provider}}">
-      <view class="sec-title">API Key</view>
-      <input class="f-input" password placeholder="粘贴你的 API Key" value="{{apiKey}}" bindinput="onKey" />
-      <view class="key-url" wx:if="{{keyUrl}}" bindtap="copyKeyUrl">获取 Key：{{keyUrl}}（点击复制）</view>
-
-      <view class="sec-row">
-        <text class="sec-title" style="margin-bottom:0">模型</text>
-        <text class="fetch-btn" data-v="" bindtap="fetchModels">{{fetching ? '拉取中…' : '拉取最新列表'}}</text>
-      </view>
+      <view class="sec-title">模型</view>
       <picker range="{{models}}" value="{{modelIndex}}" bindchange="onModel">
         <view class="picker">{{models[modelIndex]}}</view>
       </picker>
+      <view class="model-hint">直接从上面这个列表里挑就行，不需要填 Key。「拉取最新列表」才需要——它拿你的 Key 去厂商那儿问"我这个账号能用哪些型号"。</view>
+      <view class="model-acts">
+        <text class="fetch-btn" data-v="" bindtap="fetchModels">{{fetching ? '拉取中…' : '拉取最新列表'}}</text>
+      </view>
       <view wx:if="{{fetchMsg}}" class="fetch-msg {{fetchOk ? 'ok' : ''}}">{{fetchMsg}}</view>
       <input class="f-input custom" placeholder="列表里没有你要的？把模型名粘这里"
              value="{{customModel}}" bindinput="onCustomModel" />
+
+      <view class="sec-title" style="margin-top:28rpx">API Key</view>
+      <input class="f-input" password placeholder="粘贴你的 API Key" value="{{apiKey}}" bindinput="onKey" />
+      <view class="key-url" wx:if="{{keyUrl}}" bindtap="copyKeyUrl">获取 Key：{{keyUrl}}（点击复制）</view>
     </view>
 
     <view class="btns">
@@ -132,7 +137,7 @@
       <button class="btn-ghost" bindtap="useDefault">使用默认模型</button>
     </view>
 
-    <view class="foot">支持 DeepSeek、通义千问、智谱、Kimi、文心、星火、混元、豆包</view>
+    <view class="foot">支持 DeepSeek、通义千问、智谱、Kimi、文心、星火、混元、豆包、硅基流动</view>
   </block>
 
   <!-- ============ 识图模型 ============ -->
@@ -156,20 +161,21 @@
     </view>
 
     <view class="card" wx:if="{{vProvider}}">
-      <view class="sec-title">API Key</view>
-      <input class="f-input" password placeholder="粘贴该厂商的 API Key" value="{{vKey}}" bindinput="onVKey" />
-      <view class="key-url" wx:if="{{vKeyUrl}}" bindtap="copyVKeyUrl">获取 Key：{{vKeyUrl}}（点击复制）</view>
-
-      <view class="sec-row">
-        <text class="sec-title" style="margin-bottom:0">多模态模型</text>
-        <text class="fetch-btn" data-v="v" bindtap="fetchModels">{{fetching ? '拉取中…' : '拉取最新列表'}}</text>
-      </view>
+      <view class="sec-title">多模态模型</view>
       <picker range="{{vModels}}" value="{{vModelIndex}}" bindchange="onVModel">
         <view class="picker">{{vModels[vModelIndex]}}</view>
       </picker>
+      <view class="model-hint">从列表里挑一个能看图的就行，不需要填 Key。「拉取最新列表」才需要。</view>
+      <view class="model-acts">
+        <text class="fetch-btn" data-v="v" bindtap="fetchModels">{{fetching ? '拉取中…' : '拉取最新列表'}}</text>
+      </view>
       <view wx:if="{{fetchMsg}}" class="fetch-msg {{fetchOk ? 'ok' : ''}}">{{fetchMsg}}</view>
       <input class="f-input custom" placeholder="列表里没有？把模型名粘这里（必须能看图）"
              value="{{vCustomModel}}" bindinput="onVCustomModel" />
+
+      <view class="sec-title" style="margin-top:28rpx">API Key</view>
+      <input class="f-input" password placeholder="粘贴该厂商的 API Key" value="{{vKey}}" bindinput="onVKey" />
+      <view class="key-url" wx:if="{{vKeyUrl}}" bindtap="copyVKeyUrl">获取 Key：{{vKeyUrl}}（点击复制）</view>
     </view>
 
     <view class="btns">
@@ -177,6 +183,6 @@
       <button class="btn-ghost" bindtap="useDefault">清除识图配置</button>
     </view>
 
-    <view class="foot">支持智谱 GLM-4V、通义 qwen-vl、Kimi vision、混元 vision、豆包 vision</view>
+    <view class="foot">支持智谱 GLM-4V、通义 qwen-vl、Kimi vision、混元 vision、豆包 vision、硅基流动</view>
   </block>
 </view>

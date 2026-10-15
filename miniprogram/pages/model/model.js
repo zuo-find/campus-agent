@@ -110,7 +110,11 @@ Page({
     const apiKey = (isV ? this.data.vKey : this.data.apiKey) || '';
     if (!provider) return;
     if (!apiKey.trim()) {
-      this.setData({ fetchMsg: '先在下面填上 API Key，再拉取', fetchOk: false });
+      this.setData({
+        fetchMsg: '拉取要用你的 Key（填在下面的「API Key」栏）。'
+                  + '不想填也没关系，直接从上面的列表里选一个就行。',
+        fetchOk: false
+      });
       return;
     }
     this.setData({ fetching: true, fetchMsg: '', fetchOk: false });
@@ -145,28 +149,35 @@ Page({
   copyVKeyUrl() { if (this.data.vKeyUrl) wx.setClipboardData({ data: this.data.vKeyUrl }); },
 
   save() {
-    if (this.data.tab === 'vision') {
-      const { vProvider, vProviderName, vModels, vModelIndex, vKey, vCustomModel } = this.data;
-      if (!vProvider) return;
-      // 手填的优先，方便用列表里没有的型号
-      const model = (vCustomModel || '').trim() || vModels[vModelIndex] || '';
-      if (!model) { wx.showToast({ title: '请选择或填写模型名', icon: 'none' }); return; }
-      wx.setStorageSync('visionLlm', {
-        provider: vProvider, name: vProviderName,
-        model, apiKey: (vKey || '').trim()
+    const isV = this.data.tab === 'vision';
+    const d = this.data;
+    const provider = isV ? d.vProvider : d.provider;
+    const model = isV
+      ? (d.vCustomModel || '').trim() || d.vModels[d.vModelIndex] || ''
+      : (d.customModel || '').trim() || d.models[d.modelIndex] || '';
+    const apiKey = ((isV ? d.vKey : d.apiKey) || '').trim();
+    if (!provider) return;
+    if (!model) { wx.showToast({ title: '请选择或填写模型名', icon: 'none' }); return; }
+
+    // 只选了型号没填 Key 的话，实际仍会用内置默认模型——说清楚再保存，
+    // 免得用户以为自己选的型号生效了
+    if (!apiKey) {
+      wx.showModal({
+        title: '还没填 API Key',
+        content: '没有 Key 就用不了这家的服务，实际仍会走小程序内置的默认模型，'
+               + '你选的「' + model + '」不会生效。',
+        confirmText: '仍然保存', cancelText: '回去填 Key',
+        success: r => { if (r.confirm) this.doSave(isV, provider, model, apiKey); }
       });
-      wx.showToast({ title: '识图模型已保存', icon: 'success' });
-      setTimeout(() => wx.navigateBack(), 700);
       return;
     }
-    const { provider, providerName, models, modelIndex, apiKey, customModel } = this.data;
-    if (!provider) return;
-    const model = (customModel || '').trim() || models[modelIndex] || '';
-    if (!model) { wx.showToast({ title: '请选择或填写模型名', icon: 'none' }); return; }
-    wx.setStorageSync('llm', {
-      provider, name: providerName, model, apiKey: (apiKey || '').trim()
-    });
-    wx.showToast({ title: '已保存', icon: 'success' });
+    this.doSave(isV, provider, model, apiKey);
+  },
+
+  doSave(isV, provider, model, apiKey) {
+    const name = isV ? this.data.vProviderName : this.data.providerName;
+    wx.setStorageSync(isV ? 'visionLlm' : 'llm', { provider, name, model, apiKey });
+    wx.showToast({ title: isV ? '识图模型已保存' : '已保存', icon: 'success' });
     setTimeout(() => wx.navigateBack(), 600);
   },
 

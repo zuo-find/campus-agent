@@ -26,6 +26,10 @@
 }
 .fetch-msg.ok { color: #0f5132; background: #e7f7ef; }
 .f-input.custom { margin-top: 14rpx; font-size: 25rpx; }
+
+/* 说明：选模型不需要 Key，只有拉取才需要 */
+.model-hint { font-size: 22rpx; color: #9aa6b5; line-height: 1.7; margin-top: 12rpx; }
+.model-acts { display: flex; margin-top: 14rpx; }
 .f-input { background: #f0f1f3; border-radius: 10rpx; padding: 20rpx 24rpx; font-size: 28rpx; }
 .key-url { font-size: 22rpx; color: #1a73e8; margin-top: 14rpx; }
 
