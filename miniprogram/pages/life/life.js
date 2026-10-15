@@ -57,7 +57,9 @@ Page({
     syncCats: ['校历', '作息', '通知公告'],
     srcShow: false, srcCat: '校历', srcUrl: '', srcUrls: {}, syncing: false,
     // 同步完成后的学校 logo 过场动画
-    logoAnim: { show: false, logo: '', name: '', light: false }
+    logoAnim: { show: false, logo: '', name: '', light: false },
+    // 「选择学校」：输入校名自动填官网
+    uniQ: '', uniList: []
   },
 
   onLoad() {
@@ -77,9 +79,39 @@ Page({
     }
   },
 
-  onUnload() { if (this._logoTimer) clearTimeout(this._logoTimer); },
+  onUnload() {
+    if (this._logoTimer) clearTimeout(this._logoTimer);
+    if (this._uniTimer) clearTimeout(this._uniTimer);
+  },
 
   noop() {},
+
+  // 输入校名 → 查名单 → 点一条自动填网址
+  onUniInput(e) {
+    const q = (e.detail.value || '').trim();
+    this.setData({ uniQ: q });
+    if (this._uniTimer) clearTimeout(this._uniTimer);
+    if (!q) { this.setData({ uniList: [] }); return; }
+    // 边打字边查会打太多请求，停 300ms 再查
+    this._uniTimer = setTimeout(() => {
+      wx.request({
+        url: API + '/school/search', timeout: 15000,
+        data: { q: q, limit: 8 },
+        success: r => {
+          // 只列有官网的——没官网的点了也填不了，白占位置
+          const items = ((r.data || {}).items || []).filter(x => x.u);
+          if (this.data.uniQ === q) this.setData({ uniList: items });
+        }
+      });
+    }, 300);
+  },
+
+  pickUni(e) {
+    const { url, n } = e.currentTarget.dataset;
+    if (!url) return;
+    this.setData({ srcUrl: url, uniQ: n, uniList: [] });
+    wx.showToast({ title: '已填入 ' + n + ' 官网', icon: 'none' });
+  },
 
   closeLogoAnim() {
     if (this._logoTimer) clearTimeout(this._logoTimer);
@@ -116,12 +148,13 @@ Page({
 
   openSync(e) {
     const cat = e.currentTarget.dataset.cat || '校历';
-    this.setData({ srcShow: true, srcCat: cat, srcUrl: this.data.srcUrls[cat] || '' });
+    this.setData({ srcShow: true, srcCat: cat, srcUrl: this.data.srcUrls[cat] || '',
+                   uniQ: '', uniList: [] });
   },
-  closeSync() { this.setData({ srcShow: false }); },
+  closeSync() { this.setData({ srcShow: false, uniList: [] }); },
   pickSyncCat(e) {
     const cat = e.currentTarget.dataset.cat;
-    this.setData({ srcCat: cat, srcUrl: this.data.srcUrls[cat] || '' });
+    this.setData({ srcCat: cat, srcUrl: this.data.srcUrls[cat] || '', uniQ: '', uniList: [] });
   },
   onSrcUrl(e) { this.setData({ srcUrl: e.detail.value }); },
 

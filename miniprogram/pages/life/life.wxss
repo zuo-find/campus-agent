@@ -44,6 +44,16 @@
 .cat-opt.on { background: #1a73e8; color: #fff; font-weight: 500; }
 .sync-tip { font-size: 22rpx; color: #9aa6b5; line-height: 1.6; margin: 6rpx 0 22rpx; }
 
+/* 选择学校：输入校名 → 点一条自动填网址 */
+.uni-list { background: #f7f9fd; border-radius: 12rpx; margin-bottom: 4rpx; overflow: hidden; }
+.uni-item { display: flex; align-items: center; padding: 18rpx 20rpx; border-bottom: 1rpx solid #eef2f8; }
+.uni-item:last-child { border-bottom: none; }
+.uni-item:active { background: #eaf1fe; }
+.uni-main { flex: 1; min-width: 0; }
+.uni-n { font-size: 26rpx; color: #1a2233; }
+.uni-p { font-size: 22rpx; color: #9aa6b5; margin-left: 12rpx; }
+.uni-u { font-size: 22rpx; color: #1a73e8; flex-shrink: 0; margin-left: 12rpx; }
+
 /* ---------- 同步完成的学校 logo 过场动画 ---------- */
 .logo-mask {
   position: fixed; inset: 0; z-index: 90;

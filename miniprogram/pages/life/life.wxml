@@ -104,8 +104,22 @@
                 data-cat="{{item}}" bindtap="pickSyncCat">{{item}}</view>
         </view>
         <view class="sec-title" style="margin-top:24rpx">学校官网网址</view>
-        <input class="f-input" placeholder="https://www.xxx.edu.cn/xxx" value="{{srcUrl}}" bindinput="onSrcUrl" />
-        <view class="sync-tip">小程序无法直接抓网页，会由后端抓取并交给 AI 抽取成条目；请只同步学校公开发布的信息。</view>
+        <!-- 输入校名自动填网址，不用自己去搜学校官网 -->
+        <input class="f-input" placeholder="输入学校名可自动填网址，如：清华大学"
+               value="{{uniQ}}" bindinput="onUniInput" />
+        <view wx:if="{{uniList.length}}" class="uni-list">
+          <view class="uni-item" wx:for="{{uniList}}" wx:key="n"
+                data-url="{{item.u}}" data-n="{{item.n}}" bindtap="pickUni">
+            <view class="uni-main">
+              <text class="uni-n">{{item.n}}</text>
+              <text class="uni-p" wx:if="{{item.p}}">{{item.p}}</text>
+            </view>
+            <text class="uni-u {{item.u ? '' : 'none'}}">{{item.u ? '填入' : '未收录官网'}}</text>
+          </view>
+        </view>
+        <input class="f-input" style="margin-top:14rpx" placeholder="https://www.xxx.edu.cn/xxx"
+               value="{{srcUrl}}" bindinput="onSrcUrl" />
+        <view class="sync-tip">小程序无法直接抓网页，由后端抓取后交给 AI 抽取成条目；请只同步学校公开发布的信息。选学校填的是官网首页，若同步不到内容，按下面的建议往下点一层。</view>
         <button class="btn-primary" bindtap="doSync" disabled="{{syncing}}">{{syncing ? '同步中…' : '立即同步'}}</button>
       </scroll-view>
     </view>

@@ -1,0 +1,107 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+/* 上传文件解析 1:1 还原(1rpx=0.5px) */
+*{box-sizing:border-box}
+body{margin:0;background:#e9ecf1;font-family:"Microsoft YaHei",sans-serif;width:375px}
+.screen{width:375px;background:#f5f6f8;padding-bottom:14px}
+.cap{font-size:11px;color:#8c98ab;padding:9px 14px 3px}
+
+/* 附件栏 */
+.att-bar{padding:7px 12px 6px;background:#f5f6f8;border-top:.5px solid #eef1f5}
+.att-head{display:flex;align-items:center;margin-bottom:5px}
+.att-tip{flex:1;font-size:11px;color:#8c98ab}
+.att-clear{font-size:11px;color:#1a73e8}
+.att-scroll{white-space:nowrap;overflow:hidden}
+.att-chip{display:inline-flex;align-items:center;background:#fff;border:.5px solid #d4e2fc;
+  border-radius:15px;padding:5px 6px 5px 10px;margin-right:7px;max-width:230px}
+.att-n{font-size:12px;color:#1a2233;max-width:130px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.att-c{font-size:10px;color:#9aa6b5;margin-left:5px}
+.att-x{font-size:11px;color:#a6b0c0;padding:0 4px 0 6px}
+
+/* 输入区 */
+.input-bar{display:flex;align-items:center;padding:8px 12px;background:#fff;border-top:.5px solid #eee}
+.file-btn{position:relative;width:34px;height:34px;margin-right:6px;flex-shrink:0}
+.file-body{position:absolute;left:6px;top:4px;width:21px;height:26px;border:1.5px solid #1a73e8;border-radius:4px}
+.file-line{position:absolute;left:11px;height:1.5px;background:#1a73e8;border-radius:1px}
+.file-line.l1{top:11px;width:11px}.file-line.l2{top:16px;width:11px}.file-line.l3{top:21px;width:7px}
+.cam-btn{position:relative;width:34px;height:34px;margin-right:8px;flex-shrink:0}
+.cam-body{position:absolute;left:2px;bottom:3px;width:30px;height:23px;border:1.5px solid #1a73e8;border-radius:5px;
+  display:flex;align-items:center;justify-content:center}
+.cam-lens{width:11px;height:11px;border:1.5px solid #1a73e8;border-radius:50%}
+.cam-top{position:absolute;left:10px;top:3px;width:13px;height:6px;border:1.5px solid #1a73e8;border-bottom:none;border-radius:3px 3px 0 0}
+.input{flex:1;background:#f0f1f3;border-radius:18px;padding:9px 14px;font-size:15px;color:#999}
+.send-btn{margin-left:8px;background:#1a73e8;color:#fff;font-size:14px;border-radius:18px;padding:0 18px;line-height:36px}
+
+/* 对话 */
+.msg-row{display:flex;padding:6px 12px}
+.msg-row.user{justify-content:flex-end}
+.bubble{max-width:78%;padding:10px 12px;border-radius:9px}
+.bubble.user{background:#1a73e8;color:#fff;font-size:15px}
+.bubble.assistant{background:#fff;font-size:14px;color:#222;line-height:1.55}
+.bubble-files{margin-bottom:5px}
+.bf-item{display:inline-block;font-size:10.5px;border-radius:3px;padding:2px 6px;margin:0 4px 3px 0;
+  color:#fff;background:rgba(255,255,255,.22)}
+.agent-chip{display:inline-block;width:fit-content;font-size:10px;border-radius:3px;padding:1.5px 6px;margin-bottom:5px;
+  color:#1a73e8;background:#eaf1fe}
+.sources{margin-top:7px;display:flex;flex-wrap:wrap}
+.src-tag{font-size:11px;color:#1a73e8;background:#eaf1fe;padding:2px 7px;border-radius:10px;margin:3px 4px 0 0}
+.src-tag.mine{color:#0f7a4d;background:#e6f8f0}
+.dc-text{white-space:pre-wrap}
+</style></head><body>
+
+<div class="cap">① 输入区多了「文件」按钮（左边那个）；选完文件后出现附件栏</div>
+<div class="screen">
+  <div class="att-bar">
+    <div class="att-head"><span class="att-tip">2 个文件 · 之后每次提问都会带上</span><span class="att-clear">全部移除</span></div>
+    <div class="att-scroll">
+      <span class="att-chip"><span class="att-n">选课说明.txt</span><span class="att-c">99 字</span><span class="att-x">✕</span></span>
+      <span class="att-chip"><span class="att-n">课程表.docx</span><span class="att-c">86 字</span><span class="att-x">✕</span></span>
+    </div>
+  </div>
+  <div class="input-bar">
+    <div class="file-btn"><div class="file-line l1"></div><div class="file-line l2"></div><div class="file-line l3"></div><div class="file-body"></div></div>
+    <div class="cam-btn"><div class="cam-top"></div><div class="cam-body"><div class="cam-lens"></div></div></div>
+    <div class="input">问制度，或「帮我写一份请假条…」</div>
+    <div class="send-btn">发送</div>
+  </div>
+</div>
+
+<div class="cap">② 带文件提问：气泡里标出这轮带了哪些文件，来源绿色那组是你的文件</div>
+<div class="screen">
+  <div class="msg-row user">
+    <div class="bubble user">
+      <div class="bubble-files"><span class="bf-item">选课说明.txt</span><span class="bf-item">课程表.docx</span></div>
+      选课学分上下限是多少？我这学期课表里有哪几门课？分别几学分？
+    </div>
+  </div>
+
+  <div class="msg-row">
+    <div class="bubble assistant">
+      <div class="agent-chip">校园问答</div>
+      <div class="dc-text">选课学分上限为 28 学分，下限为 15 学分。
+
+来源：你上传的《选课说明.txt》。
+
+本学期必修课安排：
+
+| 课程 | 学分 | 上课时间 |
+| --- | --- | --- |
+| 数据结构 | 4 | 周二 3-4 节 |
+| 大学物理 | 3 | 周四 1-2 节 |
+
+来源：你上传的《课程表.docx》。
+
+两门必修课合计 7 学分，距离 15 学分的下限还有 8 学分，需要靠选修课补足，选课时留意别低于下限。</div>
+      <div class="sources">
+        <span class="src-tag mine">你的文件 · 选课说明.txt</span>
+        <span class="src-tag mine">你的文件 · 课程表.docx</span>
+      </div>
+      <div class="sources">
+        <span class="src-tag">来源：学业成绩与重修规定_示例.txt</span>
+        <span class="src-tag">来源：请假管理规定_示例.txt</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body></html>
