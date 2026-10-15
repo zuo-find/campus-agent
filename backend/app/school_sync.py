@@ -10,6 +10,7 @@
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -17,7 +18,7 @@ import re
 import sqlite3
 from datetime import datetime
 from html.parser import HTMLParser
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import httpx
 
@@ -174,8 +175,23 @@ _KW = {
 }
 
 
+def _same_site(url: str, base: str) -> bool:
+    """两个地址是不是同一个站（允许 www. 与子域名之间互跳）。"""
+    a = urlparse(url).netloc.lower().split(":")[0]
+    b = urlparse(base).netloc.lower().split(":")[0]
+    if not a or not b:
+        return False
+    a = a[4:] if a.startswith("www.") else a
+    b = b[4:] if b.startswith("www.") else b
+    return a == b or a.endswith("." + b) or b.endswith("." + a)
+
+
 def find_links(html: str, base: str, category: str, limit: int = 6) -> list[dict]:
-    """从页面里挑出与类别相关的下钻链接（用户填了首页/栏目页时给建议）。"""
+    """从页面里挑出与类别相关的下钻链接（用户填了首页/栏目页时给建议）。
+
+    只收同一个站点的链接：页面里往往夹着抖音、公众号之类的推广外链，
+    它们的标题偶尔也会命中关键词，拿来做"相关栏目"建议会莫名其妙。
+    """
     kws = _KW.get(category) or []
     out, seen = [], set()
     for href, inner in _A_RE.findall(html or ""):
@@ -186,6 +202,8 @@ def find_links(html: str, base: str, category: str, limit: int = 6) -> list[dict
             continue
         url = urljoin(base, href)
         if url in seen or url.rstrip("/") == base.rstrip("/"):
+            continue
+        if not _same_site(url, base):
             continue
         seen.add(url)
         out.append({"text": text, "url": url})
@@ -273,6 +291,48 @@ def _png_mean_luma(data: bytes) -> float | None:
     return (total / cnt) if cnt else None
 
 
+# 位图的魔数。判断格式必须看内容，不能看 URL 后缀或 content-type——
+# 有的学校把 logo 做成 .svg（里面再包一张位图），按后缀存就会存出一个坏文件，
+# 小程序 <image> 加载不了，界面上就只剩一个"校"字。
+_RASTER_MAGIC = (
+    (b"\x89PNG\r\n\x1a\n", ".png"),
+    (b"\xff\xd8\xff", ".jpg"),
+    (b"GIF87a", ".gif"),
+    (b"GIF89a", ".gif"),
+)
+
+
+def _raster_ext(data: bytes) -> str:
+    for magic, ext in _RASTER_MAGIC:
+        if data.startswith(magic):
+            return ext
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return ".webp"
+    return ""
+
+
+# SVG 里内嵌的位图：<image xlink:href="data:image/png;base64,....">
+_EMBEDDED_RASTER = re.compile(
+    rb"data:image/(?:png|jpe?g|gif|webp);base64,([A-Za-z0-9+/=\s]+)", re.I)
+
+
+def _unwrap_svg(data: bytes) -> bytes:
+    """把 SVG 外壳里包的位图抠出来。
+
+    小程序的 <image> 不认 SVG，但不少学校的 logo 是「SVG 壳 + 内嵌 base64 位图」，
+    这种能救；纯矢量的 SVG 救不了，只能放弃（前端会退回校名首字）。"""
+    if b"<svg" not in data[:300].lower():
+        return b""
+    m = _EMBEDDED_RASTER.search(data)
+    if not m:
+        return b""
+    try:
+        raw = base64.b64decode(re.sub(rb"\s+", b"", m.group(1)))
+    except Exception:
+        return b""
+    return raw if _raster_ext(raw) else b""
+
+
 def save_logo(url: str, category: str) -> tuple[str, bool]:
     """把 logo 图片下载到本地并返回可访问路径（存本地，避免 http 图片在小程序真机加载不了）。"""
     from app.market import UPLOAD_DIR
@@ -284,18 +344,15 @@ def save_logo(url: str, category: str) -> tuple[str, bool]:
         data = r.content
     if not data or len(data) > 3 * 1024 * 1024:
         return "", False
-    ct = (r.headers.get("content-type") or "").lower()
-    low = url.lower()
-    if "png" in ct or low.endswith(".png"):
-        ext = ".png"
-    elif "jpeg" in ct or "jpg" in ct or re.search(r"\.jpe?g$", low):
-        ext = ".jpg"
-    elif "gif" in ct:
-        ext = ".gif"
-    elif "webp" in ct:
-        ext = ".webp"
-    else:
-        ext = ".png"
+
+    # 按真实内容定格式；拿到 SVG 就尝试把里面内嵌的位图抠出来
+    ext = _raster_ext(data)
+    if not ext:
+        data = _unwrap_svg(data)
+        ext = _raster_ext(data) if data else ""
+    if not ext:
+        return "", False      # 小程序显示不了的格式，宁可不存，让前端退回首字
+
     # 文件名必须是纯 ASCII：URL 里出现中文会让 <image> 取不到图（服务端 404）
     slug = _SLUG.get(category) or ("c" + hashlib.md5(category.encode("utf-8")).hexdigest()[:8])
     name = f"school_logo_{slug}{ext}"
