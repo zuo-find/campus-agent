@@ -58,7 +58,10 @@
 .tt-main { flex: 1; min-width: 0; }
 .tt-n { display: block; font-size: 29rpx; color: #1a2233; }
 .tt-t { display: block; font-size: 23rpx; color: #8c98ab; margin-top: 6rpx; }
-.tt-x { font-size: 22rpx; color: #c6d0de; padding: 8rpx 0 8rpx 20rpx; }
+/* 删除：垃圾桶图标（图片资源，比手画的线条稳） */
+.tt-del { padding: 16rpx 0 16rpx 24rpx; }
+.tt-del-img { width: 44rpx; height: 44rpx; display: block; opacity: .8; }
+.tt-del-hover .tt-del-img { opacity: 1; }
 
 .tt-empty { padding: 20rpx 0 10rpx; }
 .tt-empty-t { display: block; font-size: 28rpx; color: #5a6684; }

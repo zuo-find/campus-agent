@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#e9ecf1;font-family:'Microsoft YaHei',sans-serif;width:375px;padding-bottom:16px}
+.cap{font-size:11px;color:#8c98ab;padding:12px 14px 6px}
+.card{background:#fff;border-radius:8px;margin:0 12px;padding:14px}
+.sec-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.sec-title{font-size:15px;font-weight:600;color:#1a2233}
+.sync-btn{font-size:11px;color:#1a73e8;border:.5px solid #cfe0fb;border-radius:15px;padding:3px 11px}
+.tt-day-h{display:flex;align-items:center;margin-top:8px}
+.tt-day-n{font-size:12px;color:#8c98ab}
+.tt-day-n.today{color:#1a73e8;font-weight:600}
+.tt-today{font-size:9.5px;color:#fff;background:#1a73e8;border-radius:3px;padding:1px 5px;margin-left:5px}
+.tt-row{display:flex;align-items:center;padding:8px 0;border-bottom:.5px solid #f2f4f8}
+.tt-row:last-child{border-bottom:none}
+.tt-main{flex:1;min-width:0}
+.tt-n{display:block;font-size:14.5px;color:#1a2233}
+.tt-t{display:block;font-size:11.5px;color:#8c98ab;margin-top:3px}
+.tt-del{padding:8px 0 8px 12px}
+.tt-del img{width:22px;height:22px;display:block;opacity:.8}
+.tt-del:hover img{opacity:1}
+.zoom{display:flex;align-items:center;gap:18px;padding:14px;background:#fff;border-radius:8px;margin:0 12px}
+.zoom div{text-align:center;font-size:10px;color:#9aa6b5}
+.zoom img{display:block;margin:0 auto 6px}
+</style></head><body>
+
+<div class='cap'>课表里的删除按钮：换成了垃圾桶图标（右侧）</div>
+<div class='card'>
+  <div class='sec-title-row'><span class='sec-title'>我的课表</span><span class='sync-btn'>导入课程</span></div>
+  <div class='tt-day-h'><span class='tt-day-n'>周一</span></div>
+  <div class='tt-row'>
+    <div class='tt-main'><span class='tt-n'>高等数学</span><span class='tt-t'>第一大节 08:00 - 09:40 · 教学楼 A301</span></div>
+    <div class='tt-del'><img src='../miniprogram/images/icon-trash.png'></div>
+  </div>
+  <div class='tt-row'>
+    <div class='tt-main'><span class='tt-n'>大学英语</span><span class='tt-t'>第三大节 14:00 - 15:40 · B202</span></div>
+    <div class='tt-del'><img src='../miniprogram/images/icon-trash.png'></div>
+  </div>
+  <div class='tt-day-h'><span class='tt-day-n today'>周二</span><span class='tt-today'>今天</span></div>
+  <div class='tt-row'>
+    <div class='tt-main'><span class='tt-n'>数据结构</span><span class='tt-t'>第二大节 10:00 - 11:40 · 实验楼 C105 · 1-16周</span></div>
+    <div class='tt-del'><img src='../miniprogram/images/icon-trash.png'></div>
+  </div>
+</div>
+
+<div class='cap'>图标本身（120px 源图，显示 44rpx 约 22px）</div>
+<div class='zoom'>
+  <div><img src='../miniprogram/images/icon-trash.png' style='width:88px;height:88px'>88px</div>
+  <div><img src='../miniprogram/images/icon-trash.png' style='width:44px;height:44px'>44px</div>
+  <div><img src='../miniprogram/images/icon-trash.png' style='width:22px;height:22px'>22px（实际）</div>
+</div>
+</body></html>

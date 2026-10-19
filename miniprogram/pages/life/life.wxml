@@ -45,7 +45,10 @@
                 <text wx:if="{{c.weeks}}"> · {{c.weeks}}</text>
               </view>
             </view>
-            <text class="tt-x" data-id="{{c.id}}" catchtap="delCourse">删</text>
+            <view class="tt-del" data-id="{{c.id}}" hover-class="tt-del-hover" hover-stay-time="80"
+                  catchtap="delCourse">
+              <image class="tt-del-img" src="/images/icon-trash.png" mode="aspectFit" />
+            </view>
           </view>
         </view>
       </block>
