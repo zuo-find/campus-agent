@@ -69,8 +69,9 @@ Page({
     // 我的课表
     ttList: [], ttGroups: [],
     ttShow: false, ttSheet: false, ttCands: [], ttPickCount: 0, ttBusy: false,
-    mfShow: false, mf: { name: '', place: '' }, mfDayIdx: 0, mfPeriodIdx: 0,
-    dayOptions: DAY_NAMES, periodOptions: PERIODS
+    mfShow: false, mf: { name: '', place: '', weeks: '' },
+    mfDay: '周一', mfPeriod: '第一大节', mfDup: '', mfPlaces: [],
+    dayOptions: DAY_NAMES, periodOptions: PERIODS, periodTime: PERIOD_TIME
   },
 
   onLoad() {
@@ -240,27 +241,46 @@ Page({
   saveTtCands() {
     const pick = this.data.ttCands.filter(c => c.on);
     if (!pick.length) { wx.showToast({ title: '至少选一门', icon: 'none' }); return; }
-    this.addCourses(pick.map(c => ({ name: c.name, day: c.day, period: c.period, place: c.place })));
+    const added = this.addCourses(pick.map(c => ({
+      name: c.name, day: c.day, period: c.period, place: c.place
+    })));
     this.setData({ ttSheet: false });
+    wx.showToast({
+      title: added ? '已导入 ' + added + ' 条' : '这些课程已经有了', icon: 'none'
+    });
   },
 
-  // 去重：同一天同一节同一门课视为重复
+  // 写进本地。去重规则：同一天 + 同一节 + 同一门课视为重复。返回实际新增条数
   addCourses(items) {
     const list = this.data.ttList.slice();
     let added = 0;
     items.forEach(c => {
-      const dup = list.some(x => x.day === c.day && x.period === c.period && x.name === c.name);
-      if (dup) return;
+      if (list.some(x => x.day === c.day && x.period === c.period && x.name === c.name)) return;
       list.push({
-        id: 't' + Date.now() + Math.floor(Math.random() * 1000),
+        id: 't' + Date.now() + Math.floor(Math.random() * 10000),
         name: c.name, day: c.day, period: c.period,
-        place: c.place || '', time: PERIOD_TIME[c.period] || ''
+        place: c.place || '', weeks: c.weeks || '',
+        time: PERIOD_TIME[c.period] || ''
       });
       added += 1;
+      this.rememberPlace(c.place);
     });
-    wx.setStorageSync('timetable', list);
-    this.setData({ ttList: list, ttGroups: this.groupTt(list) });
-    wx.showToast({ title: added ? '已导入 ' + added + ' 条' : '这些课程已经有了', icon: 'none' });
+    if (added) {
+      wx.setStorageSync('timetable', list);
+      this.setData({ ttList: list, ttGroups: this.groupTt(list) });
+    }
+    return added;
+  },
+
+  // 记住最近用过的上课地点，下次手动添加时可以一点就填
+  rememberPlace(p) {
+    p = (p || '').trim();
+    if (!p) return;
+    const arr = (wx.getStorageSync('tt_places') || []).filter(x => x !== p);
+    arr.unshift(p);
+    const top = arr.slice(0, 6);
+    wx.setStorageSync('tt_places', top);
+    this.setData({ mfPlaces: top });
   },
 
   delCourse(e) {
@@ -277,19 +297,56 @@ Page({
   },
 
   // ---- 手动添加 ----
-  ttManual() { this.setData({ ttShow: false, mfShow: true, mf: { name: '', place: '' } }); },
+  // 星期和节次做成直接点的胶囊（不走 picker），节次下面直接标出时间，
+  // 不用自己记"第三大节是几点"；地点记住最近用过的几个，点一下就能填。
+  ttManual() {
+    this.setData({
+      ttShow: false, mfShow: true,
+      mf: { name: '', place: '', weeks: '' },
+      mfDay: this.data.mfDay || '周一',
+      mfPeriod: this.data.mfPeriod || '第一大节',
+      mfDup: '',
+      mfPlaces: wx.getStorageSync('tt_places') || []
+    });
+  },
   closeMf() { this.setData({ mfShow: false }); },
-  onMfInput(e) { this.setData({ ['mf.' + e.currentTarget.dataset.k]: e.detail.value }); },
-  onMfDay(e) { this.setData({ mfDayIdx: Number(e.detail.value) }); },
-  onMfPeriod(e) { this.setData({ mfPeriodIdx: Number(e.detail.value) }); },
-  saveManual() {
+
+  pickMfDay(e) { this.setData({ mfDay: e.currentTarget.dataset.d, mfDup: '' }); },
+  pickMfPeriod(e) { this.setData({ mfPeriod: e.currentTarget.dataset.p, mfDup: '' }); },
+  pickMfPlace(e) { this.setData({ 'mf.place': e.currentTarget.dataset.p, mfDup: '' }); },
+  onMfInput(e) {
+    this.setData({ ['mf.' + e.currentTarget.dataset.k]: e.detail.value, mfDup: '' });
+  },
+
+  // more=1 表示「添加并继续」：只清课程名，星期/节次/地点留着，方便连着加同一天的多门课
+  saveManual(e) {
+    const more = e.currentTarget.dataset.more === '1';
     const name = (this.data.mf.name || '').trim();
-    if (!name) { wx.showToast({ title: '填一下课程名', icon: 'none' }); return; }
-    this.addCourses([{
-      name, day: DAY_NAMES[this.data.mfDayIdx], period: PERIODS[this.data.mfPeriodIdx],
-      place: (this.data.mf.place || '').trim()
-    }]);
-    this.setData({ mfShow: false });
+    if (!name) { wx.showToast({ title: '先填课程名', icon: 'none' }); return; }
+
+    const course = {
+      name,
+      day: this.data.mfDay,
+      period: this.data.mfPeriod,
+      place: (this.data.mf.place || '').trim(),
+      weeks: (this.data.mf.weeks || '').trim()
+    };
+    const dup = this.data.ttList.some(x =>
+      x.day === course.day && x.period === course.period && x.name === course.name);
+    if (dup) {
+      this.setData({ mfDup: course.day + ' ' + course.period + ' 已经有「' + name + '」了' });
+      return;
+    }
+
+    this.addCourses([course]);
+
+    if (more) {
+      this.setData({ mf: { name: '', place: this.data.mf.place, weeks: this.data.mf.weeks }, mfDup: '' });
+      wx.showToast({ title: '已添加，继续加下一门', icon: 'none' });
+    } else {
+      this.setData({ mfShow: false });
+      wx.showToast({ title: '已添加', icon: 'none' });
+    }
   },
 
   // ---------- 学校官网同步 ----------

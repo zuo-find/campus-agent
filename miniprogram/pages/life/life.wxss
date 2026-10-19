@@ -82,10 +82,31 @@
 .cb.on { background: #1a73e8; border-color: #1a73e8; }
 .tt-confirm-main { flex: 1; min-width: 0; }
 
-/* 手动添加 */
-.mf-row { display: flex; }
-.mf-pick { flex: 1; }
-.mf-pick:first-child { margin-right: 16rpx; }
+/* 手动添加课程 */
+.mf-body { max-height: 760rpx; }
+.mf-label { font-size: 24rpx; color: #8c98ab; margin: 6rpx 0 12rpx; }
+.mf-chips { display: flex; flex-wrap: wrap; margin-bottom: 20rpx; }
+.mf-chip {
+  font-size: 26rpx; color: #5a6684; background: #f2f5fa; border-radius: 10rpx;
+  padding: 14rpx 0; text-align: center; margin: 0 12rpx 12rpx 0; flex: 1; min-width: 78rpx;
+}
+.mf-chip.on { background: #1a73e8; color: #fff; font-weight: 500; }
+.mf-chip.period { min-width: 120rpx; padding: 10rpx 0; }
+.mf-chip-t { display: block; font-size: 24rpx; }
+.mf-chip-s { display: block; font-size: 19rpx; opacity: .7; margin-top: 4rpx; }
+.mf-places { display: flex; flex-wrap: wrap; margin: -4rpx 0 16rpx; }
+.mf-place {
+  font-size: 22rpx; color: #1a73e8; border: 1rpx solid #d4e2fc; border-radius: 24rpx;
+  padding: 6rpx 18rpx; margin: 8rpx 12rpx 0 0;
+}
+.mf-dup {
+  font-size: 23rpx; color: #b42318; background: #fff2f2; border-radius: 10rpx;
+  padding: 14rpx 18rpx; line-height: 1.6; margin-bottom: 10rpx;
+}
+.mf-btns { display: flex; padding-top: 8rpx; }
+.mf-btn { flex: 1; font-size: 28rpx; line-height: 84rpx; border-radius: 42rpx; padding: 0; }
+.mf-btn.ghost { color: #5a6b82; background: #fff; border: 1rpx solid #d7dee9; margin-right: 20rpx; }
+.mf-btn.primary { color: #fff; background: #1a73e8; }
 
 /* 选择学校：输入校名 → 点一条自动填网址 */
 .uni-list { background: #f7f9fd; border-radius: 12rpx; margin-bottom: 4rpx; overflow: hidden; }

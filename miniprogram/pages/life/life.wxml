@@ -42,6 +42,7 @@
               <view class="tt-t">
                 <text>{{c.period}} {{c.time}}</text>
                 <text wx:if="{{c.place}}"> · {{c.place}}</text>
+                <text wx:if="{{c.weeks}}"> · {{c.weeks}}</text>
               </view>
             </view>
             <text class="tt-x" data-id="{{c.id}}" catchtap="delCourse">删</text>
@@ -174,21 +175,48 @@
     </view>
   </view>
 
-  <!-- 手动添加 -->
+  <!-- 手动添加：星期/节次直接点，节次下面标出时间；加完可以接着加下一门 -->
   <view wx:if="{{mfShow}}" class="mask" bindtap="closeMf">
     <view class="sheet" catchtap="noop">
       <view class="sheet-h">添加课程<text class="sheet-x" catchtap="closeMf">✕</text></view>
-      <input class="f-input" placeholder="课程名，如：数据结构" value="{{mf.name}}" data-k="name" bindinput="onMfInput" />
-      <view class="mf-row">
-        <picker class="mf-pick" range="{{dayOptions}}" value="{{mfDayIdx}}" bindchange="onMfDay">
-          <view class="picker">{{dayOptions[mfDayIdx]}}</view>
-        </picker>
-        <picker class="mf-pick" range="{{periodOptions}}" value="{{mfPeriodIdx}}" bindchange="onMfPeriod">
-          <view class="picker">{{periodOptions[mfPeriodIdx]}}</view>
-        </picker>
+      <scroll-view class="mf-body" scroll-y>
+        <input class="f-input" placeholder="课程名，如：数据结构" value="{{mf.name}}"
+               data-k="name" bindinput="onMfInput" focus="{{mfShow}}" />
+
+        <view class="mf-label">星期</view>
+        <view class="mf-chips">
+          <view class="mf-chip {{mfDay == item ? 'on' : ''}}" wx:for="{{dayOptions}}" wx:key="*this"
+                data-d="{{item}}" bindtap="pickMfDay">{{item}}</view>
+        </view>
+
+        <view class="mf-label">节次</view>
+        <view class="mf-chips">
+          <view class="mf-chip period {{mfPeriod == item ? 'on' : ''}}" wx:for="{{periodOptions}}" wx:key="*this"
+                data-p="{{item}}" bindtap="pickMfPeriod">
+            <text class="mf-chip-t">{{item}}</text>
+            <text class="mf-chip-s">{{periodTime[item]}}</text>
+          </view>
+        </view>
+
+        <view class="mf-label">上课地点</view>
+        <input class="f-input" placeholder="如：教学楼 A301（可不填）" value="{{mf.place}}"
+               data-k="place" bindinput="onMfInput" />
+        <view class="mf-places" wx:if="{{mfPlaces.length}}">
+          <text class="mf-place" wx:for="{{mfPlaces}}" wx:key="*this"
+                data-p="{{item}}" bindtap="pickMfPlace">{{item}}</text>
+        </view>
+
+        <view class="mf-label">周次（可不填）</view>
+        <input class="f-input" placeholder="如：1-16周" value="{{mf.weeks}}"
+               data-k="weeks" bindinput="onMfInput" />
+
+        <view wx:if="{{mfDup}}" class="mf-dup">{{mfDup}}</view>
+      </scroll-view>
+
+      <view class="mf-btns">
+        <button class="mf-btn ghost" data-more="0" bindtap="saveManual">添加后关闭</button>
+        <button class="mf-btn primary" data-more="1" bindtap="saveManual">添加并继续</button>
       </view>
-      <input class="f-input" placeholder="上课地点，如：教学楼 A301（可不填）" value="{{mf.place}}" data-k="place" bindinput="onMfInput" />
-      <button class="btn-primary" bindtap="saveManual">保存</button>
     </view>
   </view>
 
