@@ -109,10 +109,19 @@ def set_source(category: str, url: str) -> dict:
     url = (url or "").strip()
     if not re.match(r"^https?://", url, re.I):
         return {"ok": False, "msg": "网址要以 http:// 或 https:// 开头"}
+    reset = False
     with _conn() as c:
+        row = c.execute("SELECT url FROM school_sources WHERE category=?", (category,)).fetchone()
+        changed = bool(row and (row["url"] or "").strip() != url)
         c.execute("INSERT INTO school_sources(category,url) VALUES(?,?) "
                   "ON CONFLICT(category) DO UPDATE SET url=excluded.url", (category, url))
-    return {"ok": True, "category": category, "url": url}
+        if changed:
+            # 换了学校：旧的校徽和校名属于上一所学校，必须清掉，
+            # 否则会出现"名字是 A 校、校徽是 B 校"这种张冠李戴
+            c.execute("UPDATE school_sources SET logo='', name='', logo_light=0 "
+                      "WHERE category=?", (category,))
+            reset = True
+    return {"ok": True, "category": category, "url": url, "reset": reset}
 
 
 def get_items(category: str = "") -> dict:
@@ -369,16 +378,34 @@ def _unwrap_svg(data: bytes) -> bytes:
 
 
 def _drop_old_logos(slug: str, keep: str) -> None:
-    """同一个 slug 只保留最新那张，清掉历史文件（都是本模块自己生成的缓存图）。"""
+    """清掉同一栏的历史校徽，但**只删没人再引用的**。
+
+    注意：校徽缓存是按域名共用的，其它栏目（作息、通知公告）很可能指着
+    同一张图。所以删之前要确认数据库和缓存里都没有引用它。
+    """
     from app.market import UPLOAD_DIR
+
+    referenced = set()
+    try:
+        with _conn() as c:
+            referenced |= {(r["logo"] or "") for r in
+                           c.execute("SELECT logo FROM school_sources").fetchall()}
+    except Exception:
+        return          # 查不到引用就先不删，安全第一
+    referenced |= {(v.get("path") or "") for v in _logo_cache().values()}
+    keep_names = {os.path.basename(p) for p in referenced if p}
+
     prefix = "school_logo_" + slug
     try:
         for f in os.listdir(UPLOAD_DIR):
             if f == keep or not f.startswith(prefix):
                 continue
-            # 前缀之后必须是 _ 或 . —— 否则 slug「xiaoli」会误删「xiaoli2」的文件
-            if f[len(prefix):][:1] in ("_", "."):
-                os.remove(os.path.join(UPLOAD_DIR, f))
+            # 前缀之后必须是 _ 或 . —— 否则 slug「xiaoli」会误伤「xiaoli2」
+            if f[len(prefix):][:1] not in ("_", "."):
+                continue
+            if f in keep_names:
+                continue        # 还有别的栏目/缓存指着它，不能删
+            os.remove(os.path.join(UPLOAD_DIR, f))
     except Exception:
         pass      # 清理失败不影响本次保存
 
@@ -540,9 +567,16 @@ def sync(category: str = "") -> dict:
                     "VALUES(?,?,?,?,?,?)",
                     [(cat, it["title"], it["date"], it["content"], url, now) for it in items],
                 )
-                c.execute("UPDATE school_sources SET synced_at=?, logo=COALESCE(NULLIF(?,''),logo), "
-                          "name=COALESCE(NULLIF(?,''),name), logo_light=? WHERE category=?",
-                          (now, logo, name, logo_light, cat))
+                # 抓到新校徽才替换（logo 和 light 必须一起换）；
+                # 没抓到就保持原样，绝不把上一所学校的校徽留在新名字底下
+                if logo:
+                    c.execute("UPDATE school_sources SET synced_at=?, logo=?, "
+                              "name=COALESCE(NULLIF(?,''),name), logo_light=? WHERE category=?",
+                              (now, logo, name, logo_light, cat))
+                else:
+                    c.execute("UPDATE school_sources SET synced_at=?, "
+                              "name=COALESCE(NULLIF(?,''),name) WHERE category=?",
+                              (now, name, cat))
             # 数据库已经指向新文件了，这时清理同一栏的旧校徽才是安全的
             if logo:
                 keep = os.path.basename(logo)
