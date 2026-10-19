@@ -261,6 +261,33 @@
   box-shadow: 0 8rpx 18rpx rgba(26,115,232,.26);
 }
 
+/* ---------- 失物照片 ---------- */
+.lf-photos { display: flex; flex-wrap: wrap; margin: 4rpx 0 6rpx; }
+.lf-photo {
+  position: relative; width: 152rpx; height: 152rpx; border-radius: 12rpx;
+  margin: 0 14rpx 14rpx 0; overflow: hidden; background: #f0f3f8;
+}
+.lf-photo-img { width: 100%; height: 100%; display: block; }
+.lf-photo-x {
+  position: absolute; right: 0; top: 0; width: 42rpx; height: 42rpx;
+  line-height: 42rpx; text-align: center; font-size: 22rpx; color: #fff;
+  background: rgba(16,24,40,.55); border-radius: 0 0 0 12rpx;
+}
+.lf-photo.add {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 2rpx dashed #cfd8e6; background: #fafbfd;
+}
+.lf-photo-plus { font-size: 54rpx; color: #a6b0c0; line-height: 1; }
+.lf-photo-add-t { font-size: 20rpx; color: #9aa6b5; margin-top: 8rpx; }
+.lf-photo-tip { font-size: 21rpx; color: #a6b0c0; line-height: 1.6; margin-bottom: 20rpx; }
+
+/* 列表卡片里的照片 */
+.lf-imgs { display: flex; flex-wrap: wrap; margin: 2rpx 0 10rpx; }
+.lf-img {
+  width: 132rpx; height: 132rpx; border-radius: 10rpx;
+  margin: 0 12rpx 12rpx 0; background: #f0f3f8;
+}
+
 /* 卡片：左侧类型色条 + 内容区 */
 .lf-card {
   position: relative; display: flex; background: #fff; border-radius: 20rpx;

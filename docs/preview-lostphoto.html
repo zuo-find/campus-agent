@@ -1,0 +1,79 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#e9ecf1;font-family:'Microsoft YaHei',sans-serif;width:375px;padding-bottom:16px}
+.cap{font-size:11px;color:#8c98ab;padding:10px 14px 4px}
+.lf-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px}
+.seg{display:flex;background:#eaeef5;border-radius:8px;padding:3px}
+.seg-item{font-size:13px;color:#5a6684;padding:6px 18px;border-radius:6px}
+.seg-item.on{background:#fff;color:#1a73e8;font-weight:600;box-shadow:0 1px 4px rgba(24,39,75,.06)}
+.mini-btn{font-size:12px;color:#1a73e8;background:#eaf1fe;border-radius:16px;padding:6px 14px}
+.card{background:#fff;border-radius:8px;margin:0 12px;padding:14px}
+.f-input{width:100%;background:#f0f1f3;border-radius:5px;padding:9px 10px;font-size:14px;color:#bbb;margin-bottom:8px}
+.lf-photos{display:flex;flex-wrap:wrap;margin:2px 0 3px}
+.lf-photo{position:relative;width:76px;height:76px;border-radius:6px;margin:0 7px 7px 0;overflow:hidden;background:#f0f3f8}
+.lf-photo-img{width:100%;height:100%;display:block}
+.lf-photo-x{position:absolute;right:0;top:0;width:21px;height:21px;line-height:21px;text-align:center;
+  font-size:11px;color:#fff;background:rgba(16,24,40,.55);border-radius:0 0 0 6px}
+.lf-photo.add{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:1px dashed #cfd8e6;background:#fafbfd}
+.lf-photo-plus{font-size:27px;color:#a6b0c0;line-height:1}
+.lf-photo-add-t{font-size:10px;color:#9aa6b5;margin-top:4px}
+.lf-photo-tip{font-size:10.5px;color:#a6b0c0;line-height:1.6;margin-bottom:10px}
+.primary{background:#1a73e8;color:#fff;border-radius:6px;font-size:15px;padding:10px 0;text-align:center}
+.lf-card{position:relative;display:flex;background:#fff;border-radius:10px;margin:0 12px 11px;overflow:hidden;
+  box-shadow:0 4px 13px rgba(24,39,75,.06)}
+.lf-accent{width:4px;flex-shrink:0;background:linear-gradient(180deg,#34d399,#10b981)}
+.lf-body{flex:1;padding:11px 12px}
+.lf-top{display:flex;align-items:center;gap:6px}
+.lf-badge{font-size:10px;background:#e6f8f0;color:#0f9d63;border-radius:4px;padding:2px 7px}
+.lf-title{flex:1;font-size:14.5px;color:#1a2233}
+.lf-time{font-size:10.5px;color:#b6c0cf}
+.lf-imgs{display:flex;flex-wrap:wrap;margin:4px 0 5px}
+.lf-img{width:66px;height:66px;border-radius:5px;margin:0 6px 6px 0;background:#f0f3f8}
+.lf-meta{font-size:11.5px;color:#6a7689;margin-top:2px}
+.lf-k{color:#a6b0c0;margin-right:6px}
+.ph1{background:linear-gradient(135deg,#c9d6e8,#9fb3cc)}
+.ph2{background:linear-gradient(135deg,#d8e2ef,#b6c6da)}
+.ph3{background:linear-gradient(135deg,#e2e8f0,#c5d0de)}
+</style></head><body>
+
+<div class='cap'>① 发布表单：多了拍照区（可拍 3 张）</div>
+<div class='lf-head'>
+  <div class='seg'><div class='seg-item'>我丢了</div><div class='seg-item on'>我捡到</div></div>
+  <div class='mini-btn'>收起</div>
+</div>
+<div class='card'>
+  <div class='f-input'>黑色雨伞</div>
+  <div class='f-input'>三教 201</div>
+  <div class='f-input'>138xxxx1234</div>
+  <div class='f-input'>伞柄上有个黄色贴纸</div>
+  <div class='lf-photos'>
+    <div class='lf-photo'><div class='lf-photo-img ph1'></div><div class='lf-photo-x'>✕</div></div>
+    <div class='lf-photo'><div class='lf-photo-img ph2'></div><div class='lf-photo-x'>✕</div></div>
+    <div class='lf-photo add'><span class='lf-photo-plus'>＋</span><span class='lf-photo-add-t'>再加一张</span></div>
+  </div>
+  <div class='lf-photo-tip'>最多 3 张。捡到东西可以当场拍一张，丢了东西也可以放个参考图。</div>
+  <div class='primary'>发布</div>
+</div>
+
+<div class='cap'>② 列表里带照片，点开可放大看</div>
+<div class='lf-card'>
+  <div class='lf-accent'></div>
+  <div class='lf-body'>
+    <div class='lf-top'><span class='lf-badge'>捡到</span><span class='lf-title'>黑色雨伞</span><span class='lf-time'>今天 15:20</span></div>
+    <div class='lf-imgs'>
+      <div class='lf-img ph1'></div><div class='lf-img ph2'></div>
+    </div>
+    <div class='lf-meta'><span class='lf-k'>地点</span>三教 201</div>
+    <div class='lf-meta'><span class='lf-k'>备注</span>伞柄上有个黄色贴纸</div>
+  </div>
+</div>
+<div class='lf-card'>
+  <div class='lf-accent' style='background:linear-gradient(180deg,#ff7a7f,#ff5a5f)'></div>
+  <div class='lf-body'>
+    <div class='lf-top'><span class='lf-badge' style='background:#ffeceb;color:#e5484d'>丢失</span><span class='lf-title'>校园卡</span><span class='lf-time'>昨天</span></div>
+    <div class='lf-imgs'><div class='lf-img ph3'></div></div>
+    <div class='lf-meta'><span class='lf-k'>地点</span>图书馆</div>
+  </div>
+</div>
+</body></html>

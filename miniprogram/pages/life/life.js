@@ -55,6 +55,7 @@ Page({
     // 失物招领
     lfKind: 'lost', lfList: [], lfLoading: false,
     showForm: false, fTitle: '', fLocation: '', fContact: '', fDetail: '',
+    fImages: [], lfPosting: false,
     // 校历作息
     schedule: SCHEDULE, calendar: CALENDAR,
     // 官网同步
@@ -604,7 +605,9 @@ Page({
         const list = (d.items || []).map(it => ({
           ...it,
           isLost: it.kind === 'lost',
-          timeText: fmtTime(it.created_at)
+          timeText: fmtTime(it.created_at),
+          // 后端存的是 /uploads/xxx 相对路径，这里补成完整地址给 <image> 用
+          imgUrls: (it.images || []).map(u => API + u)
         }));
         this.setData({ lfList: list });
       },
@@ -617,19 +620,63 @@ Page({
   onFLoc(e){ this.setData({ fLocation: e.detail.value }); },
   onFContact(e){ this.setData({ fContact: e.detail.value }); },
   onFDetail(e){ this.setData({ fDetail: e.detail.value }); },
+
+  // ---- 失物照片 ----
+  chooseLfImages() {
+    const left = 3 - this.data.fImages.length;
+    if (left <= 0) { wx.showToast({ title: '最多 3 张', icon: 'none' }); return; }
+    wx.chooseMedia({
+      count: left, mediaType: ['image'], sizeType: ['compressed'],
+      sourceType: ['camera', 'album'],      // 捡到东西当场拍最顺手
+      success: r => {
+        const add = (r.tempFiles || []).map(f => f.tempFilePath);
+        this.setData({ fImages: this.data.fImages.concat(add) });
+      },
+      fail: () => {}
+    });
+  },
+  removeLfImage(e) {
+    const imgs = this.data.fImages.slice();
+    imgs.splice(e.currentTarget.dataset.i, 1);
+    this.setData({ fImages: imgs });
+  },
+  previewLf(e) {
+    const urls = e.currentTarget.dataset.urls || [];
+    if (!urls.length) return;
+    wx.previewImage({ urls, current: e.currentTarget.dataset.cur || urls[0] });
+  },
+
   submitLf() {
     if (!this.data.fTitle) { wx.showToast({ title:'请填物品', icon:'none' }); return; }
-    wx.request({
-      url: API + '/life/lostfound', method: 'POST',
-      data: { kind: this.data.lfKind, title: this.data.fTitle, location: this.data.fLocation, contact: this.data.fContact, detail: this.data.fDetail },
-      success: res => {
-        if ((res.data||{}).ok) {
-          app.addMine('lost', { title: this.data.fTitle, kind: this.data.lfKind });
-          wx.showToast({ title:'发布成功' });
-          this.setData({ showForm:false, fTitle:'', fLocation:'', fContact:'', fDetail:'' }, this.loadLost);
-        } else wx.showToast({ title:'发布失败', icon:'none' });
-      },
-      fail: () => wx.showToast({ title:'连接失败', icon:'none' })
+    if (this.data.lfPosting) return;
+
+    const imgs = this.data.fImages;
+    this.setData({ lfPosting: true });
+    wx.showLoading({ title: imgs.length ? '上传照片…' : '发布中…', mask: true });
+
+    // 先把照片传到服务器拿地址，再把地址一起提交
+    Promise.all(imgs.map(p => this._uploadOne(p).catch(() => ''))).then(urls => {
+      const keep = urls.filter(Boolean);
+      const lost = imgs.length - keep.length;
+      wx.request({
+        url: API + '/life/lostfound', method: 'POST',
+        data: {
+          kind: this.data.lfKind, title: this.data.fTitle, location: this.data.fLocation,
+          contact: this.data.fContact, detail: this.data.fDetail, images: keep
+        },
+        success: res => {
+          wx.hideLoading();
+          if ((res.data||{}).ok) {
+            app.addMine('lost', { title: this.data.fTitle, kind: this.data.lfKind });
+            wx.showToast({ title: lost ? '已发布，' + lost + ' 张图没传上去' : '发布成功', icon: 'none' });
+            this.setData({
+              showForm:false, fTitle:'', fLocation:'', fContact:'', fDetail:'', fImages:[]
+            }, this.loadLost);
+          } else wx.showToast({ title:'发布失败', icon:'none' });
+        },
+        complete: () => this.setData({ lfPosting: false }),
+        fail: () => { wx.hideLoading(); this.setData({ lfPosting: false }); wx.showToast({ title:'发布失败', icon:'none' }); }
+      });
     });
   },
   closeLf(e) {

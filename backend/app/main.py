@@ -254,11 +254,13 @@ class LostFoundReq(BaseModel):
     location: str = ""
     contact: str = ""
     detail: str = ""
+    images: list[str] = []      # 照片（最多 3 张，先传到 /life/market/upload 拿地址）
 
 
 @app.post("/life/lostfound")
 def life_lf_add(req: LostFoundReq):
-    return life.add_lost_found(req.kind, req.title, req.location, req.contact, req.detail)
+    return life.add_lost_found(req.kind, req.title, req.location, req.contact,
+                               req.detail, req.images)
 
 
 @app.get("/life/lostfound")

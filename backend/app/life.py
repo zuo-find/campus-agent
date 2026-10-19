@@ -56,6 +56,11 @@ def init_db() -> None:
                 created_at TEXT NOT NULL
             )
         """)
+        # 老库补列：失物招领支持拍照（存 JSON 数组的图片地址）
+        try:
+            c.execute("ALTER TABLE lost_found ADD COLUMN images TEXT")
+        except sqlite3.OperationalError:
+            pass      # 已经有了
 
 
 # ----------------------------------------------------------------- 天气
@@ -148,15 +153,28 @@ def recommend_meal(taste: str = "", budget: float = 0, meal: str = "午餐") -> 
 
 # ----------------------------------------------------------------- 失物招领
 
-def add_lost_found(kind: str, title: str, location: str = "", contact: str = "", detail: str = "") -> dict:
+def add_lost_found(kind: str, title: str, location: str = "", contact: str = "",
+                   detail: str = "", images: list[str] | None = None) -> dict:
     if kind not in ("lost", "found") or not title.strip():
         return {"ok": False, "msg": "参数错误"}
+    imgs = json.dumps([u for u in (images or []) if u][:3], ensure_ascii=False)
     with _conn() as c:
         cur = c.execute(
-            "INSERT INTO lost_found(kind,title,location,contact,detail,created_at) VALUES(?,?,?,?,?,?)",
-            (kind, title.strip(), location, contact, detail, datetime.now().isoformat(timespec="minutes")),
+            "INSERT INTO lost_found(kind,title,location,contact,detail,images,created_at) "
+            "VALUES(?,?,?,?,?,?,?)",
+            (kind, title.strip(), location, contact, detail, imgs,
+             datetime.now().isoformat(timespec="minutes")),
         )
         return {"ok": True, "id": cur.lastrowid}
+
+
+def _with_images(row: dict) -> dict:
+    """把库里存的 JSON 字符串还原成数组，前端直接用。"""
+    try:
+        row["images"] = json.loads(row.get("images") or "[]")
+    except Exception:
+        row["images"] = []
+    return row
 
 
 def list_lost_found(kind: str = "") -> dict:
@@ -167,7 +185,7 @@ def list_lost_found(kind: str = "") -> dict:
         params.append(kind)
     sql += " ORDER BY id DESC LIMIT 100"
     with _conn() as c:
-        rows = [dict(r) for r in c.execute(sql, params).fetchall()]
+        rows = [_with_images(dict(r)) for r in c.execute(sql, params).fetchall()]
     return {"ok": True, "items": rows}
 
 

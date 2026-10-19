@@ -338,7 +338,22 @@
       <input class="f-input" placeholder="地点，如 三教201" value="{{fLocation}}" bindinput="onFLoc" />
       <input class="f-input" placeholder="联系方式" value="{{fContact}}" bindinput="onFContact" />
       <input class="f-input" placeholder="补充描述（可留空）" value="{{fDetail}}" bindinput="onFDetail" />
-      <button class="btn-primary" bindtap="submitLf">发布</button>
+
+      <!-- 拍张照比文字描述直观得多 -->
+      <view class="lf-photos">
+        <view class="lf-photo" wx:for="{{fImages}}" wx:key="*this">
+          <image class="lf-photo-img" src="{{item}}" mode="aspectFill"
+                 data-urls="{{fImages}}" data-cur="{{item}}" bindtap="previewLf" />
+          <text class="lf-photo-x" data-i="{{index}}" catchtap="removeLfImage">✕</text>
+        </view>
+        <view class="lf-photo add" wx:if="{{fImages.length < 3}}" bindtap="chooseLfImages">
+          <text class="lf-photo-plus">＋</text>
+          <text class="lf-photo-add-t">{{fImages.length ? '再加一张' : '拍照/选图'}}</text>
+        </view>
+      </view>
+      <view class="lf-photo-tip">最多 3 张。捡到东西可以当场拍一张，丢了东西也可以放个参考图。</view>
+
+      <button class="btn-primary" bindtap="submitLf" disabled="{{lfPosting}}">{{lfPosting ? '发布中…' : '发布'}}</button>
     </view>
 
     <view wx:if="{{lfLoading}}" class="muted center">加载中…</view>
@@ -350,6 +365,13 @@
           <text class="lf-badge">{{item.isLost?'丢失':'捡到'}}</text>
           <text class="lf-title">{{item.title}}</text>
           <text class="lf-time">{{item.timeText}}</text>
+        </view>
+        <!-- 发布时拍的照片，点开可放大 -->
+        <view class="lf-imgs" wx:if="{{item.imgUrls.length}}">
+          <image class="lf-img" wx:for="{{item.imgUrls}}" wx:for-item="u" wx:key="*this"
+                 src="{{u}}" mode="aspectFill"
+                 data-urls="{{item.imgUrls}}" data-cur="{{u}}"
+                 catchtap="previewLf" lazy-load />
         </view>
         <view class="lf-meta" wx:if="{{item.location}}"><text class="lf-k">地点</text><text class="lf-v">{{item.location}}</text></view>
         <view class="lf-meta" wx:if="{{item.detail}}"><text class="lf-k">备注</text><text class="lf-v">{{item.detail}}</text></view>
