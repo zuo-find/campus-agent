@@ -85,9 +85,21 @@ def init_db() -> None:
     _ensure_col("school_sources", "logo_light", "INTEGER")  # logo 是否为浅色(白 logo 需深色底)
 
 
+def _logo_exists(path: str) -> bool:
+    """校徽文件还在不在。库里的路径可能是历史遗留（文件被清理掉了）。"""
+    if not path:
+        return False
+    from app.market import UPLOAD_DIR
+    return os.path.exists(os.path.join(UPLOAD_DIR, os.path.basename(path)))
+
+
 def list_sources() -> dict:
     with _conn() as c:
         rows = [dict(r) for r in c.execute("SELECT * FROM school_sources").fetchall()]
+    # 文件没了就返回空字符串，让前端走"校"字兜底，别显示个裂图
+    for r in rows:
+        if r.get("logo") and not _logo_exists(r["logo"]):
+            r["logo"] = ""
     return {"ok": True, "sources": rows, "categories": CATEGORIES}
 
 
@@ -397,7 +409,9 @@ def save_logo(url: str, category: str) -> tuple[str, bool]:
     slug = _SLUG.get(category) or ("c" + hashlib.md5(category.encode("utf-8")).hexdigest()[:8])
     digest = hashlib.md5(data).hexdigest()[:8]
     name = f"school_logo_{slug}_{digest}{ext}"
-    _drop_old_logos(slug, name)
+    # 注意：这里不能顺手删旧文件。库里此刻还指着旧文件名，如果这次同步
+    # 在后面的环节失败（比如 AI 抽取报错），数据库不会更新，就会指向一个
+    # 已经被删掉的文件 → 校徽 404。清理放在“数据库更新成功之后”再做。
     with open(os.path.join(UPLOAD_DIR, name), "wb") as f:
         f.write(data)
 
@@ -503,7 +517,7 @@ def sync(category: str = "") -> dict:
             # 那种路径内容变了 URL 却没变，客户端的图片缓存会一直显示旧图
             host = urlparse(url).netloc.lower()
             cached = _logo_cache().get(host)
-            if cached and _HASHED_LOGO.match(cached.get("path") or ""):
+            if cached and _HASHED_LOGO.match(cached.get("path") or "") and _logo_exists(cached["path"]):
                 logo = cached["path"]
                 logo_light = int(cached.get("light") or 0)
             else:
@@ -529,6 +543,11 @@ def sync(category: str = "") -> dict:
                 c.execute("UPDATE school_sources SET synced_at=?, logo=COALESCE(NULLIF(?,''),logo), "
                           "name=COALESCE(NULLIF(?,''),name), logo_light=? WHERE category=?",
                           (now, logo, name, logo_light, cat))
+            # 数据库已经指向新文件了，这时清理同一栏的旧校徽才是安全的
+            if logo:
+                keep = os.path.basename(logo)
+                if keep.startswith("school_logo_" + _SLUG.get(cat, "") + "_"):
+                    _drop_old_logos(_SLUG.get(cat, ""), keep)
             # 一条都没抽到，多半是填了首页/栏目页（只有链接没有正文）：
             # 顺手把这个页面里相关的下钻链接捞出来，给用户当"下一步该填什么"的建议
             suggest = find_links(html, url, cat) if not items else []
