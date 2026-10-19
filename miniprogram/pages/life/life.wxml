@@ -23,24 +23,36 @@
       <view wx:else class="muted">{{advice}}</view>
     </view>
 
-    <!-- 作息时间：优先显示从官网同步的 -->
+    <!-- 我的课表：拍课表截图自动识别，或手动添加 -->
     <view class="card">
       <view class="sec-title-row">
-        <text class="sec-title">作息时间</text>
-        <text class="sync-btn" data-cat="作息" bindtap="openSync">同步官网</text>
+        <text class="sec-title">我的课表</text>
+        <text class="sync-btn" bindtap="openTt">导入课程</text>
       </view>
-      <block wx:if="{{school['作息'].length}}">
-        <view class="row" wx:for="{{school['作息']}}" wx:key="id">
-          <text class="row-l">{{item.title}}</text><text class="row-r">{{item.content}}</text>
+
+      <block wx:if="{{ttGroups.length}}">
+        <view class="tt-day" wx:for="{{ttGroups}}" wx:key="day">
+          <view class="tt-day-h">
+            <text class="tt-day-n {{item.isToday ? 'today' : ''}}">{{item.day}}</text>
+            <text class="tt-today" wx:if="{{item.isToday}}">今天</text>
+          </view>
+          <view class="tt-row" wx:for="{{item.items}}" wx:for-item="c" wx:key="id">
+            <view class="tt-main">
+              <text class="tt-n">{{c.name}}</text>
+              <view class="tt-t">
+                <text>{{c.period}} {{c.time}}</text>
+                <text wx:if="{{c.place}}"> · {{c.place}}</text>
+              </view>
+            </view>
+            <text class="tt-x" data-id="{{c.id}}" catchtap="delCourse">删</text>
+          </view>
         </view>
-        <view class="sync-note">来自学校官网 · {{schoolTime['作息']}}</view>
       </block>
-      <block wx:else>
-        <view class="row" wx:for="{{schedule}}" wx:key="period">
-          <text class="row-l">{{item.period}}</text><text class="row-r">{{item.time}}</text>
-        </view>
-        <view class="sync-note">默认作息（未同步官网）</view>
-      </block>
+
+      <view wx:else class="tt-empty">
+        <text class="tt-empty-t">还没有课程</text>
+        <text class="tt-empty-d">点右上角「导入课程」：拍一张课表截图，自动识别课程、上课时间和地点；也可以手动一条条加。</text>
+      </view>
     </view>
 
     <!-- 校历速查 -->
@@ -122,6 +134,61 @@
         <view class="sync-tip">小程序无法直接抓网页，由后端抓取后交给 AI 抽取成条目；请只同步学校公开发布的信息。选学校填的是官网首页，若同步不到内容，按下面的建议往下点一层。</view>
         <button class="btn-primary" bindtap="doSync" disabled="{{syncing}}">{{syncing ? '同步中…' : '立即同步'}}</button>
       </scroll-view>
+    </view>
+  </view>
+
+  <!-- 导入课程：拍照识别 / 手动添加 -->
+  <view wx:if="{{ttShow}}" class="mask" bindtap="closeTt">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-h">导入课程<text class="sheet-x" catchtap="closeTt">✕</text></view>
+      <view class="way" bindtap="ttCamera">
+        <text class="way-t">拍课表截图识别</text>
+        <text class="way-d">拍或选一张课程表截图，自动认出课程名、星期、节次和地点，确认后导入</text>
+      </view>
+      <view class="way" bindtap="ttManual">
+        <text class="way-t">手动添加</text>
+        <text class="way-d">自己填课程名、星期、节次和上课地点</text>
+      </view>
+      <view class="sync-tip" style="margin-top:16rpx">课表只保存在你手机本地，不会上传服务器。</view>
+    </view>
+  </view>
+
+  <!-- 识别结果确认 -->
+  <view wx:if="{{ttSheet}}" class="mask" bindtap="closeTtSheet">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-h">识别到的课程<text class="sheet-x" catchtap="closeTtSheet">✕</text></view>
+      <view class="sync-tip" style="margin:0 0 12rpx">点一下可以取消勾选，确认无误再导入。</view>
+      <scroll-view class="tt-confirm-body" scroll-y>
+        <view class="tt-confirm" wx:for="{{ttCands}}" wx:key="tid" data-i="{{index}}" bindtap="toggleTtCand">
+          <view class="cb {{item.on ? 'on' : ''}}">{{item.on ? '✓' : ''}}</view>
+          <view class="tt-confirm-main">
+            <text class="tt-n">{{item.name}}</text>
+            <view class="tt-t">
+              <text>{{item.day}} · {{item.period}}</text>
+              <text wx:if="{{item.place}}"> · {{item.place}}</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+      <button class="btn-primary" bindtap="saveTtCands">导入 {{ttPickCount}} 条</button>
+    </view>
+  </view>
+
+  <!-- 手动添加 -->
+  <view wx:if="{{mfShow}}" class="mask" bindtap="closeMf">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-h">添加课程<text class="sheet-x" catchtap="closeMf">✕</text></view>
+      <input class="f-input" placeholder="课程名，如：数据结构" value="{{mf.name}}" data-k="name" bindinput="onMfInput" />
+      <view class="mf-row">
+        <picker class="mf-pick" range="{{dayOptions}}" value="{{mfDayIdx}}" bindchange="onMfDay">
+          <view class="picker">{{dayOptions[mfDayIdx]}}</view>
+        </picker>
+        <picker class="mf-pick" range="{{periodOptions}}" value="{{mfPeriodIdx}}" bindchange="onMfPeriod">
+          <view class="picker">{{periodOptions[mfPeriodIdx]}}</view>
+        </picker>
+      </view>
+      <input class="f-input" placeholder="上课地点，如：教学楼 A301（可不填）" value="{{mf.place}}" data-k="place" bindinput="onMfInput" />
+      <button class="btn-primary" bindtap="saveManual">保存</button>
     </view>
   </view>
 

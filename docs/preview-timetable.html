@@ -1,0 +1,84 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#e9ecf1;font-family:'Microsoft YaHei',sans-serif;width:375px}
+.screen{width:375px;background:#f5f6f8;padding-bottom:14px}
+.cap{font-size:11px;color:#8c98ab;padding:9px 14px 4px}
+.card{background:#fff;border-radius:8px;margin:8px 12px;padding:14px}
+.sec-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.sec-title{font-size:15px;font-weight:600;color:#1a2233}
+.sync-btn{font-size:11px;color:#1a73e8;border:.5px solid #cfe0fb;border-radius:15px;padding:3px 11px}
+.tt-day{padding:3px 0}
+.tt-day-h{display:flex;align-items:center;margin-top:7px}
+.tt-day-n{font-size:12px;color:#8c98ab}
+.tt-day-n.today{color:#1a73e8;font-weight:600}
+.tt-today{font-size:9.5px;color:#fff;background:#1a73e8;border-radius:3px;padding:1px 5px;margin-left:5px}
+.tt-row{display:flex;align-items:center;padding:8px 0;border-bottom:.5px solid #f2f4f8}
+.tt-row:last-child{border-bottom:none}
+.tt-main{flex:1;min-width:0}
+.tt-n{display:block;font-size:14.5px;color:#1a2233}
+.tt-t{display:block;font-size:11.5px;color:#8c98ab;margin-top:3px}
+.tt-x{font-size:11px;color:#c6d0de;padding:4px 0 4px 10px}
+.tt-empty{padding:10px 0 5px}
+.tt-empty-t{display:block;font-size:14px;color:#5a6684}
+.tt-empty-d{display:block;font-size:11.5px;color:#9aa6b5;line-height:1.7;margin-top:4px}
+.mask{background:rgba(16,24,40,.45);padding-top:60px}
+.sheet{background:#fff;border-radius:14px 14px 0 0;padding:14px 16px 20px}
+.sheet-h{position:relative;text-align:center;font-size:16px;font-weight:600;color:#1a2233;padding-bottom:10px}
+.sheet-x{position:absolute;right:0;top:0;color:#a6b0c0;font-size:15px}
+.way{padding:11px 0;border-bottom:.5px solid #f2f4f8}
+.way:last-of-type{border-bottom:none}
+.way-t{display:block;font-size:14.5px;color:#1a2233}
+.way-d{display:block;font-size:11.5px;color:#9aa6b5;line-height:1.6;margin-top:3px}
+.sync-tip{font-size:11px;color:#9aa6b5;line-height:1.6}
+.tt-confirm{display:flex;align-items:center;padding:9px 0;border-bottom:.5px solid #f2f4f8}
+.cb{width:17px;height:17px;border-radius:50%;border:1px solid #c6d0de;margin-right:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:10.5px;color:#fff}
+.cb.on{background:#1a73e8;border-color:#1a73e8}
+.tt-confirm-main{flex:1;min-width:0}
+.primary{background:#1a73e8;color:#fff;border-radius:6px;font-size:15px;padding:10px 0;text-align:center;margin-top:8px}
+</style></head><body>
+
+<div class='cap'>① 有课的样子：按星期分组，今天高亮</div>
+<div class='screen'><div class='card'>
+  <div class='sec-title-row'><span class='sec-title'>我的课表</span><span class='sync-btn'>导入课程</span></div>
+  <div class='tt-day'>
+    <div class='tt-day-h'><span class='tt-day-n'>周一</span></div>
+    <div class='tt-row'><div class='tt-main'><span class='tt-n'>高等数学</span><span class='tt-t'>第一大节 08:00 - 09:40 · 教学楼 A301</span></div><span class='tt-x'>删</span></div>
+    <div class='tt-row'><div class='tt-main'><span class='tt-n'>大学英语</span><span class='tt-t'>第三大节 14:00 - 15:40 · B202</span></div><span class='tt-x'>删</span></div>
+  </div>
+  <div class='tt-day'>
+    <div class='tt-day-h'><span class='tt-day-n today'>周二</span><span class='tt-today'>今天</span></div>
+    <div class='tt-row'><div class='tt-main'><span class='tt-n'>数据结构</span><span class='tt-t'>第二大节 10:00 - 11:40 · 实验楼 C105</span></div><span class='tt-x'>删</span></div>
+    <div class='tt-row'><div class='tt-main'><span class='tt-n'>体育</span><span class='tt-t'>第四大节 16:00 - 17:40 · 操场</span></div><span class='tt-x'>删</span></div>
+  </div>
+  <div class='tt-day'>
+    <div class='tt-day-h'><span class='tt-day-n'>周四</span></div>
+    <div class='tt-row'><div class='tt-main'><span class='tt-n'>毛概</span><span class='tt-t'>第三大节 14:00 - 15:40 · D栋 203</span></div><span class='tt-x'>删</span></div>
+  </div>
+</div></div>
+
+<div class='cap'>② 空的时侯：直接告诉你两种导入方式</div>
+<div class='screen'><div class='card'>
+  <div class='sec-title-row'><span class='sec-title'>我的课表</span><span class='sync-btn'>导入课程</span></div>
+  <div class='tt-empty'><span class='tt-empty-t'>还没有课程</span><span class='tt-empty-d'>点右上角「导入课程」：拍一张课表截图，自动识别课程、上课时间和地点；也可以手动一条条加。</span></div>
+</div></div>
+
+<div class='cap'>③ 导入方式</div>
+<div class='screen'><div class='mask'><div class='sheet'>
+  <div class='sheet-h'>导入课程<span class='sheet-x'>✕</span></div>
+  <div class='way'><span class='way-t'>拍课表截图识别</span><span class='way-d'>拍或选一张课程表截图，自动认出课程名、星期、节次和地点，确认后导入</span></div>
+  <div class='way'><span class='way-t'>手动添加</span><span class='way-d'>自己填课程名、星期、节次和上课地点</span></div>
+  <div class='sync-tip' style='margin-top:8px'>课表只保存在你手机本地，不会上传服务器。</div>
+</div></div></div>
+
+<div class='cap'>④ 识别完先确认，勾掉的不会导入</div>
+<div class='screen'><div class='mask'><div class='sheet'>
+  <div class='sheet-h'>识别到的课程<span class='sheet-x'>✕</span></div>
+  <div class='sync-tip' style='margin-bottom:6px'>点一下可以取消勾选，确认无误再导入。</div>
+  <div class='tt-confirm'><div class='cb on'>✓</div><div class='tt-confirm-main'><span class='tt-n'>数据结构</span><span class='tt-t'>周一 · 第三大节 · 教学楼 A301</span></div></div>
+  <div class='tt-confirm'><div class='cb on'>✓</div><div class='tt-confirm-main'><span class='tt-n'>大学物理</span><span class='tt-t'>周三 · 第一大节 · B202</span></div></div>
+  <div class='tt-confirm'><div class='cb'></div><div class='tt-confirm-main'><span class='tt-n'>英语</span><span class='tt-t'>周五 · 第三大节</span></div></div>
+  <div class='primary'>导入 2 条</div>
+</div></div></div>
+
+</body></html>

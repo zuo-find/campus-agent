@@ -44,6 +44,49 @@
 .cat-opt.on { background: #1a73e8; color: #fff; font-weight: 500; }
 .sync-tip { font-size: 22rpx; color: #9aa6b5; line-height: 1.6; margin: 6rpx 0 22rpx; }
 
+/* ---------- 我的课表 ---------- */
+.tt-day { padding: 6rpx 0; }
+.tt-day-h { display: flex; align-items: center; margin-top: 14rpx; }
+.tt-day-n { font-size: 24rpx; color: #8c98ab; }
+.tt-day-n.today { color: #1a73e8; font-weight: 600; }
+.tt-today {
+  font-size: 19rpx; color: #fff; background: #1a73e8; border-radius: 6rpx;
+  padding: 2rpx 10rpx; margin-left: 10rpx;
+}
+.tt-row { display: flex; align-items: center; padding: 16rpx 0; border-bottom: 1rpx solid #f2f4f8; }
+.tt-row:last-child { border-bottom: none; }
+.tt-main { flex: 1; min-width: 0; }
+.tt-n { display: block; font-size: 29rpx; color: #1a2233; }
+.tt-t { display: block; font-size: 23rpx; color: #8c98ab; margin-top: 6rpx; }
+.tt-x { font-size: 22rpx; color: #c6d0de; padding: 8rpx 0 8rpx 20rpx; }
+
+.tt-empty { padding: 20rpx 0 10rpx; }
+.tt-empty-t { display: block; font-size: 28rpx; color: #5a6684; }
+.tt-empty-d { display: block; font-size: 23rpx; color: #9aa6b5; line-height: 1.7; margin-top: 8rpx; }
+
+/* 导入方式 */
+.way { padding: 22rpx 0; border-bottom: 1rpx solid #f2f4f8; }
+.way:last-of-type { border-bottom: none; }
+.way-t { display: block; font-size: 29rpx; color: #1a2233; }
+.way-d { display: block; font-size: 23rpx; color: #9aa6b5; line-height: 1.6; margin-top: 6rpx; }
+
+/* 识别结果确认 */
+.tt-confirm-body { max-height: 640rpx; }
+.tt-confirm { display: flex; align-items: center; padding: 18rpx 0; border-bottom: 1rpx solid #f2f4f8; }
+.cb {
+  width: 34rpx; height: 34rpx; border-radius: 50%; border: 2rpx solid #c6d0de;
+  margin-right: 18rpx; flex-shrink: 0; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21rpx; color: #fff;
+}
+.cb.on { background: #1a73e8; border-color: #1a73e8; }
+.tt-confirm-main { flex: 1; min-width: 0; }
+
+/* 手动添加 */
+.mf-row { display: flex; }
+.mf-pick { flex: 1; }
+.mf-pick:first-child { margin-right: 16rpx; }
+
 /* 选择学校：输入校名 → 点一条自动填网址 */
 .uni-list { background: #f7f9fd; border-radius: 12rpx; margin-bottom: 4rpx; overflow: hidden; }
 .uni-item { display: flex; align-items: center; padding: 18rpx 20rpx; border-bottom: 1rpx solid #eef2f8; }

@@ -21,7 +21,7 @@ from app import agent, providers
 from app.config import settings
 from app.tools import ToolContext
 
-MODES = ("ask", "solve", "notice", "scores")
+MODES = ("ask", "solve", "notice", "scores", "timetable")
 
 # 各用途的默认提问（用户没打字时用）
 DEFAULT_ASK = {
@@ -57,6 +57,85 @@ SCORES_PROMPT = """这是一张成绩单或成绩查询截图。请提取其中�
 - 若写「合格/通过」记 60，「不合格/未通过」记 50
 - 表头、合计、绩点、排名这类行不要当成课程
 - 看不清课程名或分数的条目直接不要"""
+
+
+# 课表抽取：和成绩单一样只吐 JSON
+TIMETABLE_PROMPT = """这是一张课程表截图。请提取其中的课程安排，严格只输出 JSON，不要任何其他文字：
+{"courses":[{"name":"课程名","day":"周一","period":"第三大节","place":"教学楼A301"}]}
+
+规则：
+- day 只能是 周一/周二/周三/周四/周五/周六/周日
+- period 只能是 第一大节/第二大节/第三大节/第四大节/晚自习
+  （图上写"1-2节""3-4节"这类，归到对应的大节：1-2→第一大节，3-4→第二大节，5-6→第三大节，7-8→第四大节）
+- place 是上课地点/教室，图上没有就留空
+- 表头、时间段、备注、周次不要当成课程
+- 同一门课如果一周上多次，每次单独输出一条
+- 看不清的条目直接不要"""
+
+_DAYS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+_PERIODS = ["第一大节", "第二大节", "第三大节", "第四大节", "晚自习"]
+
+_DAY_ALIAS = {"一": "周一", "二": "周二", "三": "周三", "四": "周四", "五": "周五",
+              "六": "周六", "日": "周日", "天": "周日",
+              "1": "周一", "2": "周二", "3": "周三", "4": "周四",
+              "5": "周五", "6": "周六", "7": "周日"}
+
+
+def _norm_day(s: str) -> str:
+    """把「周一 / 星期1 / 礼拜三 / 周3」都归到「周X」。"""
+    s = (s or "").strip().replace("星期", "周").replace("礼拜", "周")
+    if not s:
+        return ""
+    if not s.startswith("周"):
+        s = "周" + s
+    core = s[1:].strip()
+    if core in _DAY_ALIAS:
+        return _DAY_ALIAS[core]
+    return s if s in _DAYS else ""
+
+
+def _norm_period(s: str) -> str:
+    """把「第三大节 / 第3节 / 3-4节 / 5」都归到四个大节或晚自习。"""
+    s = (s or "").strip()
+    if s in _PERIODS:
+        return s
+    core = s.replace("第", "").replace("大节", "").replace("节", "").strip()
+    if core[:1] == "晚":
+        return "晚自习"
+    m = re.match(r"^(\d)", core)
+    if m:
+        n = int(m.group(1))
+        if n <= 2:
+            return "第一大节"
+        if n <= 4:
+            return "第二大节"
+        if n <= 6:
+            return "第三大节"
+        if n <= 8:
+            return "第四大节"
+        return "晚自习"
+    alias = {"一": "第一大节", "二": "第二大节", "三": "第三大节", "四": "第四大节"}
+    return alias.get(core[:1], "")
+
+
+def _clean_timetable(raw: object) -> list[dict]:
+    """清洗课表条目：星期和节次必须能归一，归不了的丢掉。"""
+    if not isinstance(raw, list):
+        return []
+    out: list[dict] = []
+    for c in raw:
+        if not isinstance(c, dict):
+            continue
+        name = str(c.get("name", "")).strip()
+        if not name:
+            continue
+        day = _norm_day(str(c.get("day", "")))
+        period = _norm_period(str(c.get("period", "")))
+        if not day or not period:
+            continue
+        out.append({"name": name, "day": day, "period": period,
+                    "place": str(c.get("place", "")).strip()})
+    return out[:60]
 
 
 def _client(vision_llm: dict | None) -> tuple[OpenAI, str]:
@@ -187,6 +266,17 @@ def handle(image: str, mode: str, message: str, history: list[dict],
     question = (message or "").strip()
     out: dict = {"mode": mode, "ocr": "", "sources": [], "tool_calls": [],
                  "agent": "", "agent_name": ""}
+
+    # ---------- 拍课表：只做结构化抽取，不进 Agent ----------
+    if mode == "timetable":
+        txt = _ask_image(image, TIMETABLE_PROMPT, vision_llm, max_tokens=1500)
+        items = _clean_timetable(_parse_json(txt).get("courses"))
+        out["courses"] = items
+        out["raw"] = "" if items else txt[:300]
+        out["reply"] = (f"识别出 {len(items)} 条课程安排，确认后即可导入课表。"
+                        if items else
+                        "这张图里没识别出课程安排。请确认是课表截图，或换一张更清晰的图。")
+        return out
 
     # ---------- 拍成绩单：只做结构化抽取，不进 Agent ----------
     if mode == "scores":

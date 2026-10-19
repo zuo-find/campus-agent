@@ -18,6 +18,12 @@ const CALENDAR = [
   { label: '寒假', date: '2027-01-18 起' }
 ];
 
+// 课表用的节次与星期（时间取自上面的 SCHEDULE，午休不算一节课）
+const DAY_NAMES = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+const PERIODS = ['第一大节', '第二大节', '第三大节', '第四大节', '晚自习'];
+const PERIOD_TIME = {};
+SCHEDULE.forEach(s => { if (PERIODS.indexOf(s.period) >= 0) PERIOD_TIME[s.period] = s.time; });
+
 // 把 ISO 时间串(如 2026-10-13T11:26)转成"今天 11:26 / 昨天 / 3天前 / 10月13日"
 function fmtTime(iso) {
   if (!iso) return '';
@@ -59,12 +65,18 @@ Page({
     // 同步完成后的学校 logo 过场动画
     logoAnim: { show: false, logo: '', name: '', light: false },
     // 「选择学校」：输入校名自动填官网
-    uniQ: '', uniList: []
+    uniQ: '', uniList: [],
+    // 我的课表
+    ttList: [], ttGroups: [],
+    ttShow: false, ttSheet: false, ttCands: [], ttPickCount: 0, ttBusy: false,
+    mfShow: false, mf: { name: '', place: '' }, mfDayIdx: 0, mfPeriodIdx: 0,
+    dayOptions: DAY_NAMES, periodOptions: PERIODS
   },
 
   onLoad() {
     this.loadWeather();
     this.loadSchool();
+    this.loadTimetable();
   },
 
   // 从「我的」页跳过来时，按全局变量打开指定栏
@@ -120,6 +132,165 @@ Page({
 
   // logo 图片加载失败 → 退回"校"字方块，避免出现空白
   onLogoErr() { this.setData({ 'logoAnim.logo': '' }); },
+
+  // ==================== 我的课表 ====================
+  // 只存本地（课程属于个人数据，不上传服务器）
+
+  loadTimetable() {
+    const list = wx.getStorageSync('timetable') || [];
+    this.setData({ ttList: list, ttGroups: this.groupTt(list) });
+  },
+
+  // 按星期分组，标出今天；没课的星期不显示
+  groupTt(list) {
+    const todayIdx = (new Date().getDay() + 6) % 7;    // 周日=0 → 我们排第 7
+    const groups = [];
+    DAY_NAMES.forEach((day, i) => {
+      const items = list.filter(c => c.day === day)
+        .sort((a, b) => PERIODS.indexOf(a.period) - PERIODS.indexOf(b.period));
+      if (items.length) {
+        groups.push({ day, isToday: i === todayIdx, items });
+      }
+    });
+    return groups;
+  },
+
+  openTt() { this.setData({ ttShow: true }); },
+  closeTt() { this.setData({ ttShow: false }); },
+
+  // ---- 拍照识别导入 ----
+  ttCamera() {
+    this.setData({ ttShow: false });
+    if (this.data.ttBusy) return;
+    wx.chooseMedia({
+      count: 1, mediaType: ['image'], sizeType: ['compressed'],
+      sourceType: ['camera', 'album'],
+      success: res => {
+        const f = (res.tempFiles || [])[0];
+        if (!f) return;
+        this.ttSend(f.tempFilePath);
+      },
+      fail: () => {}
+    });
+  },
+
+  ttSend(path) {
+    const vl = wx.getStorageSync('visionLlm');
+    const visionPayload = vl && vl.apiKey
+      ? { provider: vl.provider, api_key: vl.apiKey, model: vl.model } : null;
+    if (!visionPayload) {
+      wx.showModal({
+        title: '还没配识图模型',
+        content: '拍课表识别要用多模态模型。去「我的 → 大模型设置 → 识图模型」配一个（推荐智谱 glm-4v-flash，有免费额度）。',
+        showCancel: false
+      });
+      return;
+    }
+    this.setData({ ttBusy: true });
+    wx.showLoading({ title: '识别课表中…', mask: true });
+    wx.compressImage({
+      src: path, quality: 70,
+      success: r => this.ttUpload(r.tempFilePath || path, visionPayload),
+      fail: () => this.ttUpload(path, visionPayload)
+    });
+  },
+
+  ttUpload(file, visionPayload) {
+    wx.getFileSystemManager().readFile({
+      filePath: file, encoding: 'base64',
+      success: res => {
+        const ext = (file.split('.').pop() || 'jpg').toLowerCase();
+        const mime = ext === 'png' ? 'image/png' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
+        wx.request({
+          url: API + '/chat/vision', method: 'POST', timeout: 120000,
+          data: {
+            image: 'data:' + mime + ';base64,' + res.data,
+            mode: 'timetable', message: '', history: [],
+            vision_llm: visionPayload
+          },
+          success: r => {
+            const d = r.data || {};
+            if (!d.ok) { wx.showToast({ title: d.error || '识别失败', icon: 'none' }); return; }
+            const list = (d.courses || []).map(c => ({ ...c, on: true, tid: 'c' + Math.random() }));
+            if (!list.length) {
+              wx.showModal({
+                title: '没识别出课程', showCancel: false,
+                content: d.reply || '换一张更清晰的课表截图试试。'
+              });
+              return;
+            }
+            this.setData({ ttCands: list, ttPickCount: list.length, ttSheet: true });
+          },
+          fail: () => wx.showToast({ title: '识别失败，检查后端', icon: 'none' }),
+          complete: () => { wx.hideLoading(); this.setData({ ttBusy: false }); }
+        });
+      },
+      fail: () => { wx.hideLoading(); this.setData({ ttBusy: false }); wx.showToast({ title: '读取图片失败', icon: 'none' }); }
+    });
+  },
+
+  toggleTtCand(e) {
+    const i = e.currentTarget.dataset.i;
+    const cands = this.data.ttCands.slice();
+    cands[i].on = !cands[i].on;
+    this.setData({ ttCands: cands, ttPickCount: cands.filter(c => c.on).length });
+  },
+  closeTtSheet() { this.setData({ ttSheet: false }); },
+
+  saveTtCands() {
+    const pick = this.data.ttCands.filter(c => c.on);
+    if (!pick.length) { wx.showToast({ title: '至少选一门', icon: 'none' }); return; }
+    this.addCourses(pick.map(c => ({ name: c.name, day: c.day, period: c.period, place: c.place })));
+    this.setData({ ttSheet: false });
+  },
+
+  // 去重：同一天同一节同一门课视为重复
+  addCourses(items) {
+    const list = this.data.ttList.slice();
+    let added = 0;
+    items.forEach(c => {
+      const dup = list.some(x => x.day === c.day && x.period === c.period && x.name === c.name);
+      if (dup) return;
+      list.push({
+        id: 't' + Date.now() + Math.floor(Math.random() * 1000),
+        name: c.name, day: c.day, period: c.period,
+        place: c.place || '', time: PERIOD_TIME[c.period] || ''
+      });
+      added += 1;
+    });
+    wx.setStorageSync('timetable', list);
+    this.setData({ ttList: list, ttGroups: this.groupTt(list) });
+    wx.showToast({ title: added ? '已导入 ' + added + ' 条' : '这些课程已经有了', icon: 'none' });
+  },
+
+  delCourse(e) {
+    const id = e.currentTarget.dataset.id;
+    wx.showModal({
+      title: '删除课程', content: '确定从课表里删掉这门课？',
+      success: r => {
+        if (!r.confirm) return;
+        const list = this.data.ttList.filter(x => x.id !== id);
+        wx.setStorageSync('timetable', list);
+        this.setData({ ttList: list, ttGroups: this.groupTt(list) });
+      }
+    });
+  },
+
+  // ---- 手动添加 ----
+  ttManual() { this.setData({ ttShow: false, mfShow: true, mf: { name: '', place: '' } }); },
+  closeMf() { this.setData({ mfShow: false }); },
+  onMfInput(e) { this.setData({ ['mf.' + e.currentTarget.dataset.k]: e.detail.value }); },
+  onMfDay(e) { this.setData({ mfDayIdx: Number(e.detail.value) }); },
+  onMfPeriod(e) { this.setData({ mfPeriodIdx: Number(e.detail.value) }); },
+  saveManual() {
+    const name = (this.data.mf.name || '').trim();
+    if (!name) { wx.showToast({ title: '填一下课程名', icon: 'none' }); return; }
+    this.addCourses([{
+      name, day: DAY_NAMES[this.data.mfDayIdx], period: PERIODS[this.data.mfPeriodIdx],
+      place: (this.data.mf.place || '').trim()
+    }]);
+    this.setData({ mfShow: false });
+  },
 
   // ---------- 学校官网同步 ----------
   loadSchool() {

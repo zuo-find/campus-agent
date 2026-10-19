@@ -31,8 +31,16 @@ SCORES_JSON = ('```json\n{"courses":[{"name":"高等数学","credit":4,"score":8
                '{"name":"合计","credit":0,"score":-1}]}\n```')
 
 
+TIMETABLE_JSON = ('```json\n{"courses":['
+                  '{"name":"数据结构","day":"周一","period":"第三大节","place":"教学楼A301"},'
+                  '{"name":"大学物理","day":"周3","period":"1-2节","place":"B202"},'
+                  '{"name":"英语","day":"周八","period":"第三大节","place":"X"}]}\n```')
+
+
 def fake_ask(image, prompt, vision_llm, system=vision.VISION_SYSTEM, max_tokens=1200):
     """假装多模态模型：按提示词判断这次要做什么。"""
+    if "课程表" in prompt:
+        return TIMETABLE_JSON
     if "JSON" in prompt:
         return SCORES_JSON
     if "题目" in prompt:
@@ -88,6 +96,13 @@ def main() -> int:
         fails.append("等级换算失败")
     if r["courses"][2]["score"] != 60.0:      # 「合格」→ 60
         fails.append("合格换算失败")
+
+    # ---- 1.5 拍课表：结构化抽取 + 星期/节次归一 ----
+    r = vision.handle("data:image/jpeg;base64,x", "timetable", "", [], ctx)
+    got = [(c["name"], c["day"], c["period"]) for c in r["courses"]]
+    print("[timetable] 抽出:", got)
+    if got != [("数据结构", "周一", "第三大节"), ("大学物理", "周三", "第一大节")]:
+        fails.append("课表抽取/归一化不对（周八 应被丢掉，周3→周三，1-2节→第一大节）")
 
     # ---- 2. 拍通知：转写 → 日程 Agent → 待办 ----
     r = vision.handle("data:image/jpeg;base64,x", "notice", "", [], ctx)
