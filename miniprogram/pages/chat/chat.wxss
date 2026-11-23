@@ -109,7 +109,7 @@
 .dc-head { display: flex; align-items: center; padding: 22rpx 24rpx 14rpx; }
 .dc-badge { font-size: 20rpx; color: #1a73e8; background: #eaf1fe; border-radius: 6rpx; padding: 4rpx 12rpx; margin-right: 14rpx; }
 .dc-title { flex: 1; font-size: 30rpx; font-weight: 600; color: #1a2233; }
-.dc-preview { max-height: 380rpx; padding: 0 24rpx; }
+.dc-preview { max-height: 560rpx; padding: 0 24rpx; }
 .dc-text { display: block; font-size: 25rpx; color: #5a6684; line-height: 1.7; white-space: pre-wrap;
   padding-bottom: 16rpx; border-top: 1rpx solid #f2f4f8; padding-top: 16rpx; }
 .dc-btns { display: flex; padding: 0 24rpx 24rpx; }
