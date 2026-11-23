@@ -29,3 +29,8 @@ Thumbs.db
 docs/node_modules/
 docs/package*.json
 docs/puppeteer-config.json
+
+# 预览图本地备份 / 临时目录
+docs/_preview_backup_*/
+# Windows 快捷方式
+*.lnk
