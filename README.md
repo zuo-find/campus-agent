@@ -30,7 +30,7 @@
 | 请假条、实训申请等材料格式固定却要反复写 | 模板生成初稿 → 在线改字段 → **一键导出 Word** |
 | 绩点、剩余学分、DDL 要自己翻表算 | 自动算加权绩点与等级分布；把通知时间点整理成**带倒计时的待办** |
 
-## 二、作品截图
+## 二、作品截图与演示视频
 
 <table>
 <tr>
@@ -49,6 +49,16 @@
   <td align="center"><img src="docs/preview-timetable.png" width="220"><br><sub>课表 / 日程</sub></td>
 </tr>
 </table>
+
+### 演示视频
+
+<p align="center">
+  <a href="docs/demo-3min.mp4">
+    <img src="docs/demo-cover.png" width="720" alt="校园服务智能体 3 分钟演示视频">
+  </a>
+  <br>
+  <sub>▶ 点击封面观看 3 分钟完整演示（1920×1080，约 27 MB）</sub>
+</p>
 
 ## 三、核心功能
 
